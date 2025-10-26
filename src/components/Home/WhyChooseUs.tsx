@@ -187,6 +187,7 @@
 import React from "react";
 import Image from "next/image";
 import { Moon } from "lucide-react";
+import Link from "next/link";
 
 const WhyChooseUs = () => {
   const leftFeatures = [
@@ -349,9 +350,11 @@ const WhyChooseUs = () => {
             about our services or simply sharing your thoughts, we&#39;re just a
             message away.
           </p>
-          <button className="bg-black text-white px-10 py-2 rounded-full font-medium hover:bg-gray-900 transition-colors text-lg md:mt-6 mt-8">
+          <Link 
+          href="/contact"
+          className="bg-black text-white px-10 py-2 rounded-full font-medium hover:bg-gray-900 transition-colors text-lg md:mt-6 mt-8">
             Contact Us
-          </button>
+          </Link>
         </div>
 
         {/* Right Image */}

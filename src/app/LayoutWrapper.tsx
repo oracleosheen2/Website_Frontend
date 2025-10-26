@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import HeroHeader from "@/components/Hero/HeroHeader";
 import Footer from "@/components/Footer/Footer";
+import { CartProvider } from "@/contexts/CartContext";
+
 
 export default function LayoutWrapper({
   children,
@@ -13,15 +15,14 @@ export default function LayoutWrapper({
   const hideHeaderFooter = pathname === "/login" || pathname === "/register";
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {!hideHeaderFooter && <HeroHeader />}
+    <CartProvider>
+      <div className="min-h-screen flex flex-col">
+        {!hideHeaderFooter && <HeroHeader />}
 
-  
-      <main>
-        {children}
-      </main>
+        <main className="flex-1">{children}</main>
 
-      {!hideHeaderFooter && <Footer />}
-    </div>
+        {!hideHeaderFooter && <Footer />}
+      </div>
+    </CartProvider>
   );
 }

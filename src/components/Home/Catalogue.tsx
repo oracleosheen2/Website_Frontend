@@ -239,7 +239,7 @@ const Catalogue = () => {
 
       <div className="space-y-16">
         <SliderRow rowData={firstRow} />
-        <SliderRow rowData={secondRow} />
+        {/* <SliderRow rowData={secondRow} /> */}
       </div>
     </div>
   );
