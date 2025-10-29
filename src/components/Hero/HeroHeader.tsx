@@ -10,7 +10,7 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
-  { name: "Readers", href: "/readers" },
+  // { name: "Readers", href: "/readers" },
   { name: "Services", href: "/services" },
   { name: "Horoscope", href: "/horoscope" },
   { name: "Blog", href: "/blog" },
@@ -135,7 +135,7 @@ export default function HeroHeader() {
             href="/products"
             className="bg-yellow-300 hover:bg-yellow-400 text-black font-semibold px-4 py-2 lg:px-5 lg:py-2.5 rounded-lg transition-all duration-300 text-sm lg:text-base hover:scale-105 hover:shadow-lg"
           >
-            Shop Now
+            Buy products
           </Link>
 
           {/* Cart Icon */}
@@ -166,7 +166,7 @@ export default function HeroHeader() {
           {/* Profile Icon with Dropdown */}
           <div className="relative" ref={profileDropdownRef}>
             <div
-              className="cursor-pointer shadow-2xl border rounded-full px-2 hover:scale-105"
+              className="cursor-pointer shadow-2xl border rounded-2xl px-4 py-1  hover:shadow-2xl"
               onClick={handleProfileClick}
             >
               <button
