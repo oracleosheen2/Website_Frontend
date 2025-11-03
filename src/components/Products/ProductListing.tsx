@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from "react";
 import Products from "./Products";
 import Filters from "./Filters";
+import CommonPageHeader from "../CommonPages/CommonPageHeader";
 
 
 export interface Product {
@@ -285,27 +286,31 @@ const ProductListing: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      <Filters
-        priceRange={priceRange}
-        setPriceRange={setPriceRange}
-        selectedGenders={selectedGenders}
-        onGenderChange={handleGenderChange}
-        selectedBrands={selectedBrands}
-        onBrandChange={handleBrandChange}
-        selectedSizes={selectedSizes}
-        onSizeChange={handleSizeChange}
-        selectedCategories={selectedCategories}
-        onCategoryChange={handleCategoryChange}
-        onClearFilters={clearAllFilters}
-      />
-      <Products
-        products={filteredProducts}
-        sortOption={sortOption}
-        onSortChange={handleSortChange}
-        totalProducts={filteredProducts.length}
-        allProductsCount={allProducts.length}
-      />
+    <div>
+        <CommonPageHeader title="Products" subtitle="Home - Products" />
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+        {" "}
+        <Filters
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          selectedGenders={selectedGenders}
+          onGenderChange={handleGenderChange}
+          selectedBrands={selectedBrands}
+          onBrandChange={handleBrandChange}
+          selectedSizes={selectedSizes}
+          onSizeChange={handleSizeChange}
+          selectedCategories={selectedCategories}
+          onCategoryChange={handleCategoryChange}
+          onClearFilters={clearAllFilters}
+        />
+        <Products
+          products={filteredProducts}
+          sortOption={sortOption}
+          onSortChange={handleSortChange}
+          totalProducts={filteredProducts.length}
+          allProductsCount={allProducts.length}
+        />
+      </div>
     </div>
   );
 };

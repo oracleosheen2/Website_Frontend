@@ -1,26 +1,24 @@
 "use client";
 
-import Image from "next/image";
-// Correct import with underscores
-import { Sorts_Mill_Goudy } from "next/font/google";
+// import { Sorts_Mill_Goudy } from "next/font/google";
+import CommonPageHeader from "../CommonPages/CommonPageHeader";
 
-const sortsMillGoudy = Sorts_Mill_Goudy({
-  subsets: ["latin"],
-  weight: ["400"],
-});
+// const sortsMillGoudy = Sorts_Mill_Goudy({
+//   subsets: ["latin"],
+//   weight: ["400"],
+// });
 
 export default function ProductHeader() {
   return (
     <section
-      className={`${sortsMillGoudy.className} relative min-h-[60vh] w-full overflow-hidden flex items-center justify-center py-16 md:py-24`}
-      style={{
-        background:
-          "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 20%, #C4F9FF 100%)",
-      }}
+      // className={`${sortsMillGoudy.className} relative min-h-[60vh] w-full overflow-hidden flex items-center justify-center py-16 md:py-24`}
+      // style={{
+      //   background:
+      //     "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 20%, #C4F9FF 100%)",
+      // }}
     >
       <div className="flex flex-col justify-center text-center">
-        <h1 className="text-5xl animate-fade-in-up">Products</h1>
-        <p className="text-lg animate-fade-in-up mt-4">Home - Products</p>
+        <CommonPageHeader title="Products" subtitle="Home - Products" />
       </div>
 
       {/* Animation CSS */}

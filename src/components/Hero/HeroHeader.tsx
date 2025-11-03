@@ -17,16 +17,16 @@ const navLinks = [
 ];
 
 const profileLinks = [
-  { name: "View Profile", href: "/profile", icon: "👤" },
-  { name: "My Orders", href: "/orders", icon: "📦" },
-  { name: "Order History", href: "/order-history", icon: "📋" },
-  { name: "Wishlist", href: "/wishlist", icon: "❤️" },
-  { name: "Settings", href: "/settings", icon: "⚙️" },
-  { name: "Payment Methods", href: "/payment-methods", icon: "💳" },
-  { name: "Address Book", href: "/addresses", icon: "🏠" },
-  { name: "Notifications", href: "/notifications", icon: "🔔" },
-  { name: "Help & Support", href: "/support", icon: "❓" },
-  { name: "Logout", href: "/logout", icon: "🚪" },
+  { name: "View Profile", href: "/header/profile", icon: "👤" },
+  { name: "My Orders", href: "/header/orders", icon: "📦" },
+  { name: "Order History", href: "/header/order-history", icon: "📋" },
+  { name: "Wishlist", href: "/header/wishlist", icon: "❤️" },
+  { name: "Settings", href: "/header/settings", icon: "⚙️" },
+  { name: "Payment Methods", href: "/header/payment-methods", icon: "💳" },
+  { name: "Address Book", href: "/header/addresses", icon: "🏠" },
+  { name: "Notifications", href: "/header/notifications", icon: "🔔" },
+  { name: "Help & Support", href: "/header/support", icon: "❓" },
+  { name: "Logout", href: "/header/logout", icon: "🚪" },
 ];
 
 export default function HeroHeader() {
@@ -215,11 +215,11 @@ export default function HeroHeader() {
 
               {/* Dropdown Items */}
               <div className="max-h-96 overflow-y-auto">
-                {profileLinks.map((item, index) => (
+                {profileLinks?.map((item, index) => (
                   <button
                     key={item.name}
                     onClick={() => handleProfileItemClick(item.href)}
-                    className={`w-full px-4 py-3 text-left hover:bg-purple-50 transition-all duration-200 flex items-center space-x-3 group ${
+                    className={`w-full px-4 py-3 text-left hover:bg-purple-50 transition-all duration-200 flex items-center space-x-3 group cursor-pointer ${
                       index === profileLinks.length - 1
                         ? "border-t border-purple-50"
                         : ""

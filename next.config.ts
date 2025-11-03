@@ -7,7 +7,9 @@ const nextConfig: NextConfig = {
       "encrypted-tbn0.gstatic.com",
       "picsum.photos",
       "via.placeholder.com",
-      
+      "images.unsplash.com",
+      "img.freepik.com",
+      "img.freepik.com",
     ],
   },
 };
