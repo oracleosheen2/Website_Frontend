@@ -10,12 +10,12 @@ interface Product {
   brand: string;
   category: string;
   image: string;
-  gallery?: string[];
+  images: string[]; // Changed from gallery to images
   isNew: boolean;
   price: number;
   rating: number;
   gender: string[];
-  size: string[];
+  size?: string[];
   description?: string;
   colors?: string[];
 }
@@ -32,8 +32,14 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const [activeTab, setActiveTab] = useState("description");
   const { addToCart } = useCart();
 
+  // Combine main image with images array
+ const allImages = Array.from(
+   new Set([product.image, ...(product.images || [])])
+ );
+
+
   const handleAddToCart = () => {
-    if (product.size.length > 0 && !selectedSize) {
+    if (product.size && product.size.length > 0 && !selectedSize) {
       alert("Please select a size");
       return;
     }
@@ -96,68 +102,52 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         {/* Main Product Card */}
         <div className="overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-8">
-            {/* Left: Image Gallery */}
-            <div className="space-y-4">
-              {/* Main Image */}
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 to-blue-50 shadow-inner h-[70vh] w-full">
-                <Image
-                  src={selectedImage}
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-transform duration-500 hover:scale-105"
-                  priority
-                />
-                {product.isNew && (
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg tracking-wide">
-                      NEW ARRIVAL
-                    </span>
-                  </div>
-                )}
-                <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-400 to-amber-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                  -20%
-                </div>
-              </div>
-
-              {/* Thumbnail Gallery */}
-              {product.gallery && product.gallery.length > 0 && (
-                <div className="grid grid-cols-4 gap-3 pt-2">
+            {/* Left: Image Gallery - Amazon/Flipkart Style */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Thumbnail Gallery - Vertical on left */}
+              <div className="flex lg:flex-col gap-2 order-2 lg:order-1 lg:max-h-[70vh]">
+                {allImages.map((img, idx) => (
                   <div
-                    className={`relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
-                      selectedImage === product.image
-                        ? "ring-2 ring-pink-500 ring-offset-2 scale-105"
-                        : "hover:ring-2 hover:ring-pink-300"
+                    key={idx}
+                    className={`relative flex-shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${
+                      selectedImage === img
+                        ? "border-pink-500 ring-2 ring-pink-200 scale-105"
+                        : "border-gray-200 hover:border-pink-300"
                     }`}
-                    onClick={() => setSelectedImage(product.image)}
+                    onClick={() => setSelectedImage(img)}
                   >
                     <Image
-                      src={product.image}
-                      alt="Main product"
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
                       fill
                       className="object-cover"
                     />
                   </div>
+                ))}
+              </div>
 
-                  {product.gallery.map((img, idx) => (
-                    <div
-                      key={idx}
-                      className={`relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
-                        selectedImage === img
-                          ? "ring-2 ring-pink-500 ring-offset-2 scale-105"
-                          : "hover:ring-2 hover:ring-pink-300"
-                      }`}
-                      onClick={() => setSelectedImage(img)}
-                    >
-                      <Image
-                        src={img}
-                        alt={`Gallery ${idx + 1}`}
-                        fill
-                        className="object-cover"
-                      />
+              {/* Main Image Container */}
+              <div className="flex-1 order-1 lg:order-2">
+                <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 to-blue-50 shadow-inner h-[70vh] w-full">
+                  <Image
+                    src={selectedImage}
+                    alt={product.name}
+                    fill
+                    className="object-cover transition-transform duration-500 hover:scale-105"
+                    priority
+                  />
+                  {product.isNew && (
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg tracking-wide">
+                        NEW ARRIVAL
+                      </span>
                     </div>
-                  ))}
+                  )}
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-400 to-amber-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                    -20%
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Right: Product Details */}
@@ -248,7 +238,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               )}
 
               {/* Size Selection */}
-              {product.size.length > 0 && (
+              {product.size && product.size.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-gray-900 text-sm">
@@ -459,7 +449,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                           Available Sizes
                         </span>
                         <span className="text-gray-900">
-                          {product.size.join(", ")}
+                          {product.size?.join(", ") || "One Size"}
                         </span>
                       </div>
                       <div className="flex justify-between border-b border-gray-100 pb-2">

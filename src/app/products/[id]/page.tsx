@@ -1,4 +1,5 @@
-import { allProducts } from "../data";
+// import { allProducts } from "../data";
+import { allProducts } from "@/utils/products";
 import ProductInfo from "./ProductInfo";
 import ProductReviews from "./ProductReviews";
 import RecommendedProducts from "./RecommendedProducts";

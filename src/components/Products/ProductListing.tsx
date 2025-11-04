@@ -10,8 +10,8 @@ export interface Product {
   id: number;
   name: string;
   price: number;
-  image: string; // Keep this
-  images: string[]; // Add this
+  image: string; 
+  images: string[];
   category: string;
   brand: string;
   gender: string[];
