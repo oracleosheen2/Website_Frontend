@@ -217,10 +217,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               {/* Rating */}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1 bg-white px-3 py-1 rounded-full shadow-sm">
-                  {renderStars(product.rating)}
+                  {renderStars(product?.rating)}
                 </div>
                 <span className="text-gray-700 font-medium text-sm">
-                  {product.rating}/5
+                  {product?.rating}/5
                 </span>
                 <span className="text-gray-400">•</span>
                 <span className="text-gray-600 text-sm">
@@ -239,7 +239,14 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   </p>
                 </div>
                 <p className="text-green-600 font-semibold text-sm flex items-center gap-1">
-                  <span>✓</span> Free shipping & 30-day returns
+                  <span>✓</span>{" "}
+                  {features?.freeShipping && features?.returns
+                    ? `Free shipping & ${features?.returns}`
+                    : features?.freeShipping
+                    ? "Free shipping"
+                    : features?.returns
+                    ? features?.returns
+                    : "Standard shipping available"}
                 </p>
               </div>
 
@@ -252,13 +259,28 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               {/* Color Selection */}
               {product.color && product.color.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="font-semibold text-gray-900 text-sm">
-                    COLOR:{" "}
-                    <span className="text-pink-600">
-                      {selectedColor || "Select Color"}
-                    </span>
-                  </h3>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-gray-900 text-sm">
+                      COLOR:
+                    </h3>
+                    {selectedColor ? (
+                      <span className="flex items-center gap-2 text-pink-600 font-medium text-sm">
+                        <span
+                          className="inline-block w-4 h-4 rounded-full border border-gray-300"
+                          style={{
+                            backgroundColor: selectedColor.toLowerCase(),
+                          }}
+                        ></span>
+                        {selectedColor}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500 text-sm">
+                        Select Color
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 flex-wrap">
                     {product.color.map((color) => (
                       <button
                         key={color}
@@ -268,7 +290,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                             ? "border-pink-500 ring-2 ring-pink-200 scale-110"
                             : "border-gray-300 hover:border-pink-300 hover:scale-105"
                         }`}
-                        style={{ backgroundColor: color.toLowerCase() }}
+                        style={{
+                          backgroundColor: color.toLowerCase(),
+                        }}
                         title={color}
                       />
                     ))}
