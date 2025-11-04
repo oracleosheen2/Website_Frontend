@@ -36,6 +36,7 @@ export default function HeroHeader() {
   const router = useRouter();
   const { getTotalItems } = useCart();
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Detect scroll
   useEffect(() => {
@@ -238,7 +239,7 @@ export default function HeroHeader() {
 
         {/* Mobile Menu Toggle & Cart */}
         <div className="md:hidden flex items-center gap-4">
-          {/* Cart Icon for Mobile */}
+          {/* Cart Icon for Mobile - Moved to LEFT side */}
           <button
             onClick={navigateToCart}
             className="relative p-2 text-gray-800"
@@ -263,6 +264,7 @@ export default function HeroHeader() {
             )}
           </button>
 
+          {/* Hamburger Menu */}
           <button
             className="flex flex-col justify-center items-center w-10 h-10 z-50 relative"
             aria-label="Toggle menu"
@@ -297,77 +299,63 @@ export default function HeroHeader() {
         onClick={() => setMenuOpen(false)}
       >
         <div
+          ref={mobileMenuRef}
           className={`absolute top-0 right-0 h-full w-4/5 max-w-sm bg-gradient-to-b from-purple-900 to-[#FBB5E7] transition-transform duration-500 ${
             menuOpen ? "translate-x-0" : "translate-x-full"
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <nav className="flex flex-col p-8 pt-24 space-y-6">
-            {navLinks.map((link, index) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-white text-xl font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2"
-                style={{ transitionDelay: `${index * 100}ms` }}
-                onClick={() => setMenuOpen(false)}
-              >
-                {link.name}
-              </a>
-            ))}
+          {/* Scrollable Mobile Menu Content */}
+          <div className="h-full flex flex-col">
+            {/* Menu Header with Close Button - REMOVED the extra close button */}
+            {/* Only hamburger button in header will close the menu */}
 
-            {/* Profile Section in Mobile Menu */}
-            <div className="border-t border-white/20 pt-6 mt-4">
-              <p className="text-white/80 text-sm font-medium mb-4 px-4">
-                MY ACCOUNT
-              </p>
-              {profileLinks.slice(0, 6).map((item, index) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-white text-lg font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2 flex items-center space-x-3"
-                  style={{
-                    transitionDelay: `${(index + navLinks.length) * 100}ms`,
-                  }}
+            {/* Scrollable Menu Items */}
+            <div className="flex-1 overflow-y-auto pb-6 pt-20">
+              <nav className="flex flex-col px-6 space-y-4">
+                {navLinks.map((link, index) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-white text-lg font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2"
+                    style={{ transitionDelay: `${index * 100}ms` }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {link.name}
+                  </a>
+                ))}
+
+                {/* Profile Section in Mobile Menu */}
+                <div className="border-t border-white/20 pt-6 mt-4">
+                  <p className="text-white/80 text-sm font-medium mb-4 px-4">
+                    MY ACCOUNT
+                  </p>
+                  {profileLinks.map((item, index) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className="text-white text-lg font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2 flex items-center space-x-3"
+                      style={{
+                        transitionDelay: `${(index + navLinks.length) * 100}ms`,
+                      }}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <span className="text-lg">{item.icon}</span>
+                      <span>{item.name}</span>
+                    </a>
+                  ))}
+                </div>
+
+                <Link
+                  href="/products"
+                  className="mt-6 bg-yellow-300 hover:bg-yellow-400 text-black font-semibold px-6 py-4 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 text-center"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <span className="text-lg">{item.icon}</span>
-                  <span>{item.name}</span>
-                </a>
-              ))}
+                  Shop Now
+                </Link>
+              </nav>
             </div>
-
-            <Link
-              href="/products"
-              className="mt-6 bg-yellow-300 hover:bg-yellow-400 text-black font-semibold px-6 py-4 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 text-center"
-              onClick={() => setMenuOpen(false)}
-            >
-              Shop Now
-            </Link>
-
-            {/* Cart Link in Mobile Menu */}
-            <button
-              onClick={() => {
-                navigateToCart();
-                setMenuOpen(false);
-              }}
-              className="text-white text-xl font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2 text-left flex items-center gap-3"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5.5M7 13l2.5 5.5m0 0L17 21m-7.5-2.5h9"
-                />
-              </svg>
-              Cart ({getTotalItems()})
-            </button>
-          </nav>
+          </div>
         </div>
       </div>
     </header>

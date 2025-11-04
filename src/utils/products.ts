@@ -18,6 +18,38 @@ export const allProducts: Product[] = [
     gender: ["Women", "Girls"],
     isNew: true,
     rating: 4.5,
+    color: ["Gold", "Silver", "Rose Gold"],
+    description:
+      "A divine protection bracelet infused with sacred energies. The Raksha Kavach Bracelet is meticulously crafted to provide spiritual protection while enhancing your style. Made with genuine gemstones and blessed by experienced artisans.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 2-3 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Riya Sharma",
+        comment:
+          "Absolutely gorgeous bracelet! The shine and build quality are amazing. Perfect for gifting!",
+        rating: 5,
+        date: "Oct 20, 2025",
+        avatar: "https://i.pravatar.cc/100?img=12",
+      },
+      {
+        name: "Neha Patel",
+        comment:
+          "The product is really good, but delivery took a bit longer than expected.",
+        rating: 4,
+        date: "Oct 18, 2025",
+        avatar: "https://i.pravatar.cc/100?img=45",
+      },
+    ],
   },
   {
     id: 2,
@@ -35,6 +67,29 @@ export const allProducts: Product[] = [
     gender: ["Women", "Ladies"],
     isNew: false,
     rating: 4.2,
+    color: ["Gold", "Yellow Gold"],
+    description:
+      "Elegant golden thread bracelet with intricate weaving pattern. This piece combines traditional craftsmanship with contemporary design.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Aman Raj",
+        comment: "Nice shine, worth every rupee. I'll definitely buy again.",
+        rating: 5,
+        date: "Oct 10, 2025",
+        avatar: "https://i.pravatar.cc/100?img=5",
+      },
+    ],
   },
   {
     id: 3,
@@ -53,6 +108,29 @@ export const allProducts: Product[] = [
     gender: ["Women"],
     isNew: true,
     rating: 4.8,
+    color: ["Silver", "Sterling Silver"],
+    description:
+      "Charming silver bracelet with delicate pendants. Each charm is carefully selected to bring positive energy and elegance.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 2-3 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Anjali Mehta",
+        comment: "Absolutely stunning! The silver finish is so elegant.",
+        rating: 5,
+        date: "Oct 22, 2025",
+        avatar: "https://i.pravatar.cc/100?img=15",
+      },
+    ],
   },
   {
     id: 4,
@@ -70,6 +148,30 @@ export const allProducts: Product[] = [
     gender: ["Ladies"],
     isNew: false,
     rating: 3.9,
+    color: ["Multicolor", "Rainbow"],
+    description:
+      "Colorful beaded bracelet with vibrant patterns. Perfect for adding a pop of color to your everyday outfits.",
+    features: {
+      freeShipping: false,
+      returns: "15 Day Returns",
+      warranty: "6 Month Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 4-6 days",
+      returnPolicy: "15 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Sneha Reddy",
+        comment:
+          "Colors are beautiful but the beads came loose after few weeks.",
+        rating: 3,
+        date: "Oct 12, 2025",
+        avatar: "https://i.pravatar.cc/100?img=25",
+      },
+    ],
   },
   {
     id: 5,
@@ -88,6 +190,29 @@ export const allProducts: Product[] = [
     gender: ["Women", "Ladies"],
     isNew: true,
     rating: 4.7,
+    color: ["Brown", "Black", "Tan"],
+    description:
+      "Premium leather strap bracelet with metallic accents. Combines rugged durability with sophisticated style.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 2-3 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Divya Sharma",
+        comment: "Premium quality leather. Worth every penny!",
+        rating: 5,
+        date: "Oct 25, 2025",
+        avatar: "https://i.pravatar.cc/100?img=35",
+      },
+    ],
   },
   {
     id: 6,
@@ -105,6 +230,29 @@ export const allProducts: Product[] = [
     gender: ["Women"],
     isNew: false,
     rating: 4.9,
+    color: ["White", "Cream"],
+    description:
+      "Elegant pearl bracelet featuring genuine freshwater pearls. Timeless piece that adds sophistication to any outfit.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "Lifetime Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 1-2 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Meera Kapoor",
+        comment: "Elegant and timeless. The pearls are absolutely genuine!",
+        rating: 5,
+        date: "Oct 28, 2025",
+        avatar: "https://i.pravatar.cc/100?img=45",
+      },
+    ],
   },
   {
     id: 7,
@@ -123,6 +271,29 @@ export const allProducts: Product[] = [
     gender: ["Girls", "Babies"],
     isNew: true,
     rating: 4.1,
+    color: ["Multicolor", "Rainbow"],
+    description:
+      "Colorful thread friendship bracelet with traditional patterns. Perfect for gifting to friends and loved ones.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Ananya Joshi",
+        comment: "My daughter loves it! Colorful and well made.",
+        rating: 4,
+        date: "Oct 14, 2025",
+        avatar: "https://i.pravatar.cc/100?img=55",
+      },
+    ],
   },
   {
     id: 8,
@@ -140,6 +311,29 @@ export const allProducts: Product[] = [
     gender: ["Women", "Ladies"],
     isNew: false,
     rating: 4.6,
+    color: ["Gold", "Rose Gold"],
+    description:
+      "Luxurious gold plated bracelet with intricate design. Features high-quality plating that resists tarnishing.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 2-4 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Nisha Yadav",
+        comment: "The gold plating is excellent quality. Doesn't fade!",
+        rating: 5,
+        date: "Oct 30, 2025",
+        avatar: "https://i.pravatar.cc/100?img=65",
+      },
+    ],
   },
   {
     id: 9,
@@ -158,6 +352,29 @@ export const allProducts: Product[] = [
     gender: ["Women"],
     isNew: true,
     rating: 4.3,
+    color: ["Silver", "Gray"],
+    description:
+      "Classic woven bracelet with traditional craftsmanship. Features intricate patterns and comfortable fit.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Sanjay Gupta",
+        comment: "Beautiful weaving pattern. Very unique design!",
+        rating: 4,
+        date: "Nov 03, 2025",
+        avatar: "https://i.pravatar.cc/100?img=75",
+      },
+    ],
   },
   {
     id: 10,
@@ -175,6 +392,30 @@ export const allProducts: Product[] = [
     gender: ["Ladies"],
     isNew: false,
     rating: 4.4,
+    color: ["Green", "Blue", "Purple"],
+    description:
+      "Mystic stone bracelet featuring natural gemstones. Each stone is selected for its unique energy and beauty.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 4-6 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Kiran Desai",
+        comment:
+          "The stones have beautiful natural patterns. Very earthy vibe.",
+        rating: 4,
+        date: "Oct 27, 2025",
+        avatar: "https://i.pravatar.cc/100?img=85",
+      },
+    ],
   },
   {
     id: 11,
@@ -193,6 +434,29 @@ export const allProducts: Product[] = [
     gender: ["Women"],
     isNew: true,
     rating: 4.9,
+    color: ["Silver", "Platinum"],
+    description:
+      "Exquisite diamond bracelet with brilliant cut stones. Radiates luxury and sophistication for special occasions.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "Lifetime Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 1-2 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Aishwarya Nair",
+        comment: "Sparkles like real diamonds! Excellent craftsmanship.",
+        rating: 5,
+        date: "Nov 05, 2025",
+        avatar: "https://i.pravatar.cc/100?img=95",
+      },
+    ],
   },
   {
     id: 12,
@@ -210,8 +474,30 @@ export const allProducts: Product[] = [
     gender: ["Ladies"],
     isNew: false,
     rating: 4.5,
+    color: ["Rose Gold", "Pink Gold"],
+    description:
+      "Beautiful rose gold bracelet with contemporary design. Perfect for modern fashion enthusiasts.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 2-4 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Simran Chawla",
+        comment: "Rose gold color is so trendy and elegant. Love it!",
+        rating: 5,
+        date: "Oct 31, 2025",
+        avatar: "https://i.pravatar.cc/100?img=10",
+      },
+    ],
   },
-  // Spell Jar Products - Max 4 images per product
   {
     id: 13,
     name: "Evil Eye Protection Jar",
@@ -228,6 +514,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.7,
+    color: ["Blue", "White"],
+    description:
+      "Powerful evil eye protection jar to ward off negative energy and bring positive vibes to your space.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Ravi Shankar",
+        comment: "Beautiful protective energy. Great for home decor too!",
+        rating: 5,
+        date: "Nov 01, 2025",
+        avatar: "https://i.pravatar.cc/100?img=20",
+      },
+    ],
   },
   {
     id: 14,
@@ -241,6 +550,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.8,
+    color: ["Clear", "Gold"],
+    description:
+      "Spiritual jar infused with Naeimtha energy for peace, harmony, and spiritual growth in your life.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 2-4 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Deepak Kumar",
+        comment: "Very spiritual and calming presence. Excellent quality.",
+        rating: 5,
+        date: "Nov 02, 2025",
+        avatar: "https://i.pravatar.cc/100?img=30",
+      },
+    ],
   },
   {
     id: 15,
@@ -258,6 +590,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.9,
+    color: ["Red", "Gold"],
+    description:
+      "Divine Navdurga jar representing the nine forms of Goddess Durga for protection and blessings.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Anita Deshpande",
+        comment: "Divine energy is palpable. Great for puja room.",
+        rating: 5,
+        date: "Nov 04, 2025",
+        avatar: "https://i.pravatar.cc/100?img=40",
+      },
+    ],
   },
   {
     id: 16,
@@ -271,6 +626,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.6,
+    color: ["Multicolor", "Gemstone"],
+    description:
+      "Navgrath power jar containing nine sacred gemstones for overall wellbeing and prosperity.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 4-6 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Rohan Mehra",
+        comment: "Powerful vibrations. Feel protected and blessed.",
+        rating: 5,
+        date: "Nov 03, 2025",
+        avatar: "https://i.pravatar.cc/100?img=50",
+      },
+    ],
   },
   {
     id: 17,
@@ -284,6 +662,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.5,
+    color: ["Black", "White"],
+    description:
+      "Special jar designed to cleanse negative energies and create a positive environment in your space.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Maya Reddy",
+        comment: "Really cleanses the energy. Home feels lighter now.",
+        rating: 5,
+        date: "Nov 05, 2025",
+        avatar: "https://i.pravatar.cc/100?img=60",
+      },
+    ],
   },
   {
     id: 18,
@@ -302,6 +703,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.8,
+    color: ["Gold", "Silver"],
+    description:
+      "Five-faced sacred jar representing different divine energies for comprehensive spiritual protection.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 2-4 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Gautam Sharma",
+        comment: "Five-faced design is magnificent. Sacred energy flows.",
+        rating: 5,
+        date: "Nov 06, 2025",
+        avatar: "https://i.pravatar.cc/100?img=70",
+      },
+    ],
   },
   {
     id: 19,
@@ -320,6 +744,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.4,
+    color: ["Blue", "Teal"],
+    description:
+      "Set of mystic blue jars for different spiritual purposes. Perfect for creating sacred spaces.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Kriti Malhotra",
+        comment: "Beautiful blue color. Set of jars is great value.",
+        rating: 4,
+        date: "Nov 07, 2025",
+        avatar: "https://i.pravatar.cc/100?img=80",
+      },
+    ],
   },
   {
     id: 20,
@@ -337,6 +784,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.3,
+    color: ["Clear", "Crystal"],
+    description:
+      "Crystal infused jar with natural quartz crystals for amplifying positive energies and intentions.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 4-6 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Pooja Singh",
+        comment: "Crystals inside are beautiful. Positive energy flows.",
+        rating: 4,
+        date: "Nov 08, 2025",
+        avatar: "https://i.pravatar.cc/100?img=90",
+      },
+    ],
   },
   {
     id: 21,
@@ -355,6 +825,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.6,
+    color: ["Gold", "Yellow"],
+    description:
+      "Golden spell jar collection for various magical purposes. Each jar has unique golden accents.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Nidhi Agarwal",
+        comment: "Golden finish is luxurious. Collection is versatile.",
+        rating: 5,
+        date: "Nov 09, 2025",
+        avatar: "https://i.pravatar.cc/100?img=10",
+      },
+    ],
   },
   {
     id: 22,
@@ -373,6 +866,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.5,
+    color: ["Green", "Brown"],
+    description:
+      "Herbal magic jar set containing sacred herbs and botanicals for natural spiritual practices.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 4-6 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Anjali Krishnan",
+        comment: "Herbal aroma is soothing. Natural ingredients used.",
+        rating: 5,
+        date: "Nov 10, 2025",
+        avatar: "https://i.pravatar.cc/100?img=20",
+      },
+    ],
   },
   {
     id: 23,
@@ -391,6 +907,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.7,
+    color: ["Silver", "White"],
+    description:
+      "Moonlight enchanted jar charged under full moon for enhanced intuition and psychic abilities.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Shweta Menon",
+        comment: "Magical moonlight energy. Perfect for night rituals.",
+        rating: 5,
+        date: "Nov 11, 2025",
+        avatar: "https://i.pravatar.cc/100?img=30",
+      },
+    ],
   },
   {
     id: 24,
@@ -409,6 +948,29 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.4,
+    color: ["Purple", "Blue"],
+    description:
+      "Starlight mystic jar infused with cosmic energy for connecting with universal consciousness.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "1 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 4-6 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Tanvi Sharma",
+        comment: "Starlight effect is mesmerizing. Great for meditation.",
+        rating: 5,
+        date: "Nov 12, 2025",
+        avatar: "https://i.pravatar.cc/100?img=40",
+      },
+    ],
   },
   {
     id: 25,
@@ -422,5 +984,48 @@ export const allProducts: Product[] = [
     gender: ["Unisex"],
     isNew: true,
     rating: 4.6,
+    color: ["Brown", "Gold"],
+    description:
+      "Ancient wisdom jar containing sacred symbols and texts for gaining knowledge and enlightenment.",
+    features: {
+      freeShipping: true,
+      returns: "30 Day Returns",
+      warranty: "2 Year Warranty",
+      authentic: true,
+    },
+    shippingInfo: {
+      delivery: "Delivery in 3-5 days",
+      returnPolicy: "30 days money back",
+      securePayment: true,
+    },
+    reviews: [
+      {
+        name: "Dr. Anil Kumar",
+        comment: "Ancient symbols are authentic. Great for wisdom seeking.",
+        rating: 5,
+        date: "Nov 13, 2025",
+        avatar: "https://i.pravatar.cc/100?img=50",
+      },
+    ],
   },
 ];
+
+// Utility functions
+export const getProductReviews = (productId: number) => {
+  const product = allProducts.find((p) => p.id === productId);
+  return product?.reviews || [];
+};
+
+export const getProductById = (productId: number) => {
+  return allProducts.find((p) => p.id === productId);
+};
+
+export const getProductFeatures = (productId: number) => {
+  const product = allProducts.find((p) => p.id === productId);
+  return product?.features;
+};
+
+export const getProductShippingInfo = (productId: number) => {
+  const product = allProducts.find((p) => p.id === productId);
+  return product?.shippingInfo;
+};

@@ -4,20 +4,40 @@ import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 
+interface Review {
+  name: string;
+  comment: string;
+  rating: number;
+  date: string;
+  avatar: string;
+}
+
 interface Product {
   id: number;
   name: string;
   brand: string;
   category: string;
   image: string;
-  images: string[]; // Changed from gallery to images
+  images: string[];
   isNew: boolean;
   price: number;
   rating: number;
   gender: string[];
   size?: string[];
   description?: string;
-  colors?: string[];
+  color?: string[];
+  reviews?: Review[];
+  features?: {
+    freeShipping: boolean;
+    returns: string;
+    warranty: string;
+    authentic: boolean;
+  };
+  shippingInfo?: {
+    delivery: string;
+    returnPolicy: string;
+    securePayment: boolean;
+  };
 }
 
 interface ProductInfoProps {
@@ -33,10 +53,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const { addToCart } = useCart();
 
   // Combine main image with images array
- const allImages = Array.from(
-   new Set([product.image, ...(product.images || [])])
- );
-
+  const allImages = Array.from(
+    new Set([product.image, ...(product.images || [])])
+  );
 
   const handleAddToCart = () => {
     if (product.size && product.size.length > 0 && !selectedSize) {
@@ -44,7 +63,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       return;
     }
 
-    if (product.colors && product.colors.length > 0 && !selectedColor) {
+    if (product.color && product.color.length > 0 && !selectedColor) {
       alert("Please select a color");
       return;
     }
@@ -89,6 +108,24 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   };
 
   const discountPrice = product.price * 1.2;
+
+  // Dynamic data from product features
+  const features = product.features || {
+    freeShipping: true,
+    returns: "30 Day Returns",
+    warranty: "2 Year Warranty",
+    authentic: true,
+  };
+
+  const shippingInfo = product.shippingInfo || {
+    delivery: "Delivery in 2-3 days",
+    returnPolicy: "30 days money back",
+    securePayment: true,
+  };
+
+  // Calculate reviews count and percentages
+  const reviewsCount = product.reviews?.length || 128;
+  const averageRating = product.rating;
 
   return (
     <div
@@ -186,7 +223,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   {product.rating}/5
                 </span>
                 <span className="text-gray-400">•</span>
-                <span className="text-gray-600 text-sm">128 Reviews</span>
+                <span className="text-gray-600 text-sm">
+                  {reviewsCount} Reviews
+                </span>
               </div>
 
               {/* Price */}
@@ -211,7 +250,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               </p>
 
               {/* Color Selection */}
-              {product.colors && product.colors.length > 0 && (
+              {product.color && product.color.length > 0 && (
                 <div className="space-y-3">
                   <h3 className="font-semibold text-gray-900 text-sm">
                     COLOR:{" "}
@@ -220,7 +259,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     </span>
                   </h3>
                   <div className="flex gap-2">
-                    {product.colors.map((color) => (
+                    {product.color.map((color) => (
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
@@ -311,48 +350,59 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
               </div>
 
-              {/* Features */}
+              {/* Features - Dynamic from product data */}
               <div className="grid grid-cols-2 gap-3 pt-6 border-t border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
-                    <span className="text-pink-600 text-sm">🚚</span>
+                {features.freeShipping && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center">
+                      <span className="text-pink-600 text-sm">🚚</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-xs">
+                        Free Shipping
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-xs">
-                      Free Shipping
-                    </p>
+                )}
+
+                {features.returns && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 text-sm">↩️</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-xs">
+                        {features.returns}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 text-sm">↩️</span>
+                )}
+
+                {features.warranty && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                      <span className="text-amber-600 text-sm">🛡️</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-xs">
+                        {features.warranty}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-xs">
-                      30 Day Returns
-                    </p>
+                )}
+
+                {features.authentic && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-green-600 text-sm">✓</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-xs">
+                        Authentic
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                    <span className="text-amber-600 text-sm">🛡️</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-xs">
-                      2 Year Warranty
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-sm">✓</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-xs">
-                      Authentic
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -457,7 +507,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                           Available Colors
                         </span>
                         <span className="text-gray-900">
-                          {product.colors?.join(", ") || "Various"}
+                          {product.color?.join(", ") || "Various"}
                         </span>
                       </div>
                       <div className="flex justify-between border-b border-gray-100 pb-2">
@@ -484,7 +534,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                       <ul className="space-y-2 text-gray-600">
                         <li className="flex items-center gap-2">
                           <span className="text-blue-500">🚚</span>
-                          Free standard shipping on all orders
+                          {shippingInfo.delivery}
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-blue-500">⚡</span>
@@ -507,7 +557,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                       <ul className="space-y-2 text-gray-600">
                         <li className="flex items-center gap-2">
                           <span className="text-green-500">↩️</span>
-                          30-day easy returns
+                          {shippingInfo.returnPolicy}
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-green-500">💰</span>
@@ -535,13 +585,13 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   <div className="flex items-center gap-4 mb-6">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-gray-900">
-                        {product.rating}
+                        {averageRating}
                       </div>
                       <div className="flex gap-1">
-                        {renderStars(product.rating)}
+                        {renderStars(averageRating)}
                       </div>
                       <div className="text-sm text-gray-600 mt-1">
-                        Based on 128 reviews
+                        Based on {reviewsCount} reviews
                       </div>
                     </div>
                     <div className="flex-1 space-y-1">
@@ -585,83 +635,83 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     </div>
                   </div>
 
-                  {/* Sample Reviews */}
+                  {/* Dynamic Reviews from product data */}
                   <div className="space-y-4">
-                    {[
-                      {
-                        name: "Sarah M.",
-                        rating: 5,
-                        comment:
-                          "Absolutely love this product! The quality is amazing and it fits perfectly.",
-                      },
-                      {
-                        name: "John D.",
-                        rating: 4,
-                        comment:
-                          "Great product, fast shipping. Would recommend to anyone!",
-                      },
-                      {
-                        name: "Emma L.",
-                        rating: 5,
-                        comment:
-                          "Exceeded my expectations. The material feels premium and comfortable.",
-                      },
-                    ].map((review, index) => (
-                      <div
-                        key={index}
-                        className="border border-gray-200 rounded-lg p-4"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex">
-                            {renderStars(review.rating)}
+                    {product.reviews && product.reviews.length > 0 ? (
+                      product.reviews.map((review, index) => (
+                        <div
+                          key={index}
+                          className="border border-gray-200 rounded-lg p-4"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex">
+                              {renderStars(review.rating)}
+                            </div>
+                            <span className="font-semibold text-gray-900">
+                              {review.name}
+                            </span>
+                            <span className="text-gray-400 text-sm">
+                              {review.date}
+                            </span>
                           </div>
-                          <span className="font-semibold text-gray-900">
-                            {review.name}
-                          </span>
+                          <p className="text-gray-600 text-sm">
+                            {review.comment}
+                          </p>
                         </div>
-                        <p className="text-gray-600 text-sm">
-                          {review.comment}
-                        </p>
+                      ))
+                    ) : (
+                      <div className="text-center text-gray-500 py-8">
+                        No reviews yet. Be the first to review this product!
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Additional Info Section */}
+          {/* Additional Info Section - Dynamic from product data */}
           <div className="bg-gradient-to-r from-pink-50 to-blue-50 border-t border-white/50 mt-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 md:p-8">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
-                  <span className="text-pink-500 text-xl">📦</span>
+              {features.freeShipping && (
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
+                    <span className="text-pink-500 text-xl">📦</span>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-sm mb-1">
+                    Free Shipping
+                  </h4>
+                  <p className="text-gray-600 text-xs">
+                    {shippingInfo.delivery}
+                  </p>
                 </div>
-                <h4 className="font-bold text-gray-900 text-sm mb-1">
-                  Free Shipping
-                </h4>
-                <p className="text-gray-600 text-xs">Delivery in 2-3 days</p>
-              </div>
+              )}
 
-              <div className="text-center">
-                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
-                  <span className="text-amber-500 text-xl">↩️</span>
+              {features.returns && (
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
+                    <span className="text-amber-500 text-xl">↩️</span>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-sm mb-1">
+                    Easy Returns
+                  </h4>
+                  <p className="text-gray-600 text-xs">
+                    {shippingInfo.returnPolicy}
+                  </p>
                 </div>
-                <h4 className="font-bold text-gray-900 text-sm mb-1">
-                  Easy Returns
-                </h4>
-                <p className="text-gray-600 text-xs">30 days money back</p>
-              </div>
+              )}
 
-              <div className="text-center">
-                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
-                  <span className="text-blue-500 text-xl">🛡️</span>
+              {shippingInfo.securePayment && (
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
+                    <span className="text-blue-500 text-xl">🛡️</span>
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-sm mb-1">
+                    Secure Payment
+                  </h4>
+                  <p className="text-gray-600 text-xs">100% protected</p>
                 </div>
-                <h4 className="font-bold text-gray-900 text-sm mb-1">
-                  Secure Payment
-                </h4>
-                <p className="text-gray-600 text-xs">100% protected</p>
-              </div>
+              )}
             </div>
           </div>
         </div>

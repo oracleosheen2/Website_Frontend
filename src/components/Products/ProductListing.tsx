@@ -5,12 +5,21 @@ import Filters from "./Filters";
 import CommonPageHeader from "../CommonPages/CommonPageHeader";
 import { allProducts } from "@/utils/products";
 
+// Review interface define karein
+export interface Review {
+  name: string;
+  comment: string;
+  rating: number;
+  date: string;
+  avatar: string;
+}
 
+// Product interface
 export interface Product {
   id: number;
   name: string;
   price: number;
-  image: string; 
+  image: string;
   images: string[];
   category: string;
   brand: string;
@@ -19,6 +28,20 @@ export interface Product {
   rating: number;
   size?: string[];
   color?: string[];
+  description?: string;
+  reviews?: Review[];
+  // Additional fields for features
+  features?: {
+    freeShipping: boolean;
+    returns: string;
+    warranty: string;
+    authentic: boolean;
+  };
+  shippingInfo?: {
+    delivery: string;
+    returnPolicy: string;
+    securePayment: boolean;
+  };
 }
 
 const ProductListing: React.FC = () => {
@@ -30,7 +53,10 @@ const ProductListing: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>("New Arrivals");
 
-  // Filter products
+  // For mobile filter toggle
+  const [showFilters, setShowFilters] = useState<boolean>(false);
+
+  // Filter logic
   const filteredProducts = useMemo(() => {
     const filtered = allProducts.filter((product) => {
       if (product.price > priceRange) return false;
@@ -120,29 +146,54 @@ const ProductListing: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <CommonPageHeader title="Products" subtitle="Home - Products" />
-      <div className="flex flex-col md:flex-row min-h-screen">
-        <Filters
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          selectedGenders={selectedGenders}
-          onGenderChange={handleGenderChange}
-          selectedBrands={selectedBrands}
-          onBrandChange={handleBrandChange}
-          selectedSizes={selectedSizes}
-          onSizeChange={handleSizeChange}
-          selectedCategories={selectedCategories}
-          onCategoryChange={handleCategoryChange}
-          onClearFilters={clearAllFilters}
-        />
-        <Products
-          products={filteredProducts}
-          sortOption={sortOption}
-          onSortChange={handleSortChange}
-          totalProducts={filteredProducts.length}
-          allProductsCount={allProducts.length}
-        />
+
+      {/* 🔘 Mobile Filter Toggle Button */}
+      <div className="md:hidden border-b border-gray-200 flex justify-between items-center px-4  sticky top-0 z-20 py-2">
+        <h2 className="text-lg font-semibold">All Products</h2>
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="px-4 py-2 bg-black text-white text-sm rounded-lg"
+        >
+          {showFilters ? "Hide Filters" : "Show Filters"}
+        </button>
+      </div>
+
+      <div className="flex flex-col md:flex-row flex-grow">
+        {/* 🧭 Filters Section */}
+        <div
+          className={`${
+            showFilters ? "block" : "hidden"
+          } md:block w-full md:w-1/4  md:sticky md:top-0 z-10 py-4`}
+        >
+          <div className="h-full min-h-screen">
+            <Filters
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+              selectedGenders={selectedGenders}
+              onGenderChange={handleGenderChange}
+              selectedBrands={selectedBrands}
+              onBrandChange={handleBrandChange}
+              selectedSizes={selectedSizes}
+              onSizeChange={handleSizeChange}
+              selectedCategories={selectedCategories}
+              onCategoryChange={handleCategoryChange}
+              onClearFilters={clearAllFilters}
+            />
+          </div>
+        </div>
+
+        {/* 🛍️ Products Section */}
+        <div className="flex-1 bg-gray-50">
+          <Products
+            products={filteredProducts}
+            sortOption={sortOption}
+            onSortChange={handleSortChange}
+            totalProducts={filteredProducts.length}
+            allProductsCount={allProducts.length}
+          />
+        </div>
       </div>
     </div>
   );

@@ -61,7 +61,7 @@ const Filters: React.FC<FiltersProps> = ({
     selectedCategories.length > 0;
 
   return (
-    <div className="w-full md:w-80 bg-white h-fit sticky top-4 border border-gray-200 rounded-lg shadow-sm">
+    <div className="w-full   h-fit sticky ">
       {/* Header */}
       <div className="p-5 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
@@ -137,8 +137,8 @@ const Filters: React.FC<FiltersProps> = ({
           <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
             Brands
           </h3>
-          <div className="space-y-3 max-h-48 overflow-y-auto">
-            {brands.map((brand) => (
+          <div className="space-y-3 ">
+            {brands?.map((brand) => (
               <label
                 key={brand}
                 className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
