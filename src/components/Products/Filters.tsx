@@ -61,131 +61,156 @@ const Filters: React.FC<FiltersProps> = ({
     selectedCategories.length > 0;
 
   return (
-    <div className="w-full md:w-1/4 lg:w-1/5 p-4 space-y-6 bg-white h-fit sticky top-4">
-      {/* Clear Filters Button */}
-      {hasActiveFilters && (
-        <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-          <button
-            onClick={onClearFilters}
-            className="text-red-600 font-semibold text-sm hover:text-red-800 transition-colors w-full text-center py-2 border border-red-300 rounded-lg hover:bg-red-100"
-          >
-            Clear All Filters
-          </button>
-        </div>
-      )}
-
-      {/* Prices */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-3 text-gray-800 text-lg">PRICES</h3>
-        <div className="flex justify-between text-sm text-gray-600 mb-3">
-          <span className="font-medium">Range</span>
-          <span className="font-semibold text-red-600">
-            Rs. 120 - Rs. {priceRange}
-          </span>
-        </div>
-        <input
-          type="range"
-          min={120}
-          max={300}
-          value={priceRange}
-          onChange={(e) => setPriceRange(Number(e.target.value))}
-          className="w-full accent-red-500 h-2 rounded-lg cursor-pointer"
-        />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>Rs. 120</span>
-          <span>Rs. 300</span>
+    <div className="w-full md:w-80 bg-white h-fit sticky top-4 border border-gray-200 rounded-lg shadow-sm">
+      {/* Header */}
+      <div className="p-5 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Filters</h2>
+          {hasActiveFilters && (
+            <button
+              onClick={onClearFilters}
+              className="text-sm text-red-600 font-medium hover:text-red-800 transition-colors cursor-pointer bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md"
+            >
+              Clear All
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-3 text-gray-800 text-lg">FILTERS</h3>
-        <div className="space-y-3">
-          {filters.map((item) => (
-            <label
-              key={item}
-              className="flex items-center text-sm text-gray-700 hover:text-gray-900 cursor-pointer group"
-            >
-              <input
-                type="checkbox"
-                checked={selectedGenders.includes(item)}
-                onChange={() => onGenderChange(item)}
-                className="mr-3 accent-red-500 w-4 h-4 transform group-hover:scale-110 transition-transform cursor-pointer"
-              />
-              <span className="group-hover:font-medium transition-all">
-                {item}
+      <div className="p-5 space-y-8">
+        {/* Prices */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+            Price Range
+          </h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+              <span className="text-sm text-gray-600">Range:</span>
+              <span className="text-sm font-semibold text-gray-900">
+                ₹120 - ₹{priceRange}
               </span>
-            </label>
-          ))}
+            </div>
+            <input
+              type="range"
+              min={120}
+              max={300}
+              value={priceRange}
+              onChange={(e) => setPriceRange(Number(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-red-500 [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-lg"
+            />
+            <div className="flex justify-between text-sm text-gray-600 font-medium">
+              <span>₹120</span>
+              <span>₹300</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Brands */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-3 text-gray-800 text-lg">BRANDS</h3>
-        <div className="space-y-3 max-h-48 overflow-y-auto custom-scrollbar">
-          {brands.map((brand) => (
-            <label
-              key={brand}
-              className="flex items-center text-sm text-gray-700 hover:text-gray-900 cursor-pointer group"
-            >
-              <input
-                type="checkbox"
-                checked={selectedBrands.includes(brand)}
-                onChange={() => onBrandChange(brand)}
-                className="mr-3 accent-red-500 w-4 h-4 transform group-hover:scale-110 transition-transform cursor-pointer"
-              />
-              <span className="group-hover:font-medium transition-all">
-                {brand}
-              </span>
-            </label>
-          ))}
+        {/* Gender */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+            Gender
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {filters.map((item) => (
+              <label
+                key={item}
+                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedGenders.includes(item)}
+                    onChange={() => onGenderChange(item)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                </div>
+                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                  {item}
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Size */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-3 text-gray-800 text-lg">SIZE</h3>
-        <div className="space-y-3">
-          {sizes.map((size) => (
-            <label
-              key={size}
-              className="flex items-center text-sm text-gray-700 hover:text-gray-900 cursor-pointer group"
-            >
-              <input
-                type="checkbox"
-                checked={selectedSizes.includes(size)}
-                onChange={() => onSizeChange(size)}
-                className="mr-3 accent-red-500 w-4 h-4 transform group-hover:scale-110 transition-transform cursor-pointer"
-              />
-              <span className="group-hover:font-medium transition-all">
-                {size}
-              </span>
-            </label>
-          ))}
+        {/* Brands */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+            Brands
+          </h3>
+          <div className="space-y-3 max-h-48 overflow-y-auto">
+            {brands.map((brand) => (
+              <label
+                key={brand}
+                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedBrands.includes(brand)}
+                    onChange={() => onBrandChange(brand)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                </div>
+                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                  {brand}
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Categories */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-3 text-gray-800 text-lg">CATEGORIES</h3>
-        <div className="space-y-3">
-          {categories.map((category) => (
-            <label
-              key={category}
-              className="flex items-center text-sm text-gray-700 hover:text-gray-900 cursor-pointer group"
-            >
-              <input
-                type="checkbox"
-                checked={selectedCategories.includes(category)}
-                onChange={() => onCategoryChange(category)}
-                className="mr-3 accent-red-500 w-4 h-4 transform group-hover:scale-110 transition-transform cursor-pointer"
-              />
-              <span className="group-hover:font-medium transition-all">
-                {category}
-              </span>
-            </label>
-          ))}
+        {/* Size */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+            Size
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {sizes.map((size) => (
+              <label
+                key={size}
+                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedSizes.includes(size)}
+                    onChange={() => onSizeChange(size)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                </div>
+                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                  {size}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+            Categories
+          </h3>
+          <div className="space-y-3">
+            {categories.map((category) => (
+              <label
+                key={category}
+                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category)}
+                    onChange={() => onCategoryChange(category)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                </div>
+                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                  {category}
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
       </div>
     </div>

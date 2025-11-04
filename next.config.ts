@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       "images.unsplash.com",
       "img.freepik.com",
       "img.freepik.com",
+      "www.shutterstock.com",
     ],
   },
 };

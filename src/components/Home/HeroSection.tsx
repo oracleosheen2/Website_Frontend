@@ -39,7 +39,7 @@ export default function HeroSection() {
 
           {/* CTA Button */}
           <Link
-            href="/book-session"
+            href="/booking/1"
             className="mt-4 xs:mt-5 sm:mt-6 md:mt-8 lg:mt-10 bg-yellow-300 hover:bg-yellow-400 text-black font-bold px-6 py-3 xs:px-7 xs:py-3 sm:px-8 sm:py-4 md:px-10 md:py-4 rounded-xl text-base xs:text-lg sm:text-xl md:text-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg animate-fade-in-up animation-delay-400 whitespace-nowrap inline-block"
           >
             Book a Session

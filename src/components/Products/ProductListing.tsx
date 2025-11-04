@@ -3,171 +3,25 @@ import React, { useState, useMemo } from "react";
 import Products from "./Products";
 import Filters from "./Filters";
 import CommonPageHeader from "../CommonPages/CommonPageHeader";
+import { allProducts } from "@/utils/products";
 
 
 export interface Product {
   id: number;
   name: string;
   price: number;
-  image: string;
+  image: string; // Keep this
+  images: string[]; // Add this
   category: string;
   brand: string;
   gender: string[];
   isNew: boolean;
   rating: number;
-  size?: string[]; // Make size optional
+  size?: string[];
   color?: string[];
 }
 
 const ProductListing: React.FC = () => {
-  // Sample products data with all filter properties
-  const allProducts: Product[] = [
-    {
-      id: 1,
-      name: "Raksha Kavach Bracelet",
-      price: 120.23,
-      image: "https://picsum.photos/id/1011/300/300",
-      category: "Dresses",
-      brand: "H&M",
-      size: ["Medium", "Large"],
-      gender: ["Women", "Girls"],
-      isNew: true,
-      rating: 4.5,
-    },
-    {
-      id: 2,
-      name: "Golden Thread Bracelet",
-      price: 150.0,
-      image: "https://picsum.photos/id/1012/300/300",
-      category: "Tops",
-      brand: "Zara",
-      size: ["Large", "Plus Size"],
-      gender: ["Women", "Ladies"],
-      isNew: false,
-      rating: 4.2,
-    },
-    {
-      id: 3,
-      name: "Silver Charm Bracelet",
-      price: 180.5,
-      image: "https://picsum.photos/id/1013/300/300",
-      category: "Lingerie & Lounge Wear",
-      brand: "Victoria's Secret",
-      size: ["Medium"],
-      gender: ["Women"],
-      isNew: true,
-      rating: 4.8,
-    },
-    {
-      id: 4,
-      name: "Beaded Bracelet",
-      price: 90.0,
-      image: "https://picsum.photos/id/1015/300/300",
-      category: "Blouse",
-      brand: "Mark & Spencer",
-      size: ["Large", "Plus Size", "Sexy Plus Size"],
-      gender: ["Ladies"],
-      isNew: false,
-      rating: 3.9,
-    },
-    {
-      id: 5,
-      name: "Leather Strap Bracelet",
-      price: 200.0,
-      image: "https://picsum.photos/id/1016/300/300",
-      category: "Vintage",
-      brand: "Gucci",
-      size: ["Medium", "Large"],
-      gender: ["Women", "Ladies"],
-      isNew: true,
-      rating: 4.7,
-    },
-    {
-      id: 6,
-      name: "Pearl Bracelet",
-      price: 250.5,
-      image: "https://picsum.photos/id/1018/300/300",
-      category: "Dresses",
-      brand: "Chanel",
-      size: ["Medium"],
-      gender: ["Women"],
-      isNew: false,
-      rating: 4.9,
-    },
-    {
-      id: 7,
-      name: "Thread Friendship Bracelet",
-      price: 75.0,
-      image: "https://picsum.photos/id/1020/300/300",
-      category: "Tops",
-      brand: "H&M",
-      size: ["Large", "Plus Size"],
-      gender: ["Girls", "Babies"],
-      isNew: true,
-      rating: 4.1,
-    },
-    {
-      id: 8,
-      name: "Gold Plated Bracelet",
-      price: 300.0,
-      image: "https://picsum.photos/id/1021/300/300",
-      category: "Lingerie & Lounge Wear",
-      brand: "Dior",
-      size: ["Medium", "Large", "Sexy Plus Size"],
-      gender: ["Women", "Ladies"],
-      isNew: false,
-      rating: 4.6,
-    },
-    {
-      id: 9,
-      name: "Classic Woven Bracelet",
-      price: 110.0,
-      image: "https://picsum.photos/id/1024/300/300",
-      category: "Blouse",
-      brand: "Prada",
-      size: ["Medium"],
-      gender: ["Women"],
-      isNew: true,
-      rating: 4.3,
-    },
-    {
-      id: 10,
-      name: "Mystic Stone Bracelet",
-      price: 175.0,
-      image: "https://picsum.photos/id/1025/300/300",
-      category: "Vintage",
-      brand: "Fendi",
-      size: ["Large", "Plus Size"],
-      gender: ["Ladies"],
-      isNew: false,
-      rating: 4.4,
-    },
-    {
-      id: 11,
-      name: "Diamond Elegance Bracelet",
-      price: 280.0,
-      image: "https://picsum.photos/id/1027/300/300",
-      category: "Dresses",
-      brand: "Versace",
-      size: ["Medium"],
-      gender: ["Women"],
-      isNew: true,
-      rating: 4.9,
-    },
-    {
-      id: 12,
-      name: "Rose Gold Beauty",
-      price: 195.0,
-      image: "https://picsum.photos/id/1028/300/300",
-      category: "Tops",
-      brand: "Dolce & Gabbana",
-      size: ["Large", "Sexy Plus Size"],
-      gender: ["Ladies"],
-      isNew: false,
-      rating: 4.5,
-    },
-  ];
-
   // Filter states
   const [priceRange, setPriceRange] = useState<number>(300);
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
@@ -176,49 +30,31 @@ const ProductListing: React.FC = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>("New Arrivals");
 
-  // Filter products based on all criteria
+  // Filter products
   const filteredProducts = useMemo(() => {
     const filtered = allProducts.filter((product) => {
-      // Price filter
       if (product.price > priceRange) return false;
-
-      // Gender filter
       if (
         selectedGenders.length > 0 &&
-        !selectedGenders.some((gender) => product.gender.includes(gender))
-      ) {
+        !selectedGenders.some((g) => product.gender.includes(g))
+      )
         return false;
-      }
-
-      // Brand filter
-      if (
-        selectedBrands.length > 0 &&
-        !selectedBrands.includes(product.brand)
-      ) {
+      if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand))
         return false;
-      }
-
-      // Size filter
-      // Size filter
       if (
         selectedSizes.length > 0 &&
         !product.size?.some((s) => selectedSizes.includes(s))
-      ) {
+      )
         return false;
-      }
-
-      // Category filter
       if (
         selectedCategories.length > 0 &&
         !selectedCategories.includes(product.category)
-      ) {
+      )
         return false;
-      }
 
       return true;
     });
 
-    // Sort products
     switch (sortOption) {
       case "Price: Low to High":
         filtered.sort((a, b) => a.price - b.price);
@@ -243,7 +79,7 @@ const ProductListing: React.FC = () => {
     sortOption,
   ]);
 
-  // Handler functions for filters
+  // Handlers
   const handleGenderChange = (gender: string) => {
     setSelectedGenders((prev) =>
       prev.includes(gender)
@@ -272,9 +108,7 @@ const ProductListing: React.FC = () => {
     );
   };
 
-  const handleSortChange = (option: string) => {
-    setSortOption(option);
-  };
+  const handleSortChange = (option: string) => setSortOption(option);
 
   const clearAllFilters = () => {
     setPriceRange(300);
@@ -287,9 +121,8 @@ const ProductListing: React.FC = () => {
 
   return (
     <div>
-        <CommonPageHeader title="Products" subtitle="Home - Products" />
-      <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-        {" "}
+      <CommonPageHeader title="Products" subtitle="Home - Products" />
+      <div className="flex flex-col md:flex-row min-h-screen">
         <Filters
           priceRange={priceRange}
           setPriceRange={setPriceRange}

@@ -275,7 +275,7 @@ const Orders = () => {
               <h2 className="text-white text-lg font-semibold">
                 Order History
               </h2>
-              <span className="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full text-sm">
+              <span className="bg-white bg-opacity-20 text-gray-600 px-3 py-1 rounded-full text-sm">
                 {filteredOrders.length} orders
               </span>
             </div>
