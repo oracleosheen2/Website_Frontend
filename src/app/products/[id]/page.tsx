@@ -16,7 +16,7 @@ export default function ProductDetail({ params }: ProductDetailProps) {
   if (!product) return <div>Product not found</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50  pt-24">
+    <div className="min-h-screen bg-gray-50  pt-18">
       <div className="">
         {/* Product Info */}
         <div>

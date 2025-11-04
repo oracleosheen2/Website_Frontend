@@ -68,8 +68,8 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
   return (
     <>
-      <section className="bg-gradient-to-b from-pink-50 via-white to-yellow-50 py-12 px-4 md:px-10">
-        <div className="max-w-4xl mx-auto">
+      <section className="bg-gradient-to-b from-pink-50 via-white to-yellow-50 py-12 px-4 ">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800">

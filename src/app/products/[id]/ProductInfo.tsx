@@ -430,12 +430,12 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               </div>
             </div>
           </div>
-
+ 
           {/* Product Tabs Section */}
-          <div className="mt-8 bg-white rounded-2xl shadow-lg border border-white/50 mx-6 md:mx-8">
+          <div className="mt-8 bg-white  border border-white/50 mx-0 rounded-2xl">
             {/* Tabs Navigation */}
-            <div className="border-b border-gray-200">
-              <nav className="flex space-x-8 px-6">
+            <div className="border-b border-gray-200 overflow-x-auto">
+              <nav className="flex space-x-4 sm:space-x-6 md:space-x-8 px-3 sm:px-4 md:px-6 min-w-max">
                 {[
                   { id: "description", label: "Description" },
                   { id: "details", label: "Product Details" },
@@ -445,7 +445,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-4 px-2 font-medium text-sm border-b-2 transition-all duration-300 ${
+                    className={`py-3 sm:py-4 px-2 font-medium text-sm sm:text-base border-b-2 whitespace-nowrap transition-all duration-300 ${
                       activeTab === tab.id
                         ? "border-pink-500 text-pink-600"
                         : "border-transparent text-gray-500 hover:text-gray-700"
@@ -458,44 +458,41 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             </div>
 
             {/* Tabs Content */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
+              {/* ---------------------- DESCRIPTION TAB ---------------------- */}
               {activeTab === "description" && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                     Product Description
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
                     {product.description ||
-                      "Discover the perfect blend of style and comfort with our premium product. Meticulously crafted with attention to every detail, this item offers exceptional quality and durability. Made from sustainable materials, it's designed to provide long-lasting performance while maintaining its elegant appearance."}
+                      "Discover the perfect blend of style and comfort with our premium product. Meticulously crafted with attention to every detail, this item offers exceptional quality and durability."}
                   </p>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-600">
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Premium quality materials
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Sustainable production
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Easy to maintain
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      Long-lasting durability
-                    </li>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-600 text-sm sm:text-base">
+                    {[
+                      "Premium quality materials",
+                      "Sustainable production",
+                      "Easy to maintain",
+                      "Long-lasting durability",
+                    ].map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        {feature}
+                      </li>
+                    ))}
                   </ul>
                 </div>
               )}
 
+              {/* ---------------------- DETAILS TAB ---------------------- */}
               {activeTab === "details" && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                     Product Details
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
+                    <div className="space-y-3 text-sm sm:text-base">
                       <div className="flex justify-between border-b border-gray-100 pb-2">
                         <span className="font-medium text-gray-600">Brand</span>
                         <span className="text-gray-900">{product.brand}</span>
@@ -517,7 +514,8 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                         </span>
                       </div>
                     </div>
-                    <div className="space-y-3">
+
+                    <div className="space-y-3 text-sm sm:text-base">
                       <div className="flex justify-between border-b border-gray-100 pb-2">
                         <span className="font-medium text-gray-600">
                           Available Sizes
@@ -526,14 +524,26 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                           {product.size?.join(", ") || "One Size"}
                         </span>
                       </div>
-                      <div className="flex justify-between border-b border-gray-100 pb-2">
-                        <span className="font-medium text-gray-600">
-                          Available Colors
-                        </span>
-                        <span className="text-gray-900">
-                          {product.color?.join(", ") || "Various"}
-                        </span>
-                      </div>
+                      {product.color && product.color.length > 0 && (
+                        <div className="flex justify-between border-b border-gray-100 pb-2 items-center">
+                          <span className="font-medium text-gray-600">
+                            Colors
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {product.color.map((clr, i) => (
+                              <div key={i} className="flex items-center gap-1">
+                                <span
+                                  className="w-4 h-4 rounded-full border border-gray-300"
+                                  style={{ backgroundColor: clr.toLowerCase() }}
+                                ></span>
+                                <span className="text-gray-900 text-sm">
+                                  {clr}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="flex justify-between border-b border-gray-100 pb-2">
                         <span className="font-medium text-gray-600">SKU</span>
                         <span className="text-gray-900">
@@ -545,12 +555,13 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
               )}
 
+              {/* ---------------------- SHIPPING TAB ---------------------- */}
               {activeTab === "shipping" && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                     Shipping & Returns
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm sm:text-base">
                     <div className="space-y-3">
                       <h4 className="font-semibold text-gray-800">
                         Shipping Information
@@ -566,7 +577,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-blue-500">📦</span>
-                          Delivery within 2-5 business days
+                          Delivery within 2–5 business days
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-blue-500">🌍</span>
@@ -574,6 +585,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                         </li>
                       </ul>
                     </div>
+
                     <div className="space-y-3">
                       <h4 className="font-semibold text-gray-800">
                         Return Policy
@@ -601,24 +613,25 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
               )}
 
+              {/* ---------------------- REVIEWS TAB ---------------------- */}
               {activeTab === "reviews" && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-bold text-gray-900">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                     Customer Reviews
                   </h3>
-                  <div className="flex items-center gap-4 mb-6">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-gray-900">
                         {averageRating}
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex justify-center gap-1">
                         {renderStars(averageRating)}
                       </div>
                       <div className="text-sm text-gray-600 mt-1">
                         Based on {reviewsCount} reviews
                       </div>
                     </div>
-                    <div className="flex-1 space-y-1">
+                    <div className="flex-1 w-full space-y-1">
                       {[5, 4, 3, 2, 1].map((star) => (
                         <div key={star} className="flex items-center gap-2">
                           <span className="text-sm text-gray-600 w-4">
@@ -659,15 +672,14 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     </div>
                   </div>
 
-                  {/* Dynamic Reviews from product data */}
                   <div className="space-y-4">
                     {product.reviews && product.reviews.length > 0 ? (
                       product.reviews.map((review, index) => (
                         <div
                           key={index}
-                          className="border border-gray-200 rounded-lg p-4"
+                          className="border border-gray-200 rounded-lg p-4 text-sm sm:text-base"
                         >
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
                             <div className="flex">
                               {renderStars(review.rating)}
                             </div>
@@ -678,7 +690,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                               {review.date}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm">
+                          <p className="text-gray-600 text-sm sm:text-base">
                             {review.comment}
                           </p>
                         </div>
@@ -695,7 +707,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           </div>
 
           {/* Additional Info Section - Dynamic from product data */}
-          <div className="bg-gradient-to-r from-pink-50 to-blue-50 border-t border-white/50 mt-8">
+          <div className="bg-gradient-to-r from-pink-50 to-blue-50   mt-8 rounded-2xl ">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 md:p-8">
               {features.freeShipping && (
                 <div className="text-center">
