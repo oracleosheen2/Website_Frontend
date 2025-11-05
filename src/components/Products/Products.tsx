@@ -22,8 +22,14 @@ const Products: React.FC<ProductsProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const searchRef = useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+  setFilteredProducts(products);
+}, [products]);
+
 
   // All unique product names
   const allProductNames = Array.from(
@@ -119,7 +125,7 @@ const Products: React.FC<ProductsProps> = ({
   );
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full p-6 bg-[#C4F9FF]">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 flex-wrap border-b border-gray-200 pb-6">
         <p className="text-gray-600 text-sm">

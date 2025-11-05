@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import HeroHeader from "@/components/Hero/HeroHeader";
 import Footer from "@/components/Footer/Footer";
 import { CartProvider } from "@/contexts/CartContext";
-
+import { WishlistProvider } from "@/contexts/WishlistContext";
 
 export default function LayoutWrapper({
   children,
@@ -16,13 +16,15 @@ export default function LayoutWrapper({
 
   return (
     <CartProvider>
-      <div className="min-h-screen flex flex-col">
-        {!hideHeaderFooter && <HeroHeader />}
+      <WishlistProvider>
+        <div className="min-h-screen flex flex-col">
+          {!hideHeaderFooter && <HeroHeader />}
 
-        <main className="flex-1">{children}</main>
+          <main className="flex-1">{children}</main>
 
-        {!hideHeaderFooter && <Footer />}
-      </div>
+          {!hideHeaderFooter && <Footer />}
+        </div>
+      </WishlistProvider>
     </CartProvider>
   );
 }

@@ -4,13 +4,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import Link from "next/link";
 import { MdKeyboardArrowDown } from "react-icons/md";
 
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
-  // { name: "Readers", href: "/readers" },
   { name: "Services", href: "/services" },
   { name: "Horoscope", href: "/horoscope" },
   { name: "Blog", href: "/blog" },
@@ -35,6 +35,7 @@ export default function HeroHeader() {
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
   const { getTotalItems } = useCart();
+  const { getTotalWishlistItems } = useWishlist();
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +73,10 @@ export default function HeroHeader() {
 
   const navigateToCart = () => {
     router.push("/cart");
+  };
+
+  const navigateToWishlist = () => {
+    router.push("/header/wishlist");
   };
 
   const handleProfileClick = () => {
@@ -138,6 +143,31 @@ export default function HeroHeader() {
           >
             Buy products
           </Link>
+
+          {/* Wishlist Icon */}
+          <button
+            onClick={navigateToWishlist}
+            className="relative p-2 text-gray-800 hover:text-red-500 transition-all duration-300 hover:scale-105 cursor-pointer"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+            {getTotalWishlistItems() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {getTotalWishlistItems()}
+              </span>
+            )}
+          </button>
 
           {/* Cart Icon */}
           <button
@@ -237,9 +267,34 @@ export default function HeroHeader() {
           </div>
         </nav>
 
-        {/* Mobile Menu Toggle & Cart */}
+        {/* Mobile Menu Toggle & Icons */}
         <div className="md:hidden flex items-center gap-4">
-          {/* Cart Icon for Mobile - Moved to LEFT side */}
+          {/* Wishlist Icon for Mobile */}
+          <button
+            onClick={navigateToWishlist}
+            className="relative p-2 text-gray-800"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+            {getTotalWishlistItems() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {getTotalWishlistItems()}
+              </span>
+            )}
+          </button>
+
+          {/* Cart Icon for Mobile */}
           <button
             onClick={navigateToCart}
             className="relative p-2 text-gray-800"
@@ -307,9 +362,6 @@ export default function HeroHeader() {
         >
           {/* Scrollable Mobile Menu Content */}
           <div className="h-full flex flex-col">
-            {/* Menu Header with Close Button - REMOVED the extra close button */}
-            {/* Only hamburger button in header will close the menu */}
-
             {/* Scrollable Menu Items */}
             <div className="flex-1 overflow-y-auto pb-6 pt-20">
               <nav className="flex flex-col px-6 space-y-4">

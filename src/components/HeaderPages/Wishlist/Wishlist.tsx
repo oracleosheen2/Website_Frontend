@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import {
   FaHeartBroken,
@@ -7,49 +7,26 @@ import {
   FaTrash,
   FaHeart,
 } from "react-icons/fa";
-
-interface WishlistItem {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  inStock: boolean;
-}
+import { useWishlist, WishlistItem } from "@/contexts/WishlistContext";
+import { useCart } from "@/contexts/CartContext";
 
 const Wishlist: React.FC = () => {
-  const [wishlist, setWishlist] = useState<WishlistItem[]>([
-    {
-      id: 1,
-      name: "Golden Designer Handbag",
-      price: "₹1,899",
-      image:
-        "https://img.freepik.com/premium-photo/beautiful-golden-handbag-women-isolated-pink-background_76440-352.jpg",
-      inStock: true,
-    },
-    {
-      id: 2,
-      name: "Pink Silk Saree",
-      price: "₹2,999",
-      image:
-        "https://img.freepik.com/premium-photo/beautiful-indian-woman-wearing-silk-saree_75648-2786.jpg",
-      inStock: true,
-    },
-    {
-      id: 3,
-      name: "Golden Heels",
-      price: "₹1,499",
-      image:
-        "https://img.freepik.com/premium-photo/beautiful-golden-high-heels-shoes-pink-background_76440-248.jpg",
-      inStock: false,
-    },
-  ]);
+  const { wishlistItems, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart();
 
   const handleRemove = (id: number) => {
-    setWishlist(wishlist.filter((item) => item.id !== id));
+    removeFromWishlist(id);
   };
 
-  const handleAddToCart = (name: string) => {
-    alert(`${name} added to cart 🛒`);
+  const handleAddToCart = (item: WishlistItem) => {
+    addToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      quantity: 1,
+    });
+    alert(`${item.name} added to cart 🛒`);
   };
 
   const handleViewDetails = (name: string) => {
@@ -57,14 +34,19 @@ const Wishlist: React.FC = () => {
   };
 
   return (
-    <div className="pt-32 min-h-screen bg-gradient-to-b from-pink-50 to-pink-100 py-10 px-4 sm:px-10">
+    <div className="pt-32 min-h-screen  py-10 px-4 sm:px-10"
+    
+     style={{
+        background:
+          "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 20%, #C4F9FF 100%)",
+      }}>
       <h1 className="text-3xl font-bold text-center mb-10 text-pink-700">
         My Wishlist <FaHeart className="inline ml-2 text-pink-600" />
       </h1>
 
       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-6 space-y-6">
-        {wishlist.length > 0 ? (
-          wishlist.map((item) => (
+        {wishlistItems.length > 0 ? (
+          wishlistItems.map((item) => (
             <div
               key={item.id}
               className="flex flex-col sm:flex-row justify-between items-center border-b border-pink-100 pb-5 sm:pb-6"
@@ -82,7 +64,7 @@ const Wishlist: React.FC = () => {
                     {item.name}
                   </h2>
                   <p className="text-pink-600 font-semibold mt-1">
-                    {item.price}
+                    ₹{item.price}
                   </p>
                   <p
                     className={`text-sm mt-1 ${
@@ -103,7 +85,7 @@ const Wishlist: React.FC = () => {
                 </button>
                 <button
                   disabled={!item.inStock}
-                  onClick={() => handleAddToCart(item.name)}
+                  onClick={() => handleAddToCart(item)}
                   className={`px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition-all ${
                     item.inStock
                       ? "bg-pink-600 hover:bg-pink-700 text-white"
@@ -126,7 +108,10 @@ const Wishlist: React.FC = () => {
           <div className="text-center text-gray-500 py-16">
             <FaHeartBroken className="text-4xl mx-auto mb-3 text-pink-400" />
             <p className="text-lg">Your wishlist is empty 💔</p>
-            <button className="mt-5 bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 shadow-md">
+            <button 
+              onClick={() => window.location.href = "/products"}
+              className="mt-5 bg-pink-600 text-white px-6 py-2 rounded-full hover:bg-pink-700 shadow-md transition-all"
+            >
               Start Shopping
             </button>
           </div>

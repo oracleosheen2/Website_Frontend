@@ -46,7 +46,7 @@ export interface Product {
 
 const ProductListing: React.FC = () => {
   // Filter states
-  const [priceRange, setPriceRange] = useState<number>(300);
+  const [priceRange, setPriceRange] = useState<number>(10000);
   const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
@@ -146,7 +146,7 @@ const ProductListing: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#C4F9FF] ">
       <CommonPageHeader title="Products" subtitle="Home - Products" />
 
       {/* 🔘 Mobile Filter Toggle Button */}
@@ -160,14 +160,14 @@ const ProductListing: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex flex-col md:flex-row flex-grow">
+      <div className="flex flex-col md:flex-row flex-grow border-t border-gray-300 ">
         {/* 🧭 Filters Section */}
         <div
           className={`${
             showFilters ? "block" : "hidden"
-          } md:block w-full md:w-1/4  md:sticky md:top-0 z-10 py-4`}
+          } md:block w-full md:w-1/4  md:sticky md:top-0 z-10 py-0 bg-[#C4F9FF]`}
         >
-          <div className="h-full min-h-screen">
+          <div className="h-full min-h-screen border-r border-gray-300">
             <Filters
               priceRange={priceRange}
               setPriceRange={setPriceRange}

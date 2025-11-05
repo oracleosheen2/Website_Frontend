@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 interface Review {
   name: string;
@@ -51,6 +52,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const { addToCart } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   // Combine main image with images array
   const allImages = Array.from(
@@ -88,6 +90,24 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     handleAddToCart();
     // Redirect to cart page
     window.location.href = "/cart";
+  };
+
+  const handleWishlistToggle = () => {
+    const wishlistItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      inStock: true, // You can set this based on product availability
+    };
+
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      alert("Product removed from wishlist ❤️");
+    } else {
+      addToWishlist(wishlistItem);
+      alert("Product added to wishlist 💝");
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -129,7 +149,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
   return (
     <div
-      className="min-h-screen w-full overflow-hidden flex items-center justify-center py-8 px-4"
+      className="min-h-screen w-full overflow-hidden flex items-center justify-center py-8"
       style={{
         background:
           "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 20%, #C4F9FF 100%)",
@@ -138,15 +158,15 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       <div className="max-w-7xl w-full">
         {/* Main Product Card */}
         <div className="overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 md:p-0 p-2 md:pt-8">
             {/* Left: Image Gallery - Amazon/Flipkart Style */}
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Thumbnail Gallery - Vertical on left */}
-              <div className="flex lg:flex-col gap-2 order-2 lg:order-1 lg:max-h-[70vh]">
+              <div className="flex lg:flex-col gap-2 order-2 lg:order-1 lg:max-h-[70vh] p-2">
                 {allImages.map((img, idx) => (
                   <div
                     key={idx}
-                    className={`relative flex-shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-2 ${
+                    className={`relative flex-shrink-0 w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden cursor-pointer transition-all duration-300 border-1 ${
                       selectedImage === img
                         ? "border-pink-500 ring-2 ring-pink-200 scale-105"
                         : "border-gray-200 hover:border-pink-300"
@@ -360,9 +380,16 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="border-2 border-amber-500 text-amber-600 hover:bg-amber-50 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2">
-                    <span>❤️</span>
-                    WISHLIST
+                  <button 
+                    onClick={handleWishlistToggle}
+                    className={`border-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+                      isInWishlist(product.id)
+                        ? "border-red-500 bg-red-50 text-red-600"
+                        : "border-amber-500 text-amber-600 hover:bg-amber-50"
+                    }`}
+                  >
+                    <span>{isInWishlist(product.id) ? "❤️" : "🤍"}</span>
+                    {isInWishlist(product.id) ? "WISHLISTED" : "WISHLIST"}
                   </button>
                   <button
                     onClick={handleBuyNow}
@@ -430,9 +457,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               </div>
             </div>
           </div>
- 
+
+          {/* Rest of the code remains the same... */}
           {/* Product Tabs Section */}
-          <div className="mt-8 bg-white  border border-white/50 mx-0 rounded-2xl">
+          <div className="mt-8 bg-white  border border-white/50 mx-0 md:rounded-2xl">
             {/* Tabs Navigation */}
             <div className="border-b border-gray-200 overflow-x-auto">
               <nav className="flex space-x-4 sm:space-x-6 md:space-x-8 px-3 sm:px-4 md:px-6 min-w-max">

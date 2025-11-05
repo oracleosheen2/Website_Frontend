@@ -51,7 +51,7 @@ export default function RecommendedProducts({
   // Filter related products by category and exclude current product
   const related = allProducts
     .filter((p) => p.category === category && p.id !== currentId)
-    .slice(0, 4);
+    .slice(0, 5);
 
   if (related.length === 0) return null;
 
@@ -73,11 +73,11 @@ export default function RecommendedProducts({
   };
 
   return (
-    <section className="py-12 px-4 md:px-10 bg-gradient-to-b from-gray-50 via-white to-pink-50">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-8 sm:py-10 md:py-12 px-3 sm:px-6 md:px-10 bg-[#C4F9FF]">
+      <div className="max-w-full mx-auto">
         {/* Section Header */}
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-extrabold text-gray-800 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-2">
             Recommended <span className="text-pink-500">Products</span>
           </h2>
           <p className="text-gray-500 text-sm md:text-base">
@@ -85,9 +85,9 @@ export default function RecommendedProducts({
           </p>
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 md:gap-8">
-          {related.map((product) => (
+        {/* ✅ Responsive Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+          {related?.map((product) => (
             <div
               key={product.id}
               className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-pink-100 relative"
@@ -100,7 +100,7 @@ export default function RecommendedProducts({
                     alt={product.name}
                     width={400}
                     height={400}
-                    className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-300 border-b border-gray-200"
                   />
 
                   {/* Top Badges */}
@@ -197,7 +197,7 @@ export default function RecommendedProducts({
                     </div>
                   </div>
 
-                  {/* Available Colors */}
+                  {/* Colors */}
                   {product.color && product.color.length > 0 && (
                     <div className="flex items-center gap-1 mt-2">
                       <span className="text-xs text-gray-500">Colors:</span>
@@ -219,7 +219,7 @@ export default function RecommendedProducts({
                     </div>
                   )}
 
-                  {/* Available Sizes */}
+                  {/* Sizes */}
                   {product.size && product.size.length > 0 && (
                     <div className="flex items-center gap-1 mt-1">
                       <span className="text-xs text-gray-500">Sizes:</span>
@@ -241,7 +241,7 @@ export default function RecommendedProducts({
                     </div>
                   )}
 
-                  {/* Quick View Description */}
+                  {/* Description */}
                   {product.description && (
                     <p className="text-xs text-gray-600 mt-2 line-clamp-2">
                       {product.description.substring(0, 60)}...
