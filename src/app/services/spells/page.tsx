@@ -2,9 +2,15 @@ import React from "react";
 
 const SpellsPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 pt-32 pb-20">
+    <div
+      className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 pt-24 pb-20"
+      style={{
+        background:
+          "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 20%, #C4F9FF 100%)",
+      }}
+    >
       {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
             SPELLS

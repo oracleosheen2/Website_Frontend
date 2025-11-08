@@ -501,7 +501,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
+          {/* <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs md:text-sm text-gray-600 font-medium">
@@ -515,7 +515,7 @@ const Profile = () => {
                 <span className="text-lg md:text-2xl">🎫</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-green-500 transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">

@@ -7,8 +7,10 @@ import {
   FaRegCompass,
   FaMoon,
   FaRegStar,
+  
 } from "react-icons/fa6";
 import Image from "next/image";
+import { FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -61,7 +63,6 @@ const Footer = () => {
                   />
                   <div className="absolute -inset-1 rounded-full blur-sm opacity-30 group-hover:opacity-60 transition-all duration-500"></div>
                 </div>
-              
               </div>
 
               <p className="text-gray-300 leading-relaxed text-sm hover:text-white transition-colors duration-300">
@@ -73,7 +74,7 @@ const Footer = () => {
                 {[
                   { icon: FaFacebookF, hover: "hover:text-blue-400" },
                   { icon: FaInstagram, hover: "hover:text-pink-300" },
-                  { icon: FaXTwitter, hover: "hover:text-gray-300" },
+                  { icon: FaYoutube, hover: "hover:text-red-600" },
                 ].map(({ icon: Icon, hover }, index) => (
                   <a
                     key={index}
@@ -183,7 +184,7 @@ const Footer = () => {
               </div>
 
               {/* Newsletter Signup */}
-              <div className=" transition-all duration-500 w-full">
+              {/* <div className=" transition-all duration-500 w-full">
                 <p className="text-gray-300 text-sm mb-3">
                   Get cosmic insights delivered
                 </p>
@@ -197,7 +198,7 @@ const Footer = () => {
                     Subscribe
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 

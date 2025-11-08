@@ -79,7 +79,7 @@ const Filters: React.FC<FiltersProps> = ({
 
       <div className="p-5 space-y-8">
         {/* 🔹 Price Range */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
             Price Range
           </h3>
@@ -114,10 +114,10 @@ const Filters: React.FC<FiltersProps> = ({
               <span>₹10,000</span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* 🔹 Gender */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
             Gender
           </h3>
@@ -139,7 +139,7 @@ const Filters: React.FC<FiltersProps> = ({
               </label>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* 🔹 Brands */}
         <div className="space-y-4">
