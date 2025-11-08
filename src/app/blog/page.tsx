@@ -1,8 +1,9 @@
+import Blog from '@/components/Blog/Blog';
 import React from 'react'
 
 const page = () => {
   return (
-    <div className=" min-h-screen pt-30 text-gray-900">Blog</div>
+    <div><Blog /></div>
   );
 }
 

@@ -1,17 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Calendar,
-  Clock,
-  User,
   Star,
-  ArrowLeft,
-  Shield,
+  Clock,
+  Users,
   CheckCircle,
+  ArrowLeft,
+  Sparkles,
+  Shield,
+  Heart,
+  TrendingUp,
+  Calendar,
+  MessageCircle,
+  Zap,
+  Target,
+  Globe,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { astrologers, zodiacData } from "@/utils/AstroData";
 
 interface PageProps {
   params: {
@@ -19,205 +27,31 @@ interface PageProps {
   };
 }
 
-const zodiacData = [
-  {
-    id: 1,
-    name: "Aries",
-    date: "Mar 21 - Apr 19",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-ppp.jpg",
-    description: "Start your journey with courage and energy.",
-    traits: ["Courageous", "Energetic", "Pioneering"],
-    element: "Fire",
-    planet: "Mars",
-  },
-  {
-    id: 2,
-    name: "Taurus",
-    date: "Apr 20 - May 20",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-pp.png",
-    description: "Steadiness and patience will guide you.",
-    traits: ["Reliable", "Patient", "Practical"],
-    element: "Earth",
-    planet: "Venus",
-  },
-  {
-    id: 3,
-    name: "Gemini",
-    date: "May 21 - Jun 20",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-ddd.jpg",
-    description: "Embrace curiosity and adaptability.",
-    traits: ["Adaptable", "Curious", "Communicative"],
-    element: "Air",
-    planet: "Mercury",
-  },
-  {
-    id: 4,
-    name: "Cancer",
-    date: "Jun 21 - Jul 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-l.jpg",
-    description: "Trust your intuition and emotions.",
-    traits: ["Intuitive", "Emotional", "Protective"],
-    element: "Water",
-    planet: "Moon",
-  },
-  {
-    id: 5,
-    name: "Leo",
-    date: "Jul 23 - Aug 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-eee.jpg",
-    description: "Confidence and creativity lead the way.",
-    traits: ["Confident", "Creative", "Generous"],
-    element: "Fire",
-    planet: "Sun",
-  },
-  {
-    id: 6,
-    name: "Virgo",
-    date: "Aug 23 - Sep 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-pppp.jpg",
-    description: "Focus on details and practical solutions.",
-    traits: ["Analytical", "Practical", "Helpful"],
-    element: "Earth",
-    planet: "Mercury",
-  },
-  {
-    id: 7,
-    name: "Libra",
-    date: "Sep 23 - Oct 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-dddd.jpg",
-    description: "Balance and harmony will guide decisions.",
-    traits: ["Diplomatic", "Social", "Fair-minded"],
-    element: "Air",
-    planet: "Venus",
-  },
-  {
-    id: 8,
-    name: "Scorpio",
-    date: "Oct 23 - Nov 21",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-q.jpg",
-    description: "Passion and transformation await you.",
-    traits: ["Passionate", "Determined", "Intense"],
-    element: "Water",
-    planet: "Pluto",
-  },
-  {
-    id: 9,
-    name: "Sagittarius",
-    date: "Nov 22 - Dec 21",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-m.jpg",
-    description: "Adventure and optimism will thrive.",
-    traits: ["Adventurous", "Optimistic", "Philosophical"],
-    element: "Fire",
-    planet: "Jupiter",
-  },
-  {
-    id: 10,
-    name: "Capricorn",
-    date: "Dec 22 - Jan 19",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-hh.jpg",
-    description: "Discipline and persistence will pay off.",
-    traits: ["Disciplined", "Patient", "Ambitious"],
-    element: "Earth",
-    planet: "Saturn",
-  },
-  {
-    id: 11,
-    name: "Aquarius",
-    date: "Jan 20 - Feb 18",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-ppp.jpg",
-    description: "Innovation and originality are key.",
-    traits: ["Innovative", "Original", "Independent"],
-    element: "Air",
-    planet: "Uranus",
-  },
-  {
-    id: 12,
-    name: "Pisces",
-    date: "Feb 19 - Mar 20",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-pp.png",
-    description: "Imagination and compassion lead the way.",
-    traits: ["Compassionate", "Imaginative", "Intuitive"],
-    element: "Water",
-    planet: "Neptune",
-  },
-];
-
-const astrologers = [
-  {
-    id: 1,
-    name: "Priya Sharma",
-    experience: "12+ years",
-    specialization: "Vedic Astrology",
-    rating: 4.9,
-    reviews: 1247,
-    price: 799,
-    image: "/api/placeholder/100/100",
-    languages: ["Hindi", "English"],
-    availableSlots: ["10:00 AM", "2:00 PM", "4:30 PM", "7:00 PM"],
-  },
-  {
-    id: 2,
-    name: "Rajesh Kumar",
-    experience: "15+ years",
-    specialization: "Numerology",
-    rating: 4.8,
-    reviews: 892,
-    price: 699,
-    image: "/api/placeholder/100/100",
-    languages: ["Hindi", "Tamil"],
-    availableSlots: ["9:30 AM", "1:00 PM", "3:30 PM", "6:00 PM"],
-  },
-  {
-    id: 3,
-    name: "Anita Desai",
-    experience: "8+ years",
-    specialization: "Tarot Reading",
-    rating: 4.7,
-    reviews: 567,
-    price: 899,
-    image: "/api/placeholder/100/100",
-    languages: ["English", "Marathi"],
-    availableSlots: ["11:00 AM", "2:30 PM", "5:00 PM", "8:00 PM"],
-  },
-];
-
-const BookingPage: React.FC<PageProps> = ({ params }) => {
+const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
   const { id } = params;
   const router = useRouter();
   const [selectedAstrologer, setSelectedAstrologer] = useState<number | null>(
     null
   );
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
-  const [userDetails, setUserDetails] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    birthDate: "",
-  });
-  const [currentStep, setCurrentStep] = useState(1);
 
-  const card = zodiacData.find((c) => c.id === Number(id));
+  const zodiac = zodiacData.find((z) => z.id === Number(id));
 
-  // Available dates for next 7 days
-  const availableDates = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    return date.toISOString().split("T")[0];
-  });
-
-  if (!card) {
+  if (!zodiac) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-amber-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center p-4">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Sparkles className="w-12 h-12 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Zodiac Sign Not Found
-          </h1>
+          </h2>
+          <p className="text-gray-600 mb-6">
+            The zodiac sign you&rsquo;re looking for doesn&rsquo;t exist.
+          </p>
           <button
-            onClick={() => router.push("/catalogue")}
-            className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all"
+            onClick={() => router.push("/")}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:-translate-y-1"
           >
             Back to Catalogue
           </button>
@@ -226,425 +60,468 @@ const BookingPage: React.FC<PageProps> = ({ params }) => {
     );
   }
 
-  const handleBooking = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Handle final booking submission
-      alert(
-        `Booking confirmed for ${card.name} reading with ${
-          astrologers.find((a) => a.id === selectedAstrologer)?.name
-        }`
-      );
-    }
+  const handleWhatsAppBooking = (astrologer: (typeof astrologers)[0]) => {
+    const message = `Hello ${astrologer.name}, I would like to book a ${zodiac.name} reading session.`;
+    const whatsappUrl = `https://wa.me/${
+      astrologer.whatsappNumber
+    }?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
-    <div className="min-h-screen pt-28 bg-gradient-to-br from-pink-50 to-amber-50">
-      {/* Header */}
-     
-      <div className="container mx-auto px-4 py-8">
-        {/* Progress Steps */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <div className="flex items-center justify-between">
-            {[1, 2, 3].map((step) => (
-              <div key={step} className="flex items-center">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                    currentStep >= step
-                      ? "bg-gradient-to-r from-pink-500 to-amber-500 border-transparent text-white"
-                      : "border-gray-300 text-gray-400"
-                  }`}
+    <div
+      className="min-h-screen pt-12"
+      style={{
+        background:
+          "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 10%, #C4F9FF 100%)",
+      }}
+    >
+      {/* Header with Back Button */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        ></motion.div>
+      </div>
+
+      {/* Zodiac Hero Section */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 my-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
+        >
+          <div className="flex flex-col lg:flex-row items-stretch">
+            {/* 🪐 Image Section */}
+            <div className="relative w-full lg:w-1/2 h-[380px] sm:h-[450px] lg:h-auto">
+              <Image
+                src={zodiac.image}
+                alt={zodiac.name}
+                fill
+                className="object-contain lg:object-cover w-full h-full transition-transform duration-700 group-hover:scale-105 rounded-t-3xl lg:rounded-l-3xl"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent lg:rounded-l-3xl" />
+              <div className="absolute bottom-6 left-6 text-white">
+                <motion.h1
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-4xl sm:text-5xl font-extrabold mb-1 drop-shadow-lg"
                 >
-                  {step}
-                </div>
-                {step < 3 && (
-                  <div
-                    className={`w-24 h-1 mx-4 ${
-                      currentStep > step
-                        ? "bg-gradient-to-r from-pink-500 to-amber-500"
-                        : "bg-gray-300"
-                    }`}
-                  />
-                )}
+                  {zodiac.name}
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-lg sm:text-xl font-medium text-purple-100"
+                >
+                  {zodiac.date}
+                </motion.p>
               </div>
-            ))}
-          </div>
-          <div className="flex justify-between mt-2 text-sm text-gray-600">
-            <span>Choose Astrologer</span>
-            <span>Select Slot</span>
-            <span>Your Details</span>
-          </div>
-        </div>
+            </div>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Side - Zodiac Info */}
-          <div className="lg:col-span-1">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-white rounded-2xl shadow-lg p-6 sticky top-8"
-            >
-              <div className="text-center">
-                <div className="relative w-32 h-32 mx-auto mb-4">
-                  <Image
-                    src={card.image}
-                    alt={card.name}
-                    fill
-                    className="object-cover rounded-full border-4 border-amber-200"
-                  />
-                </div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                  {card.name}
-                </h1>
-                <p className="text-amber-600 font-semibold mb-4">{card.date}</p>
-                <p className="text-gray-600 mb-6">{card.description}</p>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center p-3 bg-pink-50 rounded-lg">
-                    <span className="block text-sm text-gray-600">Element</span>
-                    <span className="font-semibold text-amber-600">
-                      {card.element}
-                    </span>
-                  </div>
-                  <div className="text-center p-3 bg-amber-50 rounded-lg">
-                    <span className="block text-sm text-gray-600">Planet</span>
-                    <span className="font-semibold text-pink-600">
-                      {card.planet}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <h3 className="font-semibold text-gray-800 mb-3">
-                    Key Traits
-                  </h3>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {card.traits.map((trait, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-gradient-to-r from-pink-100 to-amber-100 text-gray-700 rounded-full text-sm"
-                      >
-                        {trait}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Right Side - Booking Process */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Step 1: Choose Astrologer */}
-            {currentStep === 1 && (
+            {/* 🌟 Content Section */}
+            <div className="flex flex-col justify-center p-6 sm:p-10 lg:p-12 lg:w-1/2 space-y-6">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg p-6"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
               >
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  Choose Your Astrologer
+                <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
+                  About {zodiac.name}
                 </h2>
-                <div className="space-y-4">
-                  {astrologers.map((astrologer) => (
-                    <div
-                      key={astrologer.id}
-                      className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${
-                        selectedAstrologer === astrologer.id
-                          ? "border-pink-500 bg-pink-50"
-                          : "border-gray-200 hover:border-pink-300"
-                      }`}
-                      onClick={() => setSelectedAstrologer(astrologer.id)}
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                          <User className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-lg text-gray-800">
-                              {astrologer.name}
-                            </h3>
-                            <div className="flex items-center space-x-1">
-                              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                              <span className="font-semibold">
-                                {astrologer.rating}
-                              </span>
-                              <span className="text-gray-500">
-                                ({astrologer.reviews})
-                              </span>
-                            </div>
-                          </div>
-                          <p className="text-gray-600">
-                            {astrologer.specialization}
-                          </p>
-                          <div className="flex items-center space-x-4 mt-2">
-                            <span className="text-sm text-gray-500">
-                              {astrologer.experience} experience
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              Languages: {astrologer.languages.join(", ")}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-amber-600">
-                            ₹{astrologer.price}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            per session
-                          </div>
-                        </div>
-                      </div>
+                <p className="text-gray-600 text-lg leading-relaxed">
+                  {zodiac.description}
+                </p>
+              </motion.div>
+
+              {/* ✴️ Info Cards */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="grid grid-cols-2 gap-4"
+              >
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-5 rounded-2xl border border-purple-200 shadow-sm">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="w-5 h-5 text-purple-600" />
+                    <div className="text-sm font-semibold text-purple-600">
+                      Element
                     </div>
+                  </div>
+                  <div className="text-xl font-bold text-gray-800">
+                    {zodiac.element}
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-5 rounded-2xl border border-pink-200 shadow-sm">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Globe className="w-5 h-5 text-pink-600" />
+                    <div className="text-sm font-semibold text-pink-600">
+                      Ruling Planet
+                    </div>
+                  </div>
+                  <div className="text-xl font-bold text-gray-800">
+                    {zodiac.planet}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* 🪄 Traits Section */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <h3 className="font-semibold text-gray-800 mb-4 text-xl">
+                  Key Traits
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {zodiac.traits.map((trait, index) => (
+                    <motion.span
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5 + index * 0.1 }}
+                      className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    >
+                      {trait}
+                    </motion.span>
                   ))}
                 </div>
               </motion.div>
-            )}
-
-            {/* Step 2: Select Date & Time */}
-            {currentStep === 2 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg p-6"
-              >
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  Select Date & Time
-                </h2>
-
-                {/* Date Selection */}
-                <div className="mb-6">
-                  <h3 className="font-semibold text-gray-800 mb-3">
-                    Select Date
-                  </h3>
-                  <div className="grid grid-cols-7 gap-2">
-                    {availableDates.map((date) => {
-                      const dateObj = new Date(date);
-                      const isSelected = selectedDate === date;
-                      return (
-                        <button
-                          key={date}
-                          onClick={() => setSelectedDate(date)}
-                          className={`p-3 rounded-lg text-center transition-all ${
-                            isSelected
-                              ? "bg-gradient-to-r from-pink-500 to-amber-500 text-white"
-                              : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                          }`}
-                        >
-                          <div className="text-sm font-semibold">
-                            {dateObj.toLocaleDateString("en-US", {
-                              weekday: "short",
-                            })}
-                          </div>
-                          <div className="text-lg">{dateObj.getDate()}</div>
-                          <div className="text-xs">
-                            {dateObj.toLocaleDateString("en-US", {
-                              month: "short",
-                            })}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Time Slots */}
-                <div>
-                  <h3 className="font-semibold text-gray-800 mb-3">
-                    Available Time Slots
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {astrologers
-                      .find((a) => a.id === selectedAstrologer)
-                      ?.availableSlots.map((slot) => (
-                        <button
-                          key={slot}
-                          onClick={() => setSelectedSlot(slot)}
-                          className={`p-4 rounded-lg text-center transition-all ${
-                            selectedSlot === slot
-                              ? "bg-gradient-to-r from-pink-500 to-amber-500 text-white"
-                              : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                          }`}
-                        >
-                          <Clock className="w-4 h-4 inline mr-2" />
-                          {slot}
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 3: Personal Details */}
-            {currentStep === 3 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-lg p-6"
-              >
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  Your Details
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={userDetails.name}
-                      onChange={(e) =>
-                        setUserDetails({ ...userDetails, name: e.target.value })
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                      placeholder="Enter your full name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      value={userDetails.email}
-                      onChange={(e) =>
-                        setUserDetails({
-                          ...userDetails,
-                          email: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      value={userDetails.phone}
-                      onChange={(e) =>
-                        setUserDetails({
-                          ...userDetails,
-                          phone: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Birth Date *
-                    </label>
-                    <input
-                      type="date"
-                      value={userDetails.birthDate}
-                      onChange={(e) =>
-                        setUserDetails({
-                          ...userDetails,
-                          birthDate: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                {/* Booking Summary */}
-                <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <h3 className="font-semibold text-gray-800 mb-3">
-                    Booking Summary
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Zodiac Reading:</span>
-                      <span className="font-semibold">{card.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Astrologer:</span>
-                      <span className="font-semibold">
-                        {
-                          astrologers.find((a) => a.id === selectedAstrologer)
-                            ?.name
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Date & Time:</span>
-                      <span className="font-semibold">
-                        {new Date(selectedDate).toLocaleDateString()} at{" "}
-                        {selectedSlot}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-lg font-bold text-amber-600 border-t pt-2 mt-2">
-                      <span>Total Amount:</span>
-                      <span>
-                        ₹
-                        {
-                          astrologers.find((a) => a.id === selectedAstrologer)
-                            ?.price
-                        }
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Security Features */}
-                <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 mb-6">
-                  <div className="flex items-center">
-                    <Shield className="w-4 h-4 text-green-500 mr-2" />
-                    Secure Payment
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    100% Confidential
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() =>
-                  currentStep > 1 && setCurrentStep(currentStep - 1)
-                }
-                className={`px-8 py-3 rounded-full font-semibold transition-all ${
-                  currentStep > 1
-                    ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                }`}
-                disabled={currentStep === 1}
-              >
-                Previous
-              </button>
-
-              <button
-                onClick={handleBooking}
-                disabled={
-                  (currentStep === 1 && !selectedAstrologer) ||
-                  (currentStep === 2 && (!selectedDate || !selectedSlot)) ||
-                  (currentStep === 3 &&
-                    (!userDetails.name ||
-                      !userDetails.email ||
-                      !userDetails.phone ||
-                      !userDetails.birthDate))
-                }
-                className="px-8 py-3 bg-gradient-to-r from-pink-500 to-amber-500 text-white rounded-full font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {currentStep === 3 ? "Confirm Booking" : "Continue"}
-              </button>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
+
+          <div className="text-center mb-12 relative z-10">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl sm:text-4xl font-bold mb-6"
+            >
+              Discover Your {zodiac.name} Potential
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-purple-100 text-lg sm:text-xl max-w-3xl mx-auto"
+            >
+              Unlock personalized insights and transform your life with expert
+              cosmic guidance
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 relative z-10">
+            {zodiac.benefits.map((benefit, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 sm:p-8 border border-white/20 hover:border-white/30 transition-all duration-300 group"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-lg sm:text-xl">
+                    Benefit {index + 1}
+                  </h3>
+                </div>
+                <p className="text-purple-100 leading-relaxed text-sm sm:text-base">
+                  {benefit}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Reading Includes Section */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-3xl shadow-2xl p-8 sm:p-12 border border-gray-100"
+        >
+          <div className="text-center mb-12">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4"
+            >
+              Your Complete Reading Package
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-gray-600 text-lg sm:text-xl max-w-2xl mx-auto"
+            >
+              Comprehensive analysis and personalized guidance tailored
+              specifically for {zodiac.name}
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {zodiac.readingIncludes.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="flex items-start gap-6 p-6 bg-gradient-to-r from-gray-50 to-white rounded-2xl hover:shadow-lg transition-all duration-300 border border-gray-100"
+              >
+                <div className="bg-gradient-to-r from-green-400 to-emerald-500 p-3 rounded-xl shadow-lg">
+                  <CheckCircle className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-800 text-lg sm:text-xl mb-3">
+                    {item}
+                  </h3>
+                  <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                    In-depth analysis with practical, actionable recommendations
+                    for your specific situation
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Astrologers Section */}
+      {/* Astrologers Section */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <div className="text-center mb-12">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4"
+            >
+              Meet Your Expert Guides
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-gray-600 text-lg sm:text-xl max-w-2xl mx-auto"
+            >
+              Connect with our verified and experienced astrologers for
+              personalized guidance
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+            {astrologers.map((astrologer, index) => (
+              <motion.div
+                key={astrologer.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                whileHover={{ y: -5 }}
+                className={`bg-white rounded-3xl shadow-xl overflow-hidden border-2 transition-all duration-300 flex flex-col h-full ${
+                  selectedAstrologer === astrologer.id
+                    ? "border-purple-500 shadow-2xl"
+                    : "border-white hover:border-purple-200"
+                }`}
+              >
+                {/* Astrologer Header */}
+                <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 p-6 sm:p-8 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12"></div>
+                  <div className="flex items-center gap-4 sm:gap-6 relative z-10">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30">
+                      <Users className="w-8 h-8 sm:w-10 sm:h-10" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl sm:text-2xl font-bold mb-1">
+                        {astrologer.name}
+                      </h3>
+                      <p className="text-purple-100 text-sm sm:text-base">
+                        {astrologer.specialization}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Astrologer Details */}
+                <div className="p-6 sm:p-8 flex flex-col flex-grow justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                          <span className="font-bold text-gray-800 text-lg">
+                            {astrologer.rating}
+                          </span>
+                        </div>
+                        <span className="text-gray-500 text-sm">
+                          ({astrologer.reviews} reviews)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                        <TrendingUp className="w-4 h-4" />
+                        <span className="font-semibold text-sm">
+                          {astrologer.successRate}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-600 text-sm sm:text-base mb-6 leading-relaxed">
+                      {astrologer.about}
+                    </p>
+
+                    <div className="space-y-4 mb-6">
+                      <div className="flex items-center gap-3 text-sm sm:text-base text-gray-600">
+                        <Clock className="w-5 h-5 text-purple-500" />
+                        <span>
+                          <strong>{astrologer.experience}</strong> Professional
+                          Experience
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm sm:text-base text-gray-600">
+                        <Users className="w-5 h-5 text-pink-500" />
+                        <span>
+                          <strong>{astrologer.clientsHelped}</strong> Satisfied
+                          Clients
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm sm:text-base text-gray-600">
+                        <Globe className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <strong>Languages:</strong>{" "}
+                          {astrologer.languages.join(", ")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm sm:text-base text-gray-600">
+                        <Target className="w-5 h-5 text-orange-500" />
+                        <span>
+                          <strong>Expertise:</strong>{" "}
+                          {astrologer.expertise.join(", ")}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Badges */}
+                    <div className="flex items-center gap-4 mb-6 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg">
+                        <Shield className="w-4 h-4 text-green-500" />
+                        <span>Verified Expert</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-lg">
+                        <Heart className="w-4 h-4 text-red-500" />
+                        <span>Trusted Advisor</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ✅ Fixed button always at bottom */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleWhatsAppBooking(astrologer)}
+                    className="w-full mt-auto bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-4 px-6 rounded-2xl hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 group cursor-pointer"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    <span>Book on WhatsApp</span>
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 rounded-3xl p-8 sm:p-12 text-white text-center relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative z-10">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6"
+            >
+              Begin Your Cosmic Journey Today
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto"
+            >
+              Connect with expert astrologers and unlock the secrets of your
+              stars
+            </motion.p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-8">
+              {[
+                { icon: Shield, text: "100% Secure & Confidential" },
+                { icon: CheckCircle, text: "Verified Astrologers" },
+                { icon: Clock, text: "Instant WhatsApp Connection" },
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + index * 0.1 }}
+                  className="flex items-center gap-3 justify-center bg-white/10 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/20"
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="text-sm font-medium">{item.text}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const firstAstrologer = astrologers[0];
+                handleWhatsAppBooking(firstAstrologer);
+              }}
+              className="bg-white text-purple-600 font-bold py-4 px-8 rounded-2xl hover:shadow-2xl transition-all duration-300 inline-flex items-center gap-3 cursor-pointer"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Start Your Reading Now
+            </motion.button>
+          </div>
+        </motion.div>
+      </section>
     </div>
   );
 };
 
-export default BookingPage;
+export default ZodiacDetails;

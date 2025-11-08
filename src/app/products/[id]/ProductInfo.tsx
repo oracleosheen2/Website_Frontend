@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 
@@ -30,13 +30,11 @@ interface Product {
   reviews?: Review[];
   features?: {
     freeShipping: boolean;
-    returns: string;
     warranty: string;
     authentic: boolean;
   };
   shippingInfo?: {
     delivery: string;
-    returnPolicy: string;
     securePayment: boolean;
   };
 }
@@ -51,6 +49,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+  const [showZoom, setShowZoom] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const imageRef = useRef<HTMLDivElement>(null);
+
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
@@ -58,6 +60,29 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const allImages = Array.from(
     new Set([product.image, ...(product.images || [])])
   );
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return;
+
+    const { left, top, width, height } =
+      imageRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+
+    // Limit the position to stay within image bounds
+    const boundedX = Math.max(0, Math.min(100, x));
+    const boundedY = Math.max(0, Math.min(100, y));
+
+    setZoomPosition({ x: boundedX, y: boundedY });
+  };
+
+  const handleMouseEnter = () => {
+    setShowZoom(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowZoom(false);
+  };
 
   const handleAddToCart = () => {
     if (product.size && product.size.length > 0 && !selectedSize) {
@@ -98,7 +123,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       name: product.name,
       price: product.price,
       image: product.image,
-      inStock: true, // You can set this based on product availability
+      inStock: true,
     };
 
     if (isInWishlist(product.id)) {
@@ -129,17 +154,15 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
   const discountPrice = product.price * 1.2;
 
-  // Dynamic data from product features
+  // Dynamic data from product features - REMOVED RETURNS
   const features = product.features || {
     freeShipping: true,
-    returns: "30 Day Returns",
     warranty: "2 Year Warranty",
     authentic: true,
   };
 
   const shippingInfo = product.shippingInfo || {
     delivery: "Delivery in 2-3 days",
-    returnPolicy: "30 days money back",
     securePayment: true,
   };
 
@@ -159,10 +182,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         {/* Main Product Card */}
         <div className="overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 md:p-0 p-2 md:pt-8">
-            {/* Left: Image Gallery - Amazon/Flipkart Style */}
+            {/* Left: Image Gallery with Zoom */}
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Thumbnail Gallery - Vertical on left */}
-              <div className="flex lg:flex-col gap-2 order-2 lg:order-1 lg:max-h-[70vh] p-2">
+              <div className="flex lg:flex-col gap-2 order-2 lg:order-1 lg:max-h-[90vh] p-2">
                 {allImages.map((img, idx) => (
                   <div
                     key={idx}
@@ -183,27 +206,65 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 ))}
               </div>
 
-              {/* Main Image Container */}
-              <div className="flex-1 order-1 lg:order-2">
+              {/* Main Image Container with Amazon-style Zoom */}
+              <div className="flex-1 order-1 lg:order-2 relative">
                 <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 to-blue-50 shadow-inner h-[70vh] w-full">
-                  <Image
-                    src={selectedImage}
-                    alt={product.name}
-                    fill
-                    className="object-cover transition-transform duration-500 hover:scale-105"
-                    priority
-                  />
+                  {/* Main Image with Lens */}
+                  <div
+                    ref={imageRef}
+                    className="relative w-full h-full cursor-crosshair"
+                    onMouseMove={handleMouseMove}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <Image
+                      src={selectedImage}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+
+                    {/* Zoom Lens */}
+                    {showZoom && (
+                      <div
+                        className="absolute w-42 h-42 bg-black/40 rounded-full bg-opacity-20 pointer-events-none z-10"
+                        style={{
+                          left: `calc(${zoomPosition.x}% - 64px)`,
+                          top: `calc(${zoomPosition.y}% - 64px)`,
+                          boxShadow: "0 0 0 1px rgba(255,255,255,0.8)",
+                        }}
+                      />
+                    )}
+                  </div>
+
                   {product.isNew && (
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute top-4 left-4 z-10">
                       <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg tracking-wide">
                         NEW ARRIVAL
                       </span>
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-400 to-amber-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-400 to-amber-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10">
                     -20%
                   </div>
                 </div>
+
+                {/* Zoomed Preview - Right Side Modal */}
+                {showZoom && (
+                  <div className="absolute left-full top-0 ml-6 w-140 h-140 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-20">
+                    <div
+                      className="w-full h-full bg-no-repeat"
+                      style={{
+                        backgroundImage: `url(${selectedImage})`,
+                        backgroundSize: "200%",
+                        backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                        backgroundBlendMode: "multiply",
+                      }}
+                    />
+                   
+                  </div>
+                )}
               </div>
             </div>
 
@@ -259,13 +320,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   </p>
                 </div>
                 <p className="text-green-600 font-semibold text-sm flex items-center gap-1">
-                  <span>✓</span>{" "}
-                  {features?.freeShipping && features?.returns
-                    ? `Free shipping & ${features?.returns}`
-                    : features?.freeShipping
-                    ? "Free shipping"
-                    : features?.returns
-                    ? features?.returns
+                  <span>✓</span>
+                  {features?.freeShipping
+                    ? "Free shipping available"
                     : "Standard shipping available"}
                 </p>
               </div>
@@ -372,7 +429,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl font-bold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white py-3 px-6 rounded-xl font-bold text-sm transition-all duration-300 transform shadow-lg hover:shadow-xl flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>🛒</span>
                     ADD TO CART
@@ -380,7 +437,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <button 
+                  <button
                     onClick={handleWishlistToggle}
                     className={`border-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
                       isInWishlist(product.id)
@@ -401,7 +458,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
               </div>
 
-              {/* Features - Dynamic from product data */}
+              {/* Features - Dynamic from product data - REMOVED RETURNS */}
               <div className="grid grid-cols-2 gap-3 pt-6 border-t border-gray-200">
                 {features.freeShipping && (
                   <div className="flex items-center gap-2">
@@ -411,19 +468,6 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     <div>
                       <p className="font-semibold text-gray-900 text-xs">
                         Free Shipping
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {features.returns && (
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-600 text-sm">↩️</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 text-xs">
-                        {features.returns}
                       </p>
                     </div>
                   </div>
@@ -454,20 +498,32 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     </div>
                   </div>
                 )}
+
+                {shippingInfo.securePayment && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 text-sm">🔒</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-xs">
+                        Secure Payment
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Rest of the code remains the same... */}
           {/* Product Tabs Section */}
           <div className="mt-8 bg-white  border border-white/50 mx-0 md:rounded-2xl">
-            {/* Tabs Navigation */}
+            {/* Tabs Navigation - REMOVED RETURNS TAB */}
             <div className="border-b border-gray-200 overflow-x-auto">
               <nav className="flex space-x-4 sm:space-x-6 md:space-x-8 px-3 sm:px-4 md:px-6 min-w-max">
                 {[
                   { id: "description", label: "Description" },
                   { id: "details", label: "Product Details" },
-                  { id: "shipping", label: "Shipping & Returns" },
+                  { id: "shipping", label: "Shipping" },
                   { id: "reviews", label: "Reviews" },
                 ].map((tab) => (
                   <button
@@ -587,12 +643,12 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               {activeTab === "shipping" && (
                 <div className="space-y-4">
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                    Shipping & Returns
+                    Shipping Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm sm:text-base">
                     <div className="space-y-3">
                       <h4 className="font-semibold text-gray-800">
-                        Shipping Information
+                        Delivery Options
                       </h4>
                       <ul className="space-y-2 text-gray-600">
                         <li className="flex items-center gap-2">
@@ -607,33 +663,25 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                           <span className="text-blue-500">📦</span>
                           Delivery within 2–5 business days
                         </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-blue-500">🌍</span>
-                          International shipping available
-                        </li>
                       </ul>
                     </div>
 
                     <div className="space-y-3">
                       <h4 className="font-semibold text-gray-800">
-                        Return Policy
+                        Service Information
                       </h4>
                       <ul className="space-y-2 text-gray-600">
                         <li className="flex items-center gap-2">
-                          <span className="text-green-500">↩️</span>
-                          {shippingInfo.returnPolicy}
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <span className="text-green-500">💰</span>
-                          Full refund guaranteed
+                          <span className="text-green-500">🌍</span>
+                          International shipping available
                         </li>
                         <li className="flex items-center gap-2">
                           <span className="text-green-500">📞</span>
-                          Free return shipping
+                          Customer support 24/7
                         </li>
                         <li className="flex items-center gap-2">
-                          <span className="text-green-500">🔄</span>
-                          Quick exchange available
+                          <span className="text-green-500">🔒</span>
+                          Secure payment processing
                         </li>
                       </ul>
                     </div>
@@ -734,7 +782,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             </div>
           </div>
 
-          {/* Additional Info Section - Dynamic from product data */}
+          {/* Additional Info Section - Dynamic from product data - REMOVED RETURNS */}
           <div className="bg-gradient-to-r from-pink-50 to-blue-50   mt-8 rounded-2xl ">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 md:p-8">
               {features.freeShipping && (
@@ -751,24 +799,22 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
               )}
 
-              {features.returns && (
+              {features.warranty && (
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
-                    <span className="text-amber-500 text-xl">↩️</span>
+                    <span className="text-amber-500 text-xl">🛡️</span>
                   </div>
                   <h4 className="font-bold text-gray-900 text-sm mb-1">
-                    Easy Returns
+                    {features.warranty}
                   </h4>
-                  <p className="text-gray-600 text-xs">
-                    {shippingInfo.returnPolicy}
-                  </p>
+                  <p className="text-gray-600 text-xs">Warranty Included</p>
                 </div>
               )}
 
               {shippingInfo.securePayment && (
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-3">
-                    <span className="text-blue-500 text-xl">🛡️</span>
+                    <span className="text-blue-500 text-xl">🔒</span>
                   </div>
                   <h4 className="font-bold text-gray-900 text-sm mb-1">
                     Secure Payment

@@ -4,93 +4,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-const zodiacData = [
-  {
-    id: 1,
-    name: "Aries",
-    date: "Mar 21 - Apr 19",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-ppp.jpg",
-    description: "Start your journey with courage and energy.",
-  },
-  {
-    id: 2,
-    name: "Taurus",
-    date: "Apr 20 - May 20",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-pp.png",
-    description: "Steadiness and patience will guide you.",
-  },
-  {
-    id: 3,
-    name: "Gemini",
-    date: "May 21 - Jun 20",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-ddd.jpg",
-    description: "Embrace curiosity and adaptability.",
-  },
-  {
-    id: 4,
-    name: "Cancer",
-    date: "Jun 21 - Jul 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-l.jpg",
-    description: "Trust your intuition and emotions.",
-  },
-  {
-    id: 5,
-    name: "Leo",
-    date: "Jul 23 - Aug 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-eee.jpg",
-    description: "Confidence and creativity lead the way.",
-  },
-  {
-    id: 6,
-    name: "Virgo",
-    date: "Aug 23 - Sep 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-pppp.jpg",
-    description: "Focus on details and practical solutions.",
-  },
-  {
-    id: 7,
-    name: "Libra",
-    date: "Sep 23 - Oct 22",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-dddd.jpg",
-    description: "Balance and harmony will guide decisions.",
-  },
-  {
-    id: 8,
-    name: "Scorpio",
-    date: "Oct 23 - Nov 21",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-q.jpg",
-    description: "Passion and transformation await you.",
-  },
-  {
-    id: 9,
-    name: "Sagittarius",
-    date: "Nov 22 - Dec 21",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-m.jpg",
-    description: "Adventure and optimism will thrive.",
-  },
-  {
-    id: 10,
-    name: "Capricorn",
-    date: "Dec 22 - Jan 19",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-hh.jpg",
-    description: "Discipline and persistence will pay off.",
-  },
-  {
-    id: 11,
-    name: "Aquarius",
-    date: "Jan 20 - Feb 18",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-ppp.jpg",
-    description: "Innovation and originality are key.",
-  },
-  {
-    id: 12,
-    name: "Pisces",
-    date: "Feb 19 - Mar 20",
-    image: "https://osheenoracle.com/wp-content/uploads/2024/12/card-pp.png",
-    description: "Imagination and compassion lead the way.",
-  },
-];
+import { zodiacData } from "@/utils/AstroData";
 
 
 const SliderRow = ({ rowData }: { rowData: typeof zodiacData }) => {
@@ -98,7 +12,7 @@ const SliderRow = ({ rowData }: { rowData: typeof zodiacData }) => {
   const [cardWidth, setCardWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const fullData = [...rowData, ...rowData, ...rowData]; // infinite effect
+  const fullData = [...rowData, ...rowData, ...rowData];
 
   useEffect(() => {
     const update = () => {

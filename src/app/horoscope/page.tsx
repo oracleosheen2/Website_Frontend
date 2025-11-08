@@ -1,7 +1,8 @@
+import Horoscope from '@/components/Horoscope/Horoscope';
 import React from 'react'
 
 const page = () => {
-  return <div className="text-gray-900 min-h-screen pt-30">Home Scope</div>;
+  return <div><Horoscope /> </div>;
 }
 
 export default page

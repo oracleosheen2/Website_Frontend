@@ -29,14 +29,24 @@ const profileLinks = [
   { name: "Logout", href: "/header/logout", icon: "🚪" },
 ];
 
+// Services dropdown items
+const servicesLinks = [
+  { name: "Spells", href: "/services/spells" },
+  { name: "Reading", href: "/services/reading" },
+  { name: "Consultation", href: "/services/consultation" },
+];
+
 export default function HeroHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
   const { getTotalItems } = useCart();
   const { getTotalWishlistItems } = useWishlist();
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const servicesDropdownRef = useRef<HTMLDivElement>(null);
+  const servicesTriggerRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Detect scroll
@@ -54,7 +64,7 @@ export default function HeroHeader() {
     };
   }, [menuOpen]);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -62,6 +72,16 @@ export default function HeroHeader() {
         !profileDropdownRef.current.contains(event.target as Node)
       ) {
         setProfileDropdownOpen(false);
+      }
+      
+      // Services dropdown outside click - check both trigger and dropdown
+      if (
+        servicesTriggerRef.current &&
+        servicesDropdownRef.current &&
+        !servicesTriggerRef.current.contains(event.target as Node) &&
+        !servicesDropdownRef.current.contains(event.target as Node)
+      ) {
+        setServicesDropdownOpen(false);
       }
     };
 
@@ -85,6 +105,63 @@ export default function HeroHeader() {
 
   const handleProfileItemClick = (href: string) => {
     setProfileDropdownOpen(false);
+    router.push(href);
+  };
+
+  // Services dropdown handlers - FIXED VERSION
+  const handleServicesMouseEnter = () => {
+    if (window.innerWidth >= 768) { // Desktop
+      setServicesDropdownOpen(true);
+    }
+  };
+
+  const handleServicesMouseLeave = (e: React.MouseEvent) => {
+    if (window.innerWidth >= 768) { // Desktop
+      // Check if we're moving to the dropdown
+      const relatedTarget = e.relatedTarget as Node;
+      if (
+        servicesDropdownRef.current &&
+        servicesDropdownRef.current.contains(relatedTarget)
+      ) {
+        return; // Don't close if moving to dropdown
+      }
+      
+      // Small delay to ensure smooth transition
+      setTimeout(() => {
+        if (!servicesDropdownRef.current?.contains(document.activeElement)) {
+          setServicesDropdownOpen(false);
+        }
+      }, 100);
+    }
+  };
+
+  const handleDropdownMouseEnter = () => {
+    if (window.innerWidth >= 768) {
+      setServicesDropdownOpen(true);
+    }
+  };
+
+  const handleDropdownMouseLeave = () => {
+    if (window.innerWidth >= 768) {
+      // Small delay to ensure we're not moving back to trigger
+      setTimeout(() => {
+        setServicesDropdownOpen(false);
+      }, 150);
+    }
+  };
+
+  const handleServicesClick = () => {
+    if (window.innerWidth < 768) { // Mobile
+      setServicesDropdownOpen(!servicesDropdownOpen);
+    } else {
+      // Desktop click - navigate to main services page
+      router.push("/services");
+    }
+  };
+
+  const handleServicesItemClick = (href: string) => {
+    setServicesDropdownOpen(false);
+    setMenuOpen(false);
     router.push(href);
   };
 
@@ -128,13 +205,67 @@ export default function HeroHeader() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex space-x-6 lg:space-x-10 items-center">
           {navLinks.map((link) => (
-            <a
+            <div
               key={link.name}
-              href={link.href}
-              className="text-gray-800 text-sm lg:text-base font-medium hover:text-purple-600 transition-all duration-300 hover:scale-105"
+              className="relative"
             >
-              {link.name}
-            </a>
+              {link.name === "Services" ? (
+                <div 
+                  className="relative"
+                  ref={servicesTriggerRef}
+                  onMouseEnter={handleServicesMouseEnter}
+                  onMouseLeave={handleServicesMouseLeave}
+                >
+                  <button
+                    className="text-gray-800 text-sm lg:text-base font-medium hover:text-purple-600 transition-all duration-300 hover:scale-105 flex items-center gap-1 cursor-pointer"
+                    onClick={handleServicesClick}
+                  >
+                    {link.name}
+                    <MdKeyboardArrowDown 
+                      className={`transition-transform duration-300 ${
+                        servicesDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Services Dropdown with connector */}
+                  <div
+                    className="absolute top-full left-0 w-full h-2 bg-transparent"
+                    style={{ zIndex: 60 }}
+                  ></div>
+                  
+                  {/* Services Dropdown */}
+                  <div
+                    ref={servicesDropdownRef}
+                    className={`absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-purple-100 transition-all duration-300 transform ${
+                      servicesDropdownOpen
+                        ? "opacity-100 scale-100 translate-y-0"
+                        : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                    }`}
+                    style={{ zIndex: 50 }}
+                    onMouseEnter={handleDropdownMouseEnter}
+                    onMouseLeave={handleDropdownMouseLeave}
+                  >
+                    {servicesLinks.map((service) => (
+                      <button
+                        key={service.name}
+                        onClick={() => handleServicesItemClick(service.href)}
+                        className="w-full px-4 py-3 text-left hover:bg-purple-50 transition-all duration-200 text-gray-700 hover:text-purple-600 font-medium first:rounded-t-xl last:rounded-b-xl cursor-pointer"
+                      >
+                        {service.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <a
+                  href={link.href}
+                  className="text-gray-800 text-sm lg:text-base font-medium hover:text-purple-600 transition-all duration-300 hover:scale-105"
+                >
+                  {link.name}
+                </a>
+              )}
+            </div>
           ))}
 
           <Link
@@ -366,15 +497,54 @@ export default function HeroHeader() {
             <div className="flex-1 overflow-y-auto pb-6 pt-20">
               <nav className="flex flex-col px-6 space-y-4">
                 {navLinks.map((link, index) => (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    className="text-white text-lg font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2"
-                    style={{ transitionDelay: `${index * 100}ms` }}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {link.name}
-                  </a>
+                  <div key={link.name}>
+                    {link.name === "Services" ? (
+                      <div className="relative">
+                        <button
+                          className="w-full text-white text-lg font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2 flex items-center justify-between"
+                          style={{ transitionDelay: `${index * 100}ms` }}
+                          onClick={handleServicesClick}
+                        >
+                          <span>{link.name}</span>
+                          <MdKeyboardArrowDown 
+                            className={`transition-transform duration-300 ${
+                              servicesDropdownOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                        
+                        {/* Mobile Services Dropdown */}
+                        <div
+                          className={`ml-4 mt-2 space-y-2 transition-all duration-300 overflow-hidden ${
+                            servicesDropdownOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          {servicesLinks.map((service, serviceIndex) => (
+                            <a
+                              key={service.name}
+                              href={service.href}
+                              className="block text-white/90 text-base font-medium py-2 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2"
+                              style={{
+                                transitionDelay: `${(index + serviceIndex) * 100 + 200}ms`,
+                              }}
+                              onClick={() => handleServicesItemClick(service.href)}
+                            >
+                              {service.name}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-white text-lg font-medium py-3 px-4 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:translate-x-2"
+                        style={{ transitionDelay: `${index * 100}ms` }}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {link.name}
+                      </a>
+                    )}
+                  </div>
                 ))}
 
                 {/* Profile Section in Mobile Menu */}
