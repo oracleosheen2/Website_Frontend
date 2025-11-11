@@ -151,7 +151,7 @@ const StarsOnInstagram = () => {
 
   return (
     <div
-      className="py-16 px-4 sm:px-6 lg:px-10 bg-white"
+      className="py-16 px-4 sm:px-6 lg:px-10"
       style={{ fontFamily: "var(--font-montserrat)" }}
     >
       <div className="text-left mb-10 max-w-3xl">

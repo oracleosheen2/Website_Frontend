@@ -20,6 +20,7 @@ import {
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { astrologers, zodiacData } from "@/utils/AstroData";
+import CommonPageHeader from "@/components/CommonPages/CommonPageHeader";
 
 interface PageProps {
   params: {
@@ -38,8 +39,10 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
 
   if (!zodiac) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center p-4">
-        <div className="text-center max-w-md mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center p-4"
+      
+      >
+        <div className="text-center max-w-7xl mx-auto">
           <div className="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-6">
             <Sparkles className="w-12 h-12 text-white" />
           </div>
@@ -70,12 +73,10 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
 
   return (
     <div
-      className="min-h-screen pt-12"
-      style={{
-        background:
-          "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 10%, #C4F9FF 100%)",
-      }}
+      className="min-h-screen "
+     
     >
+      <CommonPageHeader title="Book Your Reading" subtitle="Home - Booking" />
       {/* Header with Back Button */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -86,7 +87,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
       </div>
 
       {/* Zodiac Hero Section */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 my-10">
+      <section className="container w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -200,7 +201,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
       </section>
 
       {/* Benefits Section */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+      <section className="container w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -257,7 +258,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
       </section>
 
       {/* Reading Includes Section */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+      <section className="container w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -312,8 +313,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
       </section>
 
       {/* Astrologers Section */}
-      {/* Astrologers Section */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+      <section className="container w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -353,7 +353,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
                 }`}
               >
                 {/* Astrologer Header */}
-                <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 p-6 sm:p-8 text-white relative overflow-hidden">
+                <div className=" bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 p-6 sm:p-8 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-12 translate-x-12"></div>
                   <div className="flex items-center gap-4 sm:gap-6 relative z-10">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30">
@@ -460,7 +460,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-5">
+      <section className="container w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

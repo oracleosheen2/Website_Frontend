@@ -157,32 +157,38 @@ const Horoscope = () => {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {zodiacSigns.map((zodiac: ZodiacSign, index: number) => (
+              {zodiacSigns?.map((zodiac: ZodiacSign, index: number) => (
                 <div
                   key={zodiac.id}
                   onClick={() => handleZodiacSelect(zodiac)}
-                  className="group cursor-pointer transform transition-all duration-500 hover:scale-105"
+                  className="group cursor-pointer transform transition-all duration-500 "
                   style={{
                     animationDelay: `${index * 100}ms`,
                   }}
                 >
-                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-white group-hover:border-purple-300">
-                    {/* Zodiac Icon */}
+                  <div className="bg-transparent rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 group-hover:border-purple-300">
+                    {/* Zodiac Icon (no background, visible color) */}
                     <div
-                      className={`text-4xl mb-3 text-center bg-gradient-to-br ${getElementColor(
-                        zodiac.element
-                      )} bg-clip-text text-transparent`}
+                      className={`text-5xl mb-3 text-center ${
+                        zodiac.element.toLowerCase() === "fire"
+                          ? "text-red-500"
+                          : zodiac.element.toLowerCase() === "earth"
+                          ? "text-green-500"
+                          : zodiac.element.toLowerCase() === "air"
+                          ? "text-blue-500"
+                          : "text-purple-500"
+                      }`}
                     >
                       {zodiac.icon}
                     </div>
 
                     {/* Zodiac Name */}
-                    <h3 className="text-lg font-bold text-center text-gray-800 mb-2">
+                    <h3 className="text-lg font-bold text-center text-gray-800 mb-2 cursor-pointer group-hover:text-purple-600 transition-colors duration-300 ">
                       {language === "english" ? zodiac.name : zodiac.nameHindi}
                     </h3>
 
                     {/* Dates */}
-                    <p className="text-xs text-center text-gray-600 mb-2">
+                    <p className="text-xs text-center text-gray-600 mb-2 cursor-pointer">
                       {language === "english"
                         ? zodiac.dates
                         : zodiac.datesHindi}
@@ -191,7 +197,7 @@ const Horoscope = () => {
                     {/* Element */}
                     <div className="text-center">
                       <span
-                        className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
+                        className={`inline-block px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${
                           zodiac.element.toLowerCase() === "fire"
                             ? "bg-red-100 text-red-700"
                             : zodiac.element.toLowerCase() === "earth"
@@ -218,7 +224,7 @@ const Horoscope = () => {
             <div className="mb-8">
               <button
                 onClick={handleBackToZodiacs}
-                className="flex items-center text-purple-600 hover:text-purple-800 transition-colors duration-300 font-semibold"
+                className="flex items-center text-purple-600 hover:text-purple-800 transition-colors duration-300 font-semibold cursor-pointer"
               >
                 <svg
                   className="w-5 h-5 mr-2"
@@ -247,7 +253,7 @@ const Horoscope = () => {
                     <div
                       className={`text-6xl mr-4 bg-gradient-to-br ${getElementColor(
                         selectedZodiac.element
-                      )} bg-clip-text text-transparent`}
+                      )} bg-clip-text `}
                     >
                       {selectedZodiac.icon}
                     </div>
@@ -289,7 +295,7 @@ const Horoscope = () => {
                 <button
                   key={timeFrame.key}
                   onClick={() => handleTimeFrameChange(timeFrame.key)}
-                  className={`px-6 py-3 rounded-xl font-semibold transition-all duration-500 transform hover:scale-105 ${
+                  className={`px-6 py-3 rounded-xl font-semibold transition-all duration-500 transform  ${
                     selectedTimeFrame === timeFrame.key
                       ? "bg-purple-600 text-white shadow-lg scale-105"
                       : "bg-white text-purple-600 shadow-md hover:shadow-lg"
@@ -306,7 +312,7 @@ const Horoscope = () => {
                 <div
                   key={rishi.id}
                   onClick={() => handleRishiSelect(rishi.id)}
-                  className={`p-6 rounded-2xl cursor-pointer transition-all duration-500 transform hover:scale-105 ${
+                  className={`p-6 rounded-2xl cursor-pointer transition-all duration-500 transform  ${
                     selectedRishi === rishi.id
                       ? "bg-white shadow-2xl scale-105 border-2 border-purple-400"
                       : "bg-white/80 shadow-lg hover:shadow-xl"
@@ -330,7 +336,7 @@ const Horoscope = () => {
                 (prediction: HoroscopeItem, index: number) => (
                   <div
                     key={prediction.id}
-                    className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl hover:shadow-2xl transition-all duration-700 transform hover:scale-105"
+                    className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl hover:shadow-2xl transition-all duration-700 transform "
                     style={{
                       animationDelay: `${index * 200}ms`,
                     }}

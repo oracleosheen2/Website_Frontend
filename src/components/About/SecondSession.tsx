@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function SecondSession() {
   return (
     <>
-      <section className="relative bg-white mx-auto min-h-auto overflow-hidden flex items-center justify-center md:pt-0 pt-16 md:py-24">
+      <section className="relative  mx-auto min-h-auto overflow-hidden flex items-center justify-center md:pt-0 pt-16 md:py-24">
         <div className="relative z-10 container mx-auto flex flex-col md:flex-row items-center justify-between gap-0">
           {/* Left Image Section */}
 
@@ -75,7 +75,7 @@ export default function SecondSession() {
         `}</style>
       </section>
 
-      <div className="flex justify-center items-center  pb-5 bg-white">
+      <div className="flex justify-center items-center  pb-5 ">
         <div className="flex flex-col md:flex-row bg-[#4F4742] rounded-2xl overflow-hidden text-[#F5CDB0] shadow-lg divide-y md:divide-y-0 md:divide-x divide-[#6B615A]">
           {/* Item 1 */}
           <div className="flex items-center justify-center gap-3 sm:gap-4 px-8 sm:px-12 py-6 sm:py-10">

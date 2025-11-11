@@ -11,8 +11,14 @@ import {
 } from "react-icons/fa6";
 import Image from "next/image";
 import { FaYoutube } from "react-icons/fa";
+import Link from "next/link";
 
 const Footer = () => {
+   const links = [
+     { name: "About Us", link: "/about" },
+     { name: "Services", link: "/services/spells" },
+     { name: "Horoscope", link: "/horoscope" },
+   ];
   return (
     <footer className="bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
       {/* Animated gradient border */}
@@ -97,24 +103,19 @@ const Footer = () => {
                   Company
                 </span>
               </h3>
+
               <ul className="space-y-3">
-                {[
-                  "About Us",
-                  "Readers",
-                  "Services",
-                  "Horoscope",
-                  "Testimonials",
-                ].map((item, index) => (
+                {links.map((item, index) => (
                   <li key={index}>
-                    <a
-                      href="#"
+                    <Link
+                      href={item.link}
                       className="text-gray-300 hover:text-white transition-all duration-500 flex items-center space-x-3 group"
                     >
                       <div className="w-2 h-2 bg-gradient-to-r from-[#FBB5E7] to-[#c6e400] rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-150"></div>
                       <span className="group-hover:translate-x-3 transition-transform duration-500 group-hover:font-medium">
-                        {item}
+                        {item.name}
                       </span>
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -213,17 +214,24 @@ const Footer = () => {
               </div>
 
               <div className="flex items-center space-x-6 text-sm">
-                {["Privacy Policy", "Terms of Service", "Cookie Policy"].map(
-                  (item, index) => (
-                    <a
-                      key={index}
-                      href="#"
-                      className="text-gray-400 hover:text-white transition-all duration-500 hover:font-medium transform hover:translate-y-1"
-                    >
-                      {item}
-                    </a>
-                  )
-                )}
+                <Link
+                  href="/privacypolicy"
+                  className="text-gray-400 hover:text-white transition-all duration-500 hover:font-medium transform hover:translate-y-1"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  href="/termsofservice"
+                  className="text-gray-400 hover:text-white transition-all duration-500 hover:font-medium transform hover:translate-y-1"
+                >
+                  Terms of Service
+                </Link>
+                {/* <Link
+                  href="/cookiepolicy"
+                  className="text-gray-400 hover:text-white transition-all duration-500 hover:font-medium transform hover:translate-y-1"
+                >
+                  Cookie Policy
+                </Link> */}
               </div>
             </div>
 

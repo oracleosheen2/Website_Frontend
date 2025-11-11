@@ -6,7 +6,7 @@ const WelcomeOsheenOracle = () => {
   const [activeTab, setActiveTab] = useState("oracle");
 
   return (
-    <div className="relative min-h-screen flex items-center px-4 sm:px-6 lg:px-12 py-12 sm:py-16 md:py-24">
+    <div className="relative min-h-screen flex items-center px-4 sm:px-6 lg:px-12 py-12 sm:py-16 md:py-24 ">
       {/* Background Zodiac Style */}
       <div className="absolute inset-0 opacity-40 bg-[url('/assets/Group.png')] bg-no-repeat bg-left-top bg-contain pointer-events-none"></div>
 

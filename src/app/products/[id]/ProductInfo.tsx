@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 
@@ -43,6 +43,39 @@ interface ProductInfoProps {
   product: Product;
 }
 
+// Custom hook for image preloading
+const useImagePreloader = (imageUrls: string[]) => {
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    let isMounted = true;
+    const promises = imageUrls.map((url) => {
+      return new Promise<void>((resolve) => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.onload = () => {
+          if (isMounted) {
+            setLoadedImages((prev) => new Set([...prev, url]));
+          }
+          resolve();
+        };
+        img.onerror = () => resolve();
+      });
+    });
+
+    Promise.all(promises).then(() => {
+      console.log("✅ All product images preloaded successfully!");
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [imageUrls]);
+
+  return loadedImages;
+};
+
+
 export default function ProductInfo({ product }: ProductInfoProps) {
   const [selectedImage, setSelectedImage] = useState(product.image);
   const [selectedSize, setSelectedSize] = useState("");
@@ -56,13 +89,17 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  // Combine main image with images array
-  const allImages = Array.from(
-    new Set([product.image, ...(product.images || [])])
+  // Combine main image with images array and memoize
+  const allImages = useMemo(
+    () => Array.from(new Set([product.image, ...(product.images || [])])),
+    [product.image, product.images]
   );
 
+  // Preload all images
+  const loadedImages = useImagePreloader(allImages);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageRef.current) return;
+    if (!imageRef.current || !showZoom) return;
 
     const { left, top, width, height } =
       imageRef.current.getBoundingClientRect();
@@ -77,10 +114,19 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   };
 
   const handleMouseEnter = () => {
-    setShowZoom(true);
+    // Only show zoom if the current image is loaded
+    if (loadedImages.has(selectedImage)) {
+      setShowZoom(true);
+    }
   };
 
   const handleMouseLeave = () => {
+    setShowZoom(false);
+  };
+
+  const handleImageSelect = (img: string) => {
+    setSelectedImage(img);
+    // Reset zoom when changing image
     setShowZoom(false);
   };
 
@@ -154,7 +200,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
   const discountPrice = product.price * 1.2;
 
-  // Dynamic data from product features - REMOVED RETURNS
+  // Dynamic data from product features
   const features = product.features || {
     freeShipping: true,
     warranty: "2 Year Warranty",
@@ -169,6 +215,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   // Calculate reviews count and percentages
   const reviewsCount = product.reviews?.length || 128;
   const averageRating = product.rating;
+
+  // Check if current image is loaded
+  const isCurrentImageLoaded = loadedImages.has(selectedImage);
 
   return (
     <div
@@ -194,14 +243,21 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                         ? "border-pink-500 ring-2 ring-pink-200 scale-105"
                         : "border-gray-200 hover:border-pink-300"
                     }`}
-                    onClick={() => setSelectedImage(img)}
+                    onClick={() => handleImageSelect(img)}
                   >
                     <Image
                       src={img}
                       alt={`Thumbnail ${idx + 1}`}
                       fill
                       className="object-cover"
+                      loading="lazy"
                     />
+                    {/* Loading indicator for thumbnails */}
+                    {!loadedImages.has(img) && (
+                      <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+                        <div className="w-4 h-4 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -221,18 +277,26 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                       src={selectedImage}
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className={`object-cover transition-opacity duration-500 ${
+                        isCurrentImageLoaded ? "opacity-100" : "opacity-0"
+                      }`}
                       priority
                     />
 
-                    {/* Zoom Lens */}
-                    {showZoom && (
+                    {/* Loading State for Main Image */}
+                    {!isCurrentImageLoaded && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse rounded-2xl">
+                        <div className="w-10 h-10 border-4 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+
+                    {/* Zoom Lens - Only show when image is loaded and zoom is active */}
+                    {showZoom && isCurrentImageLoaded && (
                       <div
-                        className="absolute w-42 h-42 bg-black/40 rounded-full bg-opacity-20 pointer-events-none z-10"
+                        className="absolute w-42 h-42 bg-black/40 rounded-full bg-opacity-20 pointer-events-none z-10 border-2 border-white/50 shadow-lg"
                         style={{
                           left: `calc(${zoomPosition.x}% - 64px)`,
                           top: `calc(${zoomPosition.y}% - 64px)`,
-                          boxShadow: "0 0 0 1px rgba(255,255,255,0.8)",
                         }}
                       />
                     )}
@@ -250,19 +314,17 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   </div>
                 </div>
 
-                {/* Zoomed Preview - Right Side Modal */}
-                {showZoom && (
+                {/* Zoomed Preview - Right Side Modal - Only show when image is loaded */}
+                {showZoom && isCurrentImageLoaded && (
                   <div className="absolute left-full top-0 ml-6 w-140 h-140 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-20">
                     <div
-                      className="w-full h-full bg-no-repeat"
+                      className="w-full h-full bg-no-repeat bg-origin-padding transition-all duration-100"
                       style={{
                         backgroundImage: `url(${selectedImage})`,
                         backgroundSize: "200%",
                         backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                        backgroundBlendMode: "multiply",
                       }}
                     />
-                   
                   </div>
                 )}
               </div>
@@ -334,7 +396,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               </p>
 
               {/* Color Selection */}
-              {/* {product.color && product.color.length > 0 && (
+              {product.color && product.color.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-gray-900 text-sm">
@@ -375,7 +437,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     ))}
                   </div>
                 </div>
-              )} */}
+              )}
 
               {/* Size Selection */}
               {product.size && product.size.length > 0 && (
@@ -458,7 +520,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 </div>
               </div>
 
-              {/* Features - Dynamic from product data - REMOVED RETURNS */}
+              {/* Features - Dynamic from product data */}
               <div className="grid grid-cols-2 gap-3 pt-6 border-t border-gray-200">
                 {features.freeShipping && (
                   <div className="flex items-center gap-2">
@@ -517,7 +579,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
           {/* Product Tabs Section */}
           <div className="mt-8 bg-white  border border-white/50 mx-0 md:rounded-2xl">
-            {/* Tabs Navigation - REMOVED RETURNS TAB */}
+            {/* Tabs Navigation */}
             <div className="border-b border-gray-200 overflow-x-auto">
               <nav className="flex space-x-4 sm:space-x-6 md:space-x-8 px-3 sm:px-4 md:px-6 min-w-max">
                 {[
@@ -782,7 +844,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             </div>
           </div>
 
-          {/* Additional Info Section - Dynamic from product data - REMOVED RETURNS */}
+          {/* Additional Info Section - Dynamic from product data */}
           <div className="bg-gradient-to-r from-pink-50 to-blue-50   mt-8 rounded-2xl ">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 md:p-8">
               {features.freeShipping && (
