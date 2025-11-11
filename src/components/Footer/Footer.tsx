@@ -105,7 +105,7 @@ const Footer = () => {
               </h3>
 
               <ul className="space-y-3">
-                {links.map((item, index) => (
+                {links?.map((item, index) => (
                   <li key={index}>
                     <Link
                       href={item.link}

@@ -39,9 +39,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
 
   if (!zodiac) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center p-4"
-      
-      >
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center p-4">
         <div className="text-center max-w-7xl mx-auto">
           <div className="w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-6">
             <Sparkles className="w-12 h-12 text-white" />
@@ -72,10 +70,7 @@ const ZodiacDetails: React.FC<PageProps> = ({ params }) => {
   };
 
   return (
-    <div
-      className="min-h-screen "
-     
-    >
+    <div>
       <CommonPageHeader title="Book Your Reading" subtitle="Home - Booking" />
       {/* Header with Back Button */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

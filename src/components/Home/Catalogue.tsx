@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { zodiacData } from "@/utils/AstroData";
 
-
 const SliderRow = ({ rowData }: { rowData: typeof zodiacData }) => {
   const [index, setIndex] = useState(0);
   const [cardWidth, setCardWidth] = useState(0);
@@ -123,6 +122,7 @@ const Catalogue = () => {
   const half = Math.ceil(zodiacData.length / 2);
   const firstRow = zodiacData.slice(0, half);
   const secondRow = zodiacData.slice(half);
+  const router = useRouter();
 
   return (
     <div
@@ -150,6 +150,21 @@ const Catalogue = () => {
           and help you achieve your goals.
         </p>
       </div>
+      {/* <button
+        onClick={() => router.push("/cataloguedetails")}
+        className="relative text-gray-700 font-medium transition-all duration-300 group cursor-pointer hover:text-sky-500 hover:-translate-y-0.5"
+      >
+        View All
+        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
+      </button> */}
+      <button
+        onClick={() => router.push("/cataloguedetails")}
+        className="relative text-gray-700 font-medium transition-all duration-300 group cursor-pointer hover:text-sky-500 hover:-translate-y-0.5 mb-8"
+        style={{ fontFamily: "var(--font-montserrat)" }}
+      >
+        View All
+        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-sky-500 transition-all duration-300 group-hover:w-full"></span>
+      </button>
 
       <div className="space-y-16">
         <SliderRow rowData={firstRow} />
