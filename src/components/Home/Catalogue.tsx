@@ -95,7 +95,7 @@ const SliderRow = ({ rowData }: { rowData: typeof zodiacData }) => {
                   className="text-xl font-semibold text-[#3D2E4F]"
                   style={{ fontFamily: "var(--font-montserrat)" }}
                 >
-                  {zodiac.name} Reading
+                  {zodiac.name}
                 </h3>
 
                 <p className="mt-3 text-sm text-gray-600">

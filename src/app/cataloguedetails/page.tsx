@@ -355,7 +355,7 @@ const CataloguePage = () => {
                         className="text-xl font-semibold text-[#3D2E4F] mb-2"
                         style={{ fontFamily: "var(--font-montserrat)" }}
                       >
-                        {zodiac.name} Reading
+                        {zodiac.name}
                       </h3>
 
                       <div className="flex items-center justify-between mb-3">
