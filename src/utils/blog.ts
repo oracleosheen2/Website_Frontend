@@ -16,86 +16,29 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     id: 1,
-    date: "Dec 15, 2024",
-    comments: 23,
-    views: 1247,
-    title: "Understanding Your Rising Sign: The Mask You Wear",
+    date: "Dec 22, 2024",
+    comments: 18,
+    views: 945,
+    title: "Creating Visual Meditation for Inner Peace",
     description:
-      "Discover how your ascendant sign influences your personality, first impressions, and the way you approach life. Learn why people often mistake your rising sign for your sun sign and how to harness this powerful energy.",
-    image:
-      "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&h=500&fit=crop",
-    category: "Zodiac Signs",
-    author: "Sarah Chen",
-    authorInitials: "SC",
+      "In a world that moves too fast, mandalas whisper the language of stillness sacred circles that mirror the soul. Their intricate patterns invite us to pause, breathe, and journey inward. Each curve and color becomes a doorway to peace, each line a pathway to divine connection. The Power of Mandalas Mandalas, with their geometric harmony, are more than just art — they are spiritual maps guiding us back to our center. Every color, shape, and symbol holds meaning. Blue speaks of serenity, gold of divine wisdom, green of healing, and red of vitality. Begin your journey by exploring the symbolism of these shapes and hues. Allow your intuition to choose what feels aligned with your intention — whether it's healing, love, clarity, or manifestation. You can draw your own mandala using colored pencils, markers, or digital tools, letting your hand move freely with your inner rhythm. As you create, breathe gently. With each stroke, infuse your mandala with your energy — your hopes, your peace, your prayers. Let the process itself become meditation. If you prefer, gaze upon a pre-made mandala during your meditation. Let its patterns pull your awareness inward, quieting thoughts and awakening calm. Mandalas are a visual language of the soul — a sacred mirror reflecting your inner harmony.",
+    image: "/images/withcandle.png",
+    category: "Meditation & Mindfulness",
+    author: "Ananya Sharma",
+    authorInitials: "AS",
   },
   {
     id: 2,
-    date: "Dec 08, 2024",
-    comments: 16,
-    views: 892,
-    title: "Mercury Retrograde Survival Guide 2024",
+    date: "Dec 18, 2024",
+    comments: 22,
+    views: 1103,
+    title: "Connecting with Nature Spirits for Guidance",
     description:
-      "Navigate the upcoming Mercury retrograde with confidence. Learn practical tips for communication, technology, and travel during this cosmic period, plus how to use this time for reflection and revision.",
+      "Step into an ancient forest, where sunlight filters through emerald leaves and the air hums with unseen magic. This is the realm of nature spirits — guardians of trees, waters, and wild meadows. For centuries, mystics and healers have honored these gentle beings, knowing their presence brings guidance, healing, and harmony. To connect with them, begin by slowing down. Breathe with the rhythm of the earth. Notice the whisper of the wind through branches, the melody of a bird's song, or the sacred scent of damp soil after rain. In these subtle signs, the spirits speak. Offer a small gesture of respect — a song, a poem, a crystal, or a simple stone from your heart. Then sit in stillness. Let your senses open beyond sight and sound. Listen not with your ears, but with your spirit. You may feel a wave of peace, a shimmer of energy, or a vision flickering within your mind's eye — gentle messages from the unseen realms. These are the ways nature spirits communicate — through feelings, intuition, and the quiet language of harmony. Their wisdom flows softly, reminding us that connection is built on love, humility, and reverence. Each tree carries its own soul. The steadfast oak offers grounding and ancient strength. The graceful birch embodies renewal and resilience. The willow teaches emotional flow, while the pine holds cleansing light. As you walk through forests and fields, feel how the energy changes — the way a sunlit clearing hums differently than a shaded grove, or how a flowing stream carries songs of release and renewal. By honoring and listening, you awaken to the truth: the wildwood is alive, conscious, and deeply aware. Every rustling leaf, every dancing shadow speaks the language of balance and belonging. To connect with nature spirits is to remember that you are not separate from nature — you are part of her breath, her rhythm, her eternal song.",
     image:
-      "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&h=500&fit=crop",
-    category: "Planetary Transits",
-    author: "Marcus Rivera",
-    authorInitials: "MR",
-  },
-  {
-    id: 3,
-    date: "Dec 01, 2024",
-    comments: 31,
-    views: 1563,
-    title: "The Full Moon in Gemini: Communication Breakthroughs",
-    description:
-      "This month's full moon in Gemini brings opportunities for clear communication and mental breakthroughs. Discover rituals and practices to make the most of this energetic lunar phase in your personal and professional life.",
-    image:
-      "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=800&h=500&fit=crop",
-    category: "Moon Phases",
-    author: "Luna Martinez",
-    authorInitials: "LM",
-  },
-  {
-    id: 4,
-    date: "Nov 24, 2024",
-    comments: 28,
-    views: 1342,
-    title: "Saturn Return: Your Cosmic Coming of Age",
-    description:
-      "Between ages 28-30, everyone experiences their first Saturn return. Learn what this significant astrological event means for your career, relationships, and personal growth during this transformative period.",
-    image:
-      "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800&h=500&fit=crop",
-    category: "Planetary Transits",
-    author: "David Thompson",
-    authorInitials: "DT",
-  },
-  {
-    id: 5,
-    date: "Nov 17, 2024",
-    comments: 19,
-    views: 987,
-    title: "Venus in Scorpio: Deepening Relationships",
-    description:
-      "With Venus moving through intense Scorpio, discover how to transform your relationships and attract deeper connections. This transit brings passion, intimacy, and opportunities for emotional healing.",
-    image:
-      "https://images.unsplash.com/photo-1465101162946-4377e57745c3?w=800&h=500&fit=crop",
-    category: "Planetary Transits",
-    author: "Isabelle Rose",
-    authorInitials: "IR",
-  },
-  {
-    id: 6,
-    date: "Nov 10, 2024",
-    comments: 42,
-    views: 2103,
-    title: "Manifesting with Moon Water: A Practical Guide",
-    description:
-      "Learn how to create and use moon water for manifestation, healing, and spiritual growth. Simple steps to harness lunar energy for your intentions during different moon phases throughout the month.",
-    image:
-      "https://images.unsplash.com/photo-1505506874110-6a7a69069a08?w=800&h=500&fit=crop",
-    category: "Moon Magic",
-    author: "Elena Star",
-    authorInitials: "ES",
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=500&fit=crop",
+    category: "Nature Spirituality",
+    author: "Rohan Wilde",
+    authorInitials: "RW",
   },
 ];

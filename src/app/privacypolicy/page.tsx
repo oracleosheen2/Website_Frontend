@@ -11,8 +11,9 @@ const PrivacyPolicy = () => {
           </h1>
           <div className="w-24 h-1 bg-blue-600 mx-auto mb-6"></div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Your privacy is our priority. Learn how we protect and handle your
-            information.
+            At Osheen Oracle, we are committed to protecting your privacy and
+            ensuring that your personal information is handled safely and
+            responsibly.
           </p>
         </div>
 
@@ -24,10 +25,10 @@ const PrivacyPolicy = () => {
               Our Commitment to Your Privacy
             </h2>
             <p className="text-blue-100 leading-relaxed">
-              At Osheen Oracle, we are committed to protecting your privacy and
-              ensuring that your personal information is handled in a safe and
-              responsible manner. This Privacy Policy outlines how we collect,
-              use, and safeguard your data.
+              This Privacy Policy outlines the types of information we collect,
+              how we use it, and the measures we take to safeguard your data. By
+              using our website and services, you consent to the practices
+              described in this policy.
             </p>
           </div>
 
@@ -60,18 +61,21 @@ const PrivacyPolicy = () => {
                   <p>
                     We collect non-personal information about how you interact
                     with our website or services, including IP addresses,
-                    browser types, device information, and pages viewed to
-                    improve our services.
+                    browser types, device information, and pages viewed. This
+                    data helps us improve our services and website
+                    functionality.
                   </p>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">
-                    Cookies and Tracking
+                    Cookies and Tracking Technologies
                   </h4>
                   <p>
                     We use cookies to enhance user experience and track usage
-                    patterns. You can adjust your browser settings to refuse
-                    cookies, but this may limit some features.
+                    patterns. Cookies are small files stored on your device that
+                    allow us to recognize you and provide tailored content. You
+                    can adjust your browser settings to refuse cookies, but
+                    doing so may limit some features of our services.
                   </p>
                 </div>
               </div>
@@ -88,35 +92,38 @@ const PrivacyPolicy = () => {
               <div className="grid md:grid-cols-2 gap-4 text-gray-600">
                 <div className="bg-green-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">
-                    Service Delivery
+                    Providing and Managing Services
                   </h4>
                   <p>
-                    Providing and managing the services you&rsquo;ve requested
-                    and ensuring smooth communication.
+                    To offer the services you&rsquo;ve requested and ensure
+                    smooth communication with you.
                   </p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">
-                    Improvement
+                    Improving Our Website and Services
                   </h4>
                   <p>
-                    Analyzing usage trends to optimize our website and services
-                    performance.
+                    To analyze usage trends and optimize performance for better
+                    user experience.
                   </p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">
-                    Marketing
+                    Marketing and Communications
                   </h4>
                   <p>
-                    Sending promotional emails or updates about our services,
-                    with your consent.
+                    To send promotional emails or updates about our services,
+                    with your consent. You can opt out at any time.
                   </p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-2">Support</h4>
+                  <h4 className="font-semibold text-gray-800 mb-2">
+                    Responding to Inquiries
+                  </h4>
                   <p>
-                    Assisting you with questions and providing customer support.
+                    To assist you with any questions or concerns and provide
+                    timely customer support.
                   </p>
                 </div>
               </div>
@@ -132,15 +139,17 @@ const PrivacyPolicy = () => {
               </h3>
               <div className="bg-purple-50 p-6 rounded-lg">
                 <p className="text-gray-600 mb-4">
-                  We implement various security measures including encryption,
-                  firewalls, secure servers, and regular security audits to
-                  protect your personal data.
+                  We take your privacy seriously and implement various security
+                  measures to protect your personal data. These measures include
+                  encryption, firewalls, secure servers, and regular security
+                  audits.
                 </p>
                 <div className="bg-white p-4 rounded border-l-4 border-purple-400">
                   <p className="text-sm text-gray-600 italic">
                     While we take every precaution, no method of data
-                    transmission or storage is 100% secure. We strive to protect
-                    your information to the best of our ability.
+                    transmission or storage is 100% secure. Therefore, we cannot
+                    guarantee complete security but will always strive to
+                    protect your information to the best of our ability.
                   </p>
                 </div>
               </div>
@@ -161,8 +170,9 @@ const PrivacyPolicy = () => {
                   </h4>
                   <p>
                     We may share your information with trusted third-party
-                    vendors who assist us in delivering services like email
-                    communication, hosting, and customer support.
+                    vendors or service providers who assist us in delivering
+                    services, such as email communication, hosting, and customer
+                    support.
                   </p>
                 </div>
                 <div className="bg-orange-50 p-4 rounded-lg">
@@ -170,9 +180,9 @@ const PrivacyPolicy = () => {
                     Legal Requirements
                   </h4>
                   <p>
-                    We may disclose your information if required by law to
-                    protect the rights, property, or safety of Osheen Oracle or
-                    others.
+                    We may disclose your information if required by law,
+                    regulation, or legal process to protect the rights,
+                    property, or safety of Osheen Oracle or others.
                   </p>
                 </div>
               </div>
@@ -188,30 +198,34 @@ const PrivacyPolicy = () => {
               </h3>
               <div className="grid md:grid-cols-2 gap-4 text-gray-600">
                 <div className="bg-red-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-2">Access</h4>
+                  <p>
+                    You have the right to request a copy of the personal data we
+                    hold about you.
+                  </p>
+                </div>
+                <div className="bg-red-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">
-                    Access & Correction
+                    Correction
                   </h4>
                   <p>
-                    You can request a copy of your data or correct any
-                    inaccuracies.
+                    If any of your information is incorrect, you can request
+                    that it be updated.
                   </p>
                 </div>
                 <div className="bg-red-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">Deletion</h4>
                   <p>
-                    Request deletion of your personal data, subject to legal
-                    obligations.
+                    You can request the deletion of your personal data, subject
+                    to legal obligations.
                   </p>
                 </div>
                 <div className="bg-red-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">Opt-Out</h4>
-                  <p>Unsubscribe from marketing communications at any time.</p>
-                </div>
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-2">Control</h4>
                   <p>
-                    Manage your privacy preferences through your account
-                    settings.
+                    You can opt-out of marketing communications at any time by
+                    following unsubscribe instructions or contacting us
+                    directly.
                   </p>
                 </div>
               </div>
@@ -228,9 +242,11 @@ const PrivacyPolicy = () => {
                   Third-Party Links
                 </h3>
                 <p className="text-gray-600">
-                  Our website may contain links to third-party sites with their
-                  own privacy policies. We encourage you to review them before
-                  sharing any personal information.
+                  Our website may contain links to third-party websites or
+                  services that are not under our control. These sites have
+                  their own privacy policies, and we encourage you to review
+                  them before sharing any personal information. We are not
+                  responsible for the content or practices of third-party sites.
                 </p>
               </section>
 
@@ -243,8 +259,11 @@ const PrivacyPolicy = () => {
                   Children&rsquo;s Privacy
                 </h3>
                 <p className="text-gray-600">
-                  Our services are not intended for individuals under 16. We do
-                  not knowingly collect personal information from children.
+                  Our services are not intended for individuals under the age of
+                  16, and we do not knowingly collect personal information from
+                  children. If we become aware that we have inadvertently
+                  collected personal data from a child under 16, we will take
+                  steps to delete that information as soon as possible.
                 </p>
               </section>
 
@@ -254,11 +273,14 @@ const PrivacyPolicy = () => {
                   <span className="w-6 h-6 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center mr-2 text-xs font-bold">
                     8
                   </span>
-                  Policy Updates
+                  Changes to This Privacy Policy
                 </h3>
                 <p className="text-gray-600">
-                  We may update this policy periodically. Changes will be posted
-                  on this page with a revised date.
+                  We reserve the right to update or change this Privacy Policy
+                  at any time. When changes are made, the updated policy will be
+                  posted on this page with a revised date. We encourage you to
+                  periodically review this policy to stay informed about how we
+                  are protecting your information.
                 </p>
               </section>
 
@@ -273,7 +295,7 @@ const PrivacyPolicy = () => {
                 <div className="text-gray-600 space-y-2">
                   <p className="font-semibold">Osheen Oracle</p>
                   <p>Email: Oracleosheen2@gmail.com</p>
-                  <p>Phone: +91 78887 16673</p>
+                  <p>Phone: +91 8146668328</p>
                   <p>Phone: +91 99158 10965</p>
                 </div>
               </section>
@@ -284,8 +306,8 @@ const PrivacyPolicy = () => {
           <div className="bg-gray-800 text-white p-6 text-center">
             <p className="text-gray-300">
               By using our services, you agree to this Privacy Policy and any
-              updates made to it. We value your trust and are dedicated to
-              safeguarding your privacy.
+              updates or changes made to it. We value your trust and are
+              dedicated to safeguarding your privacy.
             </p>
             <div className="mt-4 text-sm text-gray-400">
               Last updated:{" "}

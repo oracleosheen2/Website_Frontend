@@ -12,6 +12,10 @@ interface FiltersProps {
   onSizeChange: (size: string) => void;
   selectedCategories: string[];
   onCategoryChange: (category: string) => void;
+  selectedProductCatalogues: string[];
+  onProductCatalogueChange: (catalogue: string) => void;
+  selectedSubCategories: string[];
+  onSubCategoryChange: (subCategory: string) => void;
   onClearFilters: () => void;
 }
 
@@ -26,6 +30,10 @@ const Filters: React.FC<FiltersProps> = ({
   onSizeChange,
   selectedCategories,
   onCategoryChange,
+  selectedProductCatalogues,
+  onProductCatalogueChange,
+  selectedSubCategories,
+  onSubCategoryChange,
   onClearFilters,
 }) => {
   const filters = ["Women", "Ladies", "Girls", "Babies"];
@@ -53,12 +61,28 @@ const Filters: React.FC<FiltersProps> = ({
 
   const sizes = ["Medium", "Large", "Plus Size", "Sexy Plus Size"];
 
+  // New Product Catalogue options
+  const productCatalogues = [
+    "Spell",
+    "Spell-jars",
+    "Bracelets",
+    "Yantras",
+    "Spell oils",
+    "Crystal",
+    "Pyramids",
+  ];
+
+  // New Sub Categories options
+  const subCategories = ["Love", "Wealth", "Career", "Protection", "Healing"];
+
   const hasActiveFilters =
     priceRange < 10000 ||
     selectedGenders.length > 0 ||
     selectedBrands.length > 0 ||
     selectedSizes.length > 0 ||
-    selectedCategories.length > 0;
+    selectedCategories.length > 0 ||
+    selectedProductCatalogues.length > 0 ||
+    selectedSubCategories.length > 0;
 
   return (
     <div className="w-full h-fit sticky">
@@ -140,6 +164,56 @@ const Filters: React.FC<FiltersProps> = ({
             ))}
           </div>
         </div> */}
+
+        {/* 🔹 Product Catalogue */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+            Product Catalogue
+          </h3>
+          <div className="space-y-3">
+            {productCatalogues.map((catalogue) => (
+              <label
+                key={catalogue}
+                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedProductCatalogues.includes(catalogue)}
+                  onChange={() => onProductCatalogueChange(catalogue)}
+                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                />
+                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                  {catalogue}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* 🔹 Sub Categories */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+            Sub Categories
+          </h3>
+          <div className="space-y-3">
+            {subCategories.map((subCategory) => (
+              <label
+                key={subCategory}
+                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedSubCategories.includes(subCategory)}
+                  onChange={() => onSubCategoryChange(subCategory)}
+                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                />
+                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                  {subCategory}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
 
         {/* 🔹 Brands */}
         <div className="space-y-4">

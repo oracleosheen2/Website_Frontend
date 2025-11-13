@@ -164,15 +164,16 @@ const Footer = () => {
               </h3>
               <div className="space-y-4">
                 {[
-                  { icon: "✉️", text: "booking@celestial.com" },
-                  { icon: "📞", text: "(+62) 1234 5678" },
-                  { icon: "📍", text: "Oak Building 19, North City" },
+                  { icon: "✉️", text: "Oracleosheen2@gmail.com" },
+                  { icon: "📞", text: "+91 99158 10965" },
+                  { icon: "📞", text: "+91 81466 68328" },
+                  { icon: "⏰", text: "9am to 6pm" },
                 ].map((item, index) => (
                   <div
                     key={index}
                     className="flex items-start space-x-3 group cursor-pointer transform hover:translate-x-2 transition-transform duration-500"
                   >
-                    <div className="w-7 h-7 bg-[#FBB5E7] to-[#c6e400] rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg">
+                    <div className="w-7 h-7 bg-[#FBB5E7] rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-lg">
                       <span className="text-black text-xs font-bold">
                         {item.icon}
                       </span>

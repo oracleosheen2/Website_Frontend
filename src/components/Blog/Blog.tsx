@@ -55,12 +55,12 @@ const Blog = () => {
                 </p>
 
                 <div className="flex items-center justify-between">
-                  <button className="group flex items-center gap-2 text-orange-300 hover:text-orange-200 font-semibold transition-all duration-300">
+                  {/* <button className="group flex items-center gap-2 text-orange-300 hover:text-orange-200 font-semibold transition-all duration-300">
                     READ MORE
                     <span className="transform group-hover:translate-x-2 transition-transform duration-300">
                       →
                     </span>
-                  </button>
+                  </button> */}
 
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-r from-orange-400 to-purple-500 flex items-center justify-center text-xs">

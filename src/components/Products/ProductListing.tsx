@@ -5,7 +5,6 @@ import Filters from "./Filters";
 import CommonPageHeader from "../CommonPages/CommonPageHeader";
 import { allProducts } from "@/utils/products";
 
-// Review interface define karein
 export interface Review {
   name: string;
   comment: string;
@@ -14,7 +13,6 @@ export interface Review {
   avatar: string;
 }
 
-// Product interface
 export interface Product {
   id: number;
   name: string;
@@ -30,7 +28,6 @@ export interface Product {
   color?: string[];
   description?: string;
   reviews?: Review[];
-  // Additional fields for features
   features?: {
     freeShipping: boolean;
     returns: string;
@@ -51,9 +48,13 @@ const ProductListing: React.FC = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedProductCatalogues, setSelectedProductCatalogues] = useState<
+    string[]
+  >([]);
+  const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>(
+    []
+  );
   const [sortOption, setSortOption] = useState<string>("New Arrivals");
-
-  // For mobile filter toggle
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
   // Filter logic
@@ -77,7 +78,7 @@ const ProductListing: React.FC = () => {
         !selectedCategories.includes(product.category)
       )
         return false;
-
+      // You can later add logic for ProductCatalogue and SubCategory when linked to products
       return true;
     });
 
@@ -90,8 +91,6 @@ const ProductListing: React.FC = () => {
         break;
       case "New Arrivals":
         filtered.sort((a, b) => (a.isNew === b.isNew ? 0 : a.isNew ? -1 : 1));
-        break;
-      default:
         break;
     }
 
@@ -134,14 +133,32 @@ const ProductListing: React.FC = () => {
     );
   };
 
+  const handleProductCatalogueChange = (catalogue: string) => {
+    setSelectedProductCatalogues((prev) =>
+      prev.includes(catalogue)
+        ? prev.filter((c) => c !== catalogue)
+        : [...prev, catalogue]
+    );
+  };
+
+  const handleSubCategoryChange = (subCategory: string) => {
+    setSelectedSubCategories((prev) =>
+      prev.includes(subCategory)
+        ? prev.filter((s) => s !== subCategory)
+        : [...prev, subCategory]
+    );
+  };
+
   const handleSortChange = (option: string) => setSortOption(option);
 
   const clearAllFilters = () => {
-    setPriceRange(300);
+    setPriceRange(10000);
     setSelectedGenders([]);
     setSelectedBrands([]);
     setSelectedSizes([]);
     setSelectedCategories([]);
+    setSelectedProductCatalogues([]);
+    setSelectedSubCategories([]);
     setSortOption("New Arrivals");
   };
 
@@ -149,8 +166,8 @@ const ProductListing: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-[#C4F9FF] ">
       <CommonPageHeader title="Products" subtitle="Home - Products" />
 
-      {/* 🔘 Mobile Filter Toggle Button */}
-      <div className="md:hidden border-b border-gray-200 flex justify-between items-center px-4  sticky top-0 z-20 py-2">
+      {/* Mobile Filter Toggle */}
+      <div className="md:hidden border-b border-gray-200 flex justify-between items-center px-4 sticky top-0 z-20 py-2">
         <h2 className="text-lg font-semibold">All Products</h2>
         <button
           onClick={() => setShowFilters(!showFilters)}
@@ -161,11 +178,11 @@ const ProductListing: React.FC = () => {
       </div>
 
       <div className="flex flex-col md:flex-row flex-grow border-t border-gray-300 ">
-        {/* 🧭 Filters Section */}
+        {/* Filters */}
         <div
           className={`${
             showFilters ? "block" : "hidden"
-          } md:block w-full md:w-1/4  md:sticky md:top-0 z-10 py-0 bg-[#C4F9FF]`}
+          } md:block w-full md:w-1/4 md:sticky md:top-0 z-10 py-0 bg-[#C4F9FF]`}
         >
           <div className="h-full min-h-screen border-r border-gray-300">
             <Filters
@@ -179,12 +196,16 @@ const ProductListing: React.FC = () => {
               onSizeChange={handleSizeChange}
               selectedCategories={selectedCategories}
               onCategoryChange={handleCategoryChange}
+              selectedProductCatalogues={selectedProductCatalogues}
+              onProductCatalogueChange={handleProductCatalogueChange}
+              selectedSubCategories={selectedSubCategories}
+              onSubCategoryChange={handleSubCategoryChange}
               onClearFilters={clearAllFilters}
             />
           </div>
         </div>
 
-        {/* 🛍️ Products Section */}
+        {/* Products */}
         <div className="flex-1 bg-gray-50">
           <Products
             products={filteredProducts}

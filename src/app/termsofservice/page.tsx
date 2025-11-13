@@ -24,9 +24,9 @@ const TermsOfUse = () => {
               Welcome to Osheen Oracle
             </h2>
             <p className="text-purple-100 leading-relaxed">
-              The Osheen Oracle is a platform for Online Healing Consultation
-              (OHC) for healing via Tarot card, Reiki, Motivation and
-              counseling. These Terms of Use govern your use of our services.
+              The Osheen Oracle is a platform for OHC (Online Healing
+              Consultation) for healing via Tarot card, Reiki, Motivation and
+              counseling.
             </p>
             <div className="mt-4 p-4 bg-purple-500 rounded-lg">
               <p className="text-sm italic">
@@ -56,6 +56,13 @@ const TermsOfUse = () => {
                   </p>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-2">Consent</h4>
+                  <p>
+                    Means the free and volunteered consent given by you to opt
+                    the spell.
+                  </p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
                   <h4 className="font-semibold text-gray-800 mb-2">User</h4>
                   <p>A person who avails OHC from the Osheen.</p>
                 </div>
@@ -64,6 +71,20 @@ const TermsOfUse = () => {
                   <p>
                     A person visiting the website and other social media
                     platforms without availing OHC.
+                  </p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-2">Product</h4>
+                  <p>
+                    Means the product provided through the Osheen to the user on
+                    his request.
+                  </p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-800 mb-2">Content</h4>
+                  <p>
+                    The displayed photos, written material, audio or video
+                    recordings, uploaded or live content on Osheen platforms.
                   </p>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
@@ -93,9 +114,8 @@ const TermsOfUse = () => {
                     No Guarantees Provided
                   </h4>
                   <p>
-                    Osheen does not provide any guarantee or warranty on the
-                    online consultations availed by the user or on products
-                    purchased from third parties.
+                    Osheen does not provide any guarantee or warranty on online
+                    consultations or products purchased from third parties.
                   </p>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
