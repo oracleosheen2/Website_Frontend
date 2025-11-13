@@ -396,7 +396,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
               </p>
 
               {/* Color Selection */}
-              {product.color && product.color.length > 0 && (
+              {/* {product.color && product.color.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-gray-900 text-sm">
@@ -437,7 +437,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* Size Selection */}
               {product.size && product.size.length > 0 && (
