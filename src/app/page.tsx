@@ -1,4 +1,5 @@
 import Achievements from "@/components/Home/Achievements";
+import BecomeAMember from "@/components/Home/BecomeAMember";
 import Blog from "@/components/Home/Blog";
 import Catalogue from "@/components/Home/Catalogue";
 import Discover from "@/components/Home/Discover";
@@ -22,6 +23,7 @@ export default function Home() {
       <MEMBER />
       <Blog />
       <WhyChooseUs />
+      <BecomeAMember />
     </>
   );
 }
