@@ -166,7 +166,7 @@ const Footer = () => {
                 {[
                   { icon: "✉️", text: "Oracleosheen2@gmail.com" },
                   { icon: "📞", text: "+91 99158 10965" },
-                  { icon: "📞", text: "+91 81466 68328" },
+                  // { icon: "📞", text: "+91 81466 68328" },
                   { icon: "⏰", text: "9am to 6pm" },
                 ].map((item, index) => (
                   <div

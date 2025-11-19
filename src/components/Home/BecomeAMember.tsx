@@ -1,24 +1,197 @@
 "use client";
-import {
-  benefits,
-  MembershipPlan,
-  membershipPlans,
-  stats,
-  testimonials,
-  FormDataType,
-} from "@/utils/member";
 import React, { useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+
+// Types
+interface FormDataType {
+  name: string;
+  email: string;
+  phone: string;
+  plan: string;
+  newsletter: boolean;
+}
+
+interface MembershipPlan {
+  id: string;
+  name: string;
+  price: string;
+  period: string;
+  features: string[];
+  popular?: boolean;
+}
+
+interface Benefit {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface Stat {
+  number: string;
+  label: string;
+}
+
+interface Testimonial {
+  avatar: string;
+  content: string;
+  name: string;
+  role: string;
+}
+
+interface AddOn {
+  service: string;
+  price: string;
+}
+
+// Data
+const membershipPlans: MembershipPlan[] = [
+  {
+    id: "basic-aura",
+    name: "Basic Aura Subscription",
+    price: "₹2,100",
+    period: "month",
+    features: [
+      "1 Tarot Guidance Session/month (voice note)",
+      "1 Chakra Scanning",
+      "Access to voice note healing session",
+      "1 Prediction (1 question)",
+      "1 Affirmation Sheet",
+      "Priority WhatsApp replies within 3 days",
+    ],
+  },
+  {
+    id: "tarot-insight",
+    name: "Tarot Insight Subscription",
+    price: "₹4,200",
+    period: "month",
+    features: [
+      "2 Full Tarot Readings/month (30 mins each)",
+      "2 Quick Doubt Tarot Checks/month",
+      "1 Decision Guidance Session/month",
+      "Access to Members Only monthly prediction",
+      "Priority WhatsApp support (48 hours)",
+      "1 Healing session with Osheen",
+    ],
+    popular: true,
+  },
+  {
+    id: "healing-energy",
+    name: "Healing & Energy Subscription",
+    price: "₹6,300",
+    period: "month",
+    features: [
+      "2 Energy Healings/month (Reiki/Chakra/Angel)",
+      "2 Aura Scan Reports/month",
+      "1 Ritual/month",
+      "1 Guided Meditation/month",
+      "Monthly Readings (voice note)",
+      "WhatsApp priority (24 hrs)",
+    ],
+  },
+  {
+    id: "premium-manifestation",
+    name: "Premium Manifestation",
+    price: "₹10,500",
+    period: "month",
+    features: [
+      "1 Major Ritual Every Month",
+      "2 Tarot Readings/month",
+      "Unlimited tarot doubts (text-based)",
+      "2 Healings/month + Full Aura Scan",
+      "Personal Manifestation Roadmap",
+      "VIP replies within 12 hours",
+    ],
+  },
+];
+
+const benefits: Benefit[] = [
+  {
+    icon: "🔮",
+    title: "Spiritual Guidance",
+    description:
+      "Receive personalized tarot readings and spiritual insights tailored to your journey.",
+  },
+  {
+    icon: "✨",
+    title: "Energy Healing",
+    description:
+      "Experience powerful Reiki, Chakra, and Angel healing sessions for emotional transformation.",
+  },
+  {
+    icon: "📿",
+    title: "Sacred Rituals",
+    description:
+      "Participate in monthly rituals for manifestation, protection, and spiritual growth.",
+  },
+  {
+    icon: "🌟",
+    title: "Aura Cleansing",
+    description:
+      "Regular aura scans and cleansing sessions to maintain your energetic balance.",
+  },
+  {
+    icon: "💫",
+    title: "Manifestation Support",
+    description:
+      "Get personalized manifestation roadmaps and scripting guidance for your goals.",
+  },
+  {
+    icon: "📞",
+    title: "Priority Support",
+    description:
+      "Direct access to Osheen with priority WhatsApp replies and call support.",
+  },
+];
+
+const stats: Stat[] = [
+  { number: "5,000+", label: "Spiritual Seekers" },
+  { number: "98%", label: "Client Satisfaction" },
+  { number: "10+", label: "Years Experience" },
+  { number: "24/7", label: "Energy Support" },
+];
+
+const testimonials: Testimonial[] = [
+  {
+    avatar: "🙏",
+    content:
+      "Osheen's guidance transformed my life. The healing sessions brought peace I never knew was possible.",
+    name: "Priya Sharma",
+    role: "Basic Aura Member",
+  },
+  {
+    avatar: "💖",
+    content:
+      "The tarot insights helped me make crucial life decisions with confidence. Worth every penny!",
+    name: "Rahul Verma",
+    role: "Tarot Insight Member",
+  },
+  {
+    avatar: "🌟",
+    content:
+      "The manifestation rituals actually work! I manifested my dream job within 3 months of joining.",
+    name: "Anita Patel",
+    role: "Premium Member",
+  },
+];
+
+const addOns: AddOn[] = [
+  { service: "Extra Tarot Session", price: "₹2,100" },
+  { service: "Extra Healing Session", price: "₹5,100" },
+  { service: "Urgent Reading (30 minutes)", price: "₹21,000" },
+  { service: "Manifestation Coaching (weekly)", price: "₹11,000" },
+];
 
 const BecomeAMember: React.FC = () => {
   const [formData, setFormData] = useState<FormDataType>({
     name: "",
     email: "",
     phone: "",
-    plan: "premium",
+    plan: "",
     newsletter: true,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value, type, checked } = e.target;
@@ -32,15 +205,25 @@ const BecomeAMember: React.FC = () => {
     setFormData((prev: FormDataType) => ({ ...prev, plan: planId }));
   };
 
+  const handlePlanDetails = (planId: string): void => {
+    router.push(`/details/${planId}`);
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+
+    if (!formData.plan) {
+      alert("Please select a spiritual plan to continue");
+      return;
+    }
+
     setIsSubmitting(true);
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     alert(
-      `🎉 Welcome to Osheen Oracle, ${formData.name}! Your ${
+      `🔮 Welcome to Osheen Oracle, ${formData.name}! Your ${
         membershipPlans.find((p) => p.id === formData.plan)?.name
       } membership is now active!`
     );
@@ -48,43 +231,45 @@ const BecomeAMember: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen  font-body">
+    <div
+      className="min-h-screen"
+      style={{ fontFamily: "var(--font-montserrat)" }}
+    >
       {/* Floating Elements */}
-      <div className="fixed top-20 left-10 w-20 h-20 bg-blue-200 rounded-full opacity-20 blur-xl animate-pulse"></div>
+      <div className="fixed top-20 left-10 w-20 h-20 bg-purple-200 rounded-full opacity-20 blur-xl animate-pulse"></div>
       <div className="fixed bottom-40 right-20 w-16 h-16 bg-indigo-300 rounded-full opacity-30 blur-lg animate-bounce"></div>
-      <div className="fixed top-1/3 right-1/4 w-12 h-12 bg-cyan-300 rounded-full opacity-40 blur-md animate-pulse"></div>
+      <div className="fixed top-1/3 right-1/4 w-12 h-12 bg-pink-300 rounded-full opacity-40 blur-md animate-pulse"></div>
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-200/30 via-indigo-100/20 to-cyan-100/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center px-5 py-2.5 rounded-full bg-blue-100/50 border border-blue-200 mb-8">
-            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2 animate-ping"></span>
-            <span className="text-blue-700 font-medium text-sm">
-              Join 5,000+ Tech Professionals
+          <div className="inline-flex items-center px-5 py-2.5 rounded-full bg-purple-100/50 border border-purple-200 mb-8">
+            <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2 animate-ping"></span>
+            <span className="text-purple-700 font-medium text-sm">
+              Join 5,000+ Spiritual Seekers
             </span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight tracking-tight font-heading">
-            Unlock Your{" "}
-            <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-              Tech Potential
+          <h1 className="text-4xl md:text-6xl text-gray-900 mb-6 leading-tight">
+            Awaken Your{" "}
+            <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+              Spiritual Journey
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-blue-700/80 mb-12 max-w-3xl mx-auto leading-relaxed font-normal">
-            Join Osheen Oracle&rsquo;s elite community where innovation meets
-            expertise. Accelerate your tech career with cutting-edge resources
-            and mentorship.
+          <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Join Osheen Oracle&rsquo;s sacred community where ancient wisdom
+            meets modern spirituality. Transform your life with divine guidance
+            and energetic healing.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                <div className="text-2xl md:text-3xl  bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
                   {stat.number}
                 </div>
-                <div className="text-blue-700/70 font-medium mt-1 text-sm">
+                <div className="text-gray-600 font-medium mt-1 text-sm">
                   {stat.label}
                 </div>
               </div>
@@ -93,77 +278,91 @@ const BecomeAMember: React.FC = () => {
         </div>
       </section>
 
-      {/* Membership Plans */}
+      {/* Membership Plans - Improved Section */}
       <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight font-heading">
+            <h2 className="text-3xl md:text-5xl  text-gray-900 mb-4">
               Choose Your{" "}
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-                Tech Journey
+              <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                Spiritual Path
               </span>
             </h2>
-            <p className="text-lg text-blue-700/80 max-w-2xl mx-auto font-normal">
-              Each plan is designed to elevate your technical skills and career
-              growth
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Each plan is crafted to support your unique spiritual journey and
+              personal growth
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {membershipPlans.map((plan) => (
               <div
                 key={plan.id}
-                className={`relative rounded-2xl p-6 backdrop-blur-sm ${
-                  plan.popular
-                    ? "bg-white/80 border-2 border-cyan-300 shadow-xl transform lg:scale-105 z-10"
-                    : "bg-white/60 border border-blue-100 shadow-lg"
-                } transition-all duration-300 hover:shadow-2xl hover:scale-105`}
+                onClick={() => handlePlanSelect(plan.id)}
+                className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 h-full flex flex-col ${
+                  formData.plan === plan.id
+                    ? "border-purple-500 bg-white"
+                    : "border-gray-300 bg-white hover:border-purple-300"
+                }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md">
+                    <span className="bg-gradient-to-r from-pink-400 to-purple-400 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-md">
                       ⭐ Most Popular ⭐
                     </span>
                   </div>
                 )}
 
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 font-subheading">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight">
                     {plan.name}
                   </h3>
                   <div className="flex items-baseline justify-center mb-2">
-                    <span className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
+                    <span className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
                       {plan.price}
                     </span>
-                    <span className="text-blue-600 ml-1 text-lg">
+                    <span className="text-gray-600 ml-1 text-lg">
                       /{plan.period}
                     </span>
                   </div>
                 </div>
 
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start text-left">
-                      <span className="text-blue-500 mr-2 mt-0.5 flex-shrink-0 text-sm">
-                        💻
-                      </span>
-                      <span className="text-gray-700 text-sm leading-relaxed">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex-grow mb-6">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start text-left">
+                        <span className="text-purple-500 mr-2 mt-0.5 flex-shrink-0">
+                          ✨
+                        </span>
+                        <span className="text-gray-700 text-sm leading-relaxed">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-                <button
-                  onClick={() => handlePlanSelect(plan.id)}
-                  className={`w-full py-3 px-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-md hover:shadow-lg ${
-                    plan.popular
-                      ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600"
-                      : "bg-gradient-to-r from-blue-400 to-indigo-400 text-white hover:from-blue-500 hover:to-indigo-500"
-                  } transform hover:scale-105`}
-                >
-                  Start Learning
-                </button>
+                <div className="space-y-3 mt-auto">
+                  <button
+                    onClick={() => handlePlanSelect(plan.id)}
+                    className={`w-full py-3 px-4 rounded-xl font-semibold text-base transition-all duration-300 ${
+                      formData.plan === plan.id
+                        ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg"
+                        : plan.popular
+                        ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600"
+                        : "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600"
+                    }`}
+                  >
+                    {formData.plan === plan.id ? "✓ Selected" : "Select Plan"}
+                  </button>
+
+                  <button
+                    onClick={() => handlePlanDetails(plan.id)}
+                    className="w-full py-2 px-4 border border-purple-300 text-purple-600 rounded-xl font-medium text-sm hover:bg-purple-50 transition-all duration-300"
+                  >
+                    View Details →
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -171,13 +370,13 @@ const BecomeAMember: React.FC = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 ">
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight font-heading">
-              Osheen Oracle{" "}
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-                Advantages
+            <h2 className="text-3xl md:text-5xl  text-gray-900 mb-4">
+              Divine{" "}
+              <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                Benefits
               </span>
             </h2>
           </div>
@@ -186,17 +385,48 @@ const BecomeAMember: React.FC = () => {
             {benefits.map((benefit, index) => (
               <div
                 key={index}
-                className="group bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl border border-blue-100 hover:border-blue-200 transition-all duration-300 hover:shadow-xl hover:scale-105"
+                className="p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
               >
-                <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                  {benefit.icon}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 font-subheading">
+                <div className="text-4xl mb-4">{benefit.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
                   {benefit.title}
                 </h3>
-                <p className="text-blue-700/80 leading-relaxed text-sm">
-                  {benefit.description}
-                </p>
+                <p className="text-gray-600 text-sm">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Add-ons Section */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Additional{" "}
+              <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                Services
+              </span>
+            </h2>
+            <p className="text-gray-600">
+              Enhance your spiritual experience with these services
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {addOns.map((addOn, index) => (
+              <div
+                key={index}
+                className="bg-gray-50 p-4 rounded-xl border border-gray-200"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-800 font-medium">
+                    {addOn.service}
+                  </span>
+                  <span className="text-purple-600 font-bold">
+                    {addOn.price}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -204,13 +434,13 @@ const BecomeAMember: React.FC = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-gradient-to-br from-blue-100/30 to-cyan-100/30">
+      <section className="py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight font-heading">
-              Success Stories from{" "}
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-                Our Members
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+              Transformational{" "}
+              <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                Stories
               </span>
             </h2>
           </div>
@@ -219,17 +449,17 @@ const BecomeAMember: React.FC = () => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-white/70 backdrop-blur-sm p-6 rounded-2xl border border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300"
+                className="p-6 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
               >
                 <div className="text-3xl mb-3">{testimonial.avatar}</div>
-                <p className="text-blue-700/80 mb-4 italic text-sm leading-relaxed">
+                <p className="text-gray-600 mb-4 italic text-sm">
                   {testimonial.content}
                 </p>
                 <div>
-                  <div className="font-bold text-gray-900 text-base font-subheading">
+                  <div className="font-bold text-gray-900 text-base">
                     {testimonial.name}
                   </div>
-                  <div className="text-blue-600 text-sm">
+                  <div className="text-gray-500 text-sm">
                     {testimonial.role}
                   </div>
                 </div>
@@ -242,17 +472,16 @@ const BecomeAMember: React.FC = () => {
       {/* Registration Form */}
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl shadow-xl p-8 md:p-10 border border-blue-100">
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 border border-gray-200">
             <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight font-heading">
-                Start Your{" "}
-                <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-                  Tech Transformation
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Begin Your{" "}
+                <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                  Spiritual Transformation
                 </span>
               </h2>
-              <p className="text-lg text-blue-700/80 font-normal">
-                Join Osheen Oracle and unlock your potential in the tech
-                industry
+              <p className="text-lg text-gray-600">
+                Join Osheen Oracle and unlock your divine potential
               </p>
             </div>
 
@@ -261,7 +490,7 @@ const BecomeAMember: React.FC = () => {
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-blue-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     Your Name *
                   </label>
@@ -272,14 +501,14 @@ const BecomeAMember: React.FC = () => {
                     required
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all duration-300 bg-white/70 backdrop-blur-sm text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-300 focus:border-purple-300 transition-all duration-300 bg-white text-sm"
                     placeholder="Enter your full name"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-blue-700 mb-2"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     Email Address *
                   </label>
@@ -290,7 +519,7 @@ const BecomeAMember: React.FC = () => {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all duration-300 bg-white/70 backdrop-blur-sm text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-300 focus:border-purple-300 transition-all duration-300 bg-white text-sm"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -299,7 +528,7 @@ const BecomeAMember: React.FC = () => {
               <div>
                 <label
                   htmlFor="phone"
-                  className="block text-sm font-medium text-blue-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Phone Number (Optional)
                 </label>
@@ -309,64 +538,77 @@ const BecomeAMember: React.FC = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all duration-300 bg-white/70 backdrop-blur-sm text-sm"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-300 focus:border-purple-300 transition-all duration-300 bg-white text-sm"
                   placeholder="Your contact number"
                 />
               </div>
 
+              {/* Improved Plan Selection in Form */}
               <div>
-                <label className="block text-sm font-medium text-blue-700 mb-3">
-                  Choose Your Tech Plan
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Choose Your Spiritual Plan *
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {!formData.plan && (
+                  <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-yellow-700 text-sm">
+                      Please select a plan to continue
+                    </p>
+                  </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {membershipPlans.map((plan) => (
                     <div
                       key={plan.id}
                       onClick={() => handlePlanSelect(plan.id)}
-                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 backdrop-blur-sm ${
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 h-full ${
                         formData.plan === plan.id
-                          ? "border-blue-400 bg-blue-50/50 shadow-md"
-                          : "border-blue-200 bg-white/50 hover:border-blue-300 hover:shadow-sm"
+                          ? "border-purple-500 bg-purple-50 shadow-md"
+                          : "border-gray-300 bg-white hover:border-purple-300"
                       }`}
                     >
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-gray-900 text-sm font-subheading">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="font-bold text-gray-900 text-sm leading-tight">
                           {plan.name}
                         </span>
-                        <span className="text-blue-600 font-bold text-sm">
-                          {plan.price}/{plan.period}
-                        </span>
+                        {plan.popular && (
+                          <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded-full text-xs font-bold ml-2">
+                            Popular
+                          </span>
+                        )}
                       </div>
-                      <div className="text-xs text-blue-600">
-                        {plan.features.length} tech features
+                      <div className="text-purple-600 font-bold text-sm mb-1">
+                        {plan.price}/{plan.period}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {plan.features.length} divine features
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="flex items-center p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+              <div className="flex items-center p-3 bg-purple-50 rounded-xl border border-purple-100">
                 <input
                   type="checkbox"
                   id="newsletter"
                   name="newsletter"
                   checked={formData.newsletter}
                   onChange={handleInputChange}
-                  className="w-4 h-4 text-blue-500 border-blue-300 rounded focus:ring-blue-400"
+                  className="w-4 h-4 text-purple-500 border-gray-300 rounded focus:ring-purple-400"
                 />
                 <label
                   htmlFor="newsletter"
-                  className="ml-3 text-sm text-blue-700"
+                  className="ml-3 text-sm text-gray-700"
                 >
-                  Receive weekly tech insights, coding tips, and exclusive
-                  Osheen Oracle updates
+                  Receive weekly spiritual insights, moon cycle guidance, and
+                  exclusive Osheen Oracle updates
                 </label>
               </div>
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full flex justify-center items-center bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4 px-8 rounded-xl font-semibold text-base hover:from-blue-600 hover:to-cyan-600 transform cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                disabled={isSubmitting || !formData.plan}
+                className="w-full flex justify-center items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-8 rounded-xl font-semibold text-base hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center text-sm">
@@ -390,10 +632,10 @@ const BecomeAMember: React.FC = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Processing Your Membership...
+                    Activating Your Spiritual Journey...
                   </span>
                 ) : (
-                  "🚀 Join Osheen Oracle Now 🚀"
+                  "🔮 Begin Your Spiritual Journey 🔮"
                 )}
               </button>
             </form>

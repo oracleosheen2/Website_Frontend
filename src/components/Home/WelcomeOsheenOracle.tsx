@@ -62,7 +62,7 @@ const WelcomeOsheenOracle = () => {
                 Osheen Oracle
               </h2>
               <p
-                className="text-base sm:text-lg md:text-xl text-[#3C3C3C] leading-relaxed text-justify md:text-left"
+                className="text-base sm:text-lg md:text-xl text-[#3C3C3C] leading-relaxed text-justify"
                 style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 We are highly delighted to see you here at Osheen Oracle, which
@@ -89,7 +89,7 @@ const WelcomeOsheenOracle = () => {
                 Osheen MAA
               </h2>
               <p
-                className="text-base sm:text-lg md:text-xl text-[#3C3C3C] leading-relaxed text-justify md:text-left"
+                className="text-base sm:text-lg md:text-xl text-[#3C3C3C] leading-relaxed text-justify"
                 style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 Amarpreet Osheen Kaur, fondly called Osheen ma is a Spiritual

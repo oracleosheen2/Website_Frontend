@@ -118,7 +118,7 @@ export default function AboutPage() {
             <div className="relative w-full md:w-1/2 flex justify-center">
               <div className="relative overflow-hidden">
                 <Image
-                  src="/images/spiritual-awakening.png"
+                  src="/images/resize3.jpg"
                   alt="Spiritual Awakening"
                   width={500}
                   height={500}
@@ -177,7 +177,7 @@ export default function AboutPage() {
 
             <div className="flex items-center justify-center gap-3 sm:gap-4 px-8 sm:px-12 py-6 sm:py-10 flex-1">
               <h2 className="text-3xl sm:text-4xl font-serif font-medium">
-                4.8
+                4.8/5
               </h2>
               <p className="text-xs sm:text-sm text-gray-200 text-center sm:text-left">
                 Top rated
@@ -225,15 +225,15 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
                   href="tel:+918146668328"
-                  className="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors"
+                  className="bg-yellow-400 text-white px-8 py-3 rounded-full hover:bg-yellow-500 transition-colors"
                 >
                   Call +91 8146668328
                 </a>
                 <a
                   href="tel:+918146977206"
-                  className="bg-green-600 text-white px-8 py-3 rounded-full hover:bg-green-700 transition-colors"
+                  className="bg-yellow-400 text-white px-8 py-3 rounded-full hover:bg-yellow-500 transition-colors"
                 >
-                  Call +91 81469 77206
+                  Call +91 8146977206
                 </a>
               </div>
             </div>

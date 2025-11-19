@@ -33,7 +33,7 @@ const profileLinks = [
 const servicesLinks = [
   { name: "Spells", href: "/services/spells" },
   { name: "Reading", href: "/services/reading" },
-  { name: "Consultation", href: "/services/consultation" },
+  // { name: "Consultation", href: "/services/consultation" },
 ];
 
 export default function HeroHeader() {

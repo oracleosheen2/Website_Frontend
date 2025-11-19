@@ -32,13 +32,18 @@ const Achievements = () => {
     >
       <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
         {/* Text Section */}
-        <div className="w-full lg:w-1/2">
+        <div className="w-full lg:w-1/2 pl-4">
           <h1 className={`text-4xl sm:text-4xl md:text-5xl ${titleColor} mb-6`}>
             Achievements
           </h1>
-          <p
+          {/* <p
             className="text-[#000000] text-base sm:text-lg"
             style={{ lineHeight: "1.8" }}
+          > */}
+
+          <p
+            className="text-base sm:text-lg md:text-xl text-[#3C3C3C] leading-relaxed text-justify"
+            style={{ fontFamily: "var(--font-montserrat)" }}
           >
             Over the years, our students and faculty have achieved remarkable
             milestones. From national-level competitions to innovative projects,

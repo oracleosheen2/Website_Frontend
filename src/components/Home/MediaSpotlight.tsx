@@ -50,8 +50,7 @@ const MediaSpotlight = () => {
         Media Spotlight
       </h2>
       <p className="mb-8 text-center text-sm text-[#3D2E4F] max-w-xl">
-        Lorem Ipsum is simply dummy text of the printing and typesetting
-        industry.
+        Featured by India’s leading media platforms for excellence and trust.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">

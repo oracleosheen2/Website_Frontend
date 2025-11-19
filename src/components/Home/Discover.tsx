@@ -72,7 +72,7 @@ const Discover = () => {
                 style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 <div className="flex items-center gap-3 p-3">
-                  <span className="text-yellow-400 text-lg font-medium font-cormorant">
+                  <span className="text-yellow-400 text-2xl md:text-3xl font-medium font-cormorant">
                     {service.id}
                   </span>
                   <h2
