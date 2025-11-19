@@ -297,7 +297,7 @@ const BecomeAMember: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {membershipPlans.map((plan) => (
               <div
-                key={plan.id}
+                key={plan.id} 
                 onClick={() => handlePlanSelect(plan.id)}
                 className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 h-full flex flex-col ${
                   formData.plan === plan.id
