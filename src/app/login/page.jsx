@@ -4,17 +4,24 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { FaAppleAlt, FaArrowLeft } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { toast, Toaster } from "react-hot-toast";
+
+
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [authStep, setAuthStep] = useState("login"); // 'login', 'otp', 'forgot', 'reset', 'newPassword'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
+  const [resetToken, setResetToken] = useState("");
 
   const handleOtpChange = (element, index) => {
     if (isNaN(element.value)) return false;
@@ -41,22 +48,110 @@ const Login = () => {
     }
   };
 
-  const handleLogin = (e) => {
+  // Handle Login
+  const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await postData("/api/auth/login", { email, password });
+
+      // Store token in localStorage
+      localStorage.setItem("token", response.token);
+
+      toast.success("Login successful!");
+
+      // Redirect to dashboard or home page after successful login
+      setTimeout(() => {
+        window.location.href = "/dashboard"; // Change to your desired redirect path
+      }, 1000);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed");
+    } finally {
       setIsLoading(false);
-      setAuthStep("otp");
-    }, 1500);
+    }
   };
 
-  const handleOtpSubmit = (e) => {
+  // Handle Registration
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    // Combine first and last name
+    const fullName = `${firstName} ${lastName}`.trim();
+
+    if (!fullName || !email || !password) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords don't match");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await postData("/api/auth/register", {
+        name: fullName,
+        email,
+        password,
+      });
+
+      toast.success("Registration successful! Please login.");
+
+      // Switch back to login form
+      setIsLogin(true);
+
+      // Clear form
+      setFirstName("");
+      setLastName("");
+      setPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Forgot Password
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+
+    if (!email) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await postData("/api/auth/forgot-password", { email });
+
+      toast.success("Password reset link sent to your email!");
+      setAuthStep("reset");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to send reset email"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle OTP Verification
+  const handleOtpSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate OTP verification
+    // Simulate OTP verification (replace with actual API call if you have OTP endpoint)
     setTimeout(() => {
       setIsLoading(false);
       const enteredOtp = otp.join("");
@@ -66,49 +161,71 @@ const Login = () => {
         setOtpVerified(true);
         if (authStep === "otp") {
           // Login OTP verified
-          alert("Login successful!");
+          toast.success("OTP verified successfully!");
+          // In real app, you would verify OTP with backend
           setAuthStep("login");
           setOtp(["", "", "", "", "", ""]);
           setOtpVerified(false);
         } else if (authStep === "reset") {
           // Forgot password OTP verified - show new password fields
           setAuthStep("newPassword");
+          toast.success("OTP verified! Now set your new password.");
         }
       } else {
-        alert("Invalid OTP. Please try again.");
+        toast.error("Invalid OTP. Please try again.");
       }
     }, 1500);
   };
 
-  const handleForgotPassword = (e) => {
+  // Handle Password Reset
+  const handlePasswordReset = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Simulate sending OTP
-    setTimeout(() => {
-      setIsLoading(false);
-      setAuthStep("reset");
-    }, 1500);
-  };
-
-  const handlePasswordReset = (e) => {
-    e.preventDefault();
     if (newPassword !== confirmPassword) {
-      alert("Passwords don't match!");
+      toast.error("Passwords don't match!");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters long");
       return;
     }
 
     setIsLoading(true);
 
-    // Simulate password reset
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Password reset successful!");
+    try {
+      // Note: You need to get the reset token from your backend
+      // For demo, using a mock token
+      const token = resetToken || "demo-token";
+
+      const response = await postData(`/api/auth/reset-password/${token}`, {
+        password: newPassword,
+      });
+
+      toast.success("Password reset successful!");
       setAuthStep("login");
       setNewPassword("");
       setConfirmPassword("");
       setOtpVerified(false);
-    }, 1500);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reset password");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Google Login
+  const handleGoogleLogin = () => {
+    toast.loading("Redirecting to Google...");
+    // Implement Google OAuth here
+    // window.location.href = "YOUR_GOOGLE_OAUTH_URL";
+  };
+
+  // Handle Apple Login
+  const handleAppleLogin = () => {
+    toast.loading("Redirecting to Apple...");
+    // Implement Apple OAuth here
+    // window.location.href = "YOUR_APPLE_OAUTH_URL";
   };
 
   const renderLoginForm = () => (
@@ -182,6 +299,7 @@ const Login = () => {
         <div className="flex flex-col sm:flex-row justify-between gap-3">
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 rounded-lg hover:bg-gray-100 transition-all duration-300 text-sm md:text-base"
           >
             <FcGoogle size={18} className="md:size-[20px]" />
@@ -189,6 +307,7 @@ const Login = () => {
           </button>
           <button
             type="button"
+            onClick={handleAppleLogin}
             className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 rounded-lg hover:bg-gray-100 transition-all duration-300 text-sm md:text-base"
           >
             <FaAppleAlt size={16} className="text-[#0078D4] md:size-[18px]" />
@@ -472,7 +591,7 @@ const Login = () => {
   );
 
   const renderSignupForm = () => (
-    <form className="space-y-4 md:space-y-6">
+    <form onSubmit={handleRegister} className="space-y-4 md:space-y-6">
       <h1 className="text-2xl md:text-3xl font-semibold pb-2 md:pb-6 text-center text-gray-700">
         Create account
       </h1>
@@ -482,28 +601,43 @@ const Login = () => {
           <input
             placeholder="First Name"
             type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
             className="p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1 transition-all duration-300 text-sm md:text-base"
+            required
           />
           <input
             placeholder="Last Name"
             type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             className="p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1 transition-all duration-300 text-sm md:text-base"
+            required
           />
         </div>
         <input
           placeholder="Email address"
           type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 text-sm md:text-base"
+          required
         />
         <input
           placeholder="Password"
           type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           className="p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 text-sm md:text-base"
+          required
         />
         <input
           placeholder="Confirm Password"
           type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           className="p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 text-sm md:text-base"
+          required
         />
 
         <div className="flex items-start">
@@ -511,6 +645,7 @@ const Login = () => {
             type="checkbox"
             id="terms"
             className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-300 mt-1"
+            required
           />
           <label htmlFor="terms" className="text-xs md:text-sm text-gray-600">
             I agree to the{" "}
@@ -532,9 +667,17 @@ const Login = () => {
 
         <button
           type="submit"
-          className="bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-300 text-sm md:text-base"
+          disabled={isLoading}
+          className="bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
         >
-          Create Account
+          {isLoading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+              Creating Account...
+            </>
+          ) : (
+            "Create Account"
+          )}
         </button>
 
         <div className="text-center mt-1 md:mt-2">
@@ -560,6 +703,7 @@ const Login = () => {
         <div className="flex flex-col sm:flex-row justify-between gap-3">
           <button
             type="button"
+            onClick={handleGoogleLogin}
             className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 rounded-lg hover:bg-gray-100 transition-all duration-300 text-sm md:text-base"
           >
             <FcGoogle size={18} className="md:size-[20px]" />
@@ -567,6 +711,7 @@ const Login = () => {
           </button>
           <button
             type="button"
+            onClick={handleAppleLogin}
             className="flex items-center justify-center gap-2 w-full border border-gray-300 py-2 rounded-lg hover:bg-gray-100 transition-all duration-300 text-sm md:text-base"
           >
             <FaAppleAlt size={16} className="text-[#0078D4] md:size-[18px]" />
@@ -597,6 +742,33 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-[#FBB5E7] to-[#C4F9FF] relative overflow-hidden">
+      {/* Toast Notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+          success: {
+            duration: 3000,
+            style: {
+              background: "#10B981",
+            },
+          },
+          error: {
+            duration: 4000,
+            style: {
+              background: "#EF4444",
+            },
+          },
+          loading: {
+            duration: Infinity,
+          },
+        }}
+      />
+
       {/* Logo */}
       <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
         <Image

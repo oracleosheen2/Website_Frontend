@@ -20,9 +20,9 @@ const Blog = () => {
               className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#6a5f57] to-[#8a7967] text-white shadow-2xl hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 hover:translate-y-[-5px]"
             >
               {/* Blog Image */}
-              <div className="relative h-72 bg-cover bg-center group overflow-hidden">
+              <div className="relative h-72 bg-cover bg-[center_30%] group overflow-hidden">
                 <div
-                  className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                  className="h-full w-full bg-cover bg-[center_30%] transition-transform duration-500 group-hover:scale-110"
                   style={{ backgroundImage: `url(${post.image})` }}
                 />
                 <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold">

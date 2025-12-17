@@ -22,7 +22,7 @@ const Blog: React.FC = () => {
 
   return (
     <div
-      className="px-8 py-12 relative"
+      className="px-8 py-12 relative "
       style={{ fontFamily: "var(--font-montserrat)" }}
     >
       <p className="md:text-lg text-md mb-2 text-[#3D2E4F]">BLOG</p>
@@ -55,7 +55,7 @@ const Blog: React.FC = () => {
           {blogPosts?.map((blog) => (
             <motion.div
               key={blog.id}
-              className="flex-shrink-0 w-[80%] sm:w-[65%] md:w-[60%] lg:w-[60%]"
+              className="flex-shrink-0 w-[30%]"
               transition={{ type: "spring", stiffness: 300 }}
             >
               {/* Blog Image */}
