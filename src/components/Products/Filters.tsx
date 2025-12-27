@@ -17,6 +17,14 @@ interface FiltersProps {
   selectedSubCategories: string[];
   onSubCategoryChange: (subCategory: string) => void;
   onClearFilters: () => void;
+
+  // Add these new props for dynamic data
+  availableGenders?: string[];
+  availableBrands?: string[];
+  availableSizes?: string[];
+  availableCategories?: string[];
+  availableProductCatalogues?: string[];
+  availableSubCategories?: string[];
 }
 
 const Filters: React.FC<FiltersProps> = ({
@@ -35,9 +43,9 @@ const Filters: React.FC<FiltersProps> = ({
   selectedSubCategories,
   onSubCategoryChange,
   onClearFilters,
-}) => {
-  const filters = ["Women", "Ladies", "Girls", "Babies"];
-  const brands = [
+  // New props with default values (fallback to static arrays)
+  availableGenders = ["Women", "Ladies", "Girls", "Babies"],
+  availableBrands = [
     "H&M",
     "Mark & Spencer",
     "Victoria's Secret",
@@ -49,20 +57,16 @@ const Filters: React.FC<FiltersProps> = ({
     "Dolce & Gabbana",
     "Zara",
     "Chanel",
-  ];
-
-  const categories = [
+  ],
+  availableCategories = [
     "Dresses",
     "Tops",
     "Lingerie & Lounge Wear",
     "Blouse",
     "Vintage",
-  ];
-
-  const sizes = ["Medium", "Large", "Plus Size", "Sexy Plus Size"];
-
-  // New Product Catalogue options
-  const productCatalogues = [
+  ],
+  availableSizes = ["Medium", "Large", "Plus Size", "Sexy Plus Size"],
+  availableProductCatalogues = [
     "Spell",
     "Spell-jars",
     "Bracelets",
@@ -70,11 +74,15 @@ const Filters: React.FC<FiltersProps> = ({
     "Spell oils",
     "Crystal",
     "Pyramids",
-  ];
-
-  // New Sub Categories options
-  const subCategories = ["Love", "Wealth", "Career", "Protection", "Healing"];
-
+  ],
+  availableSubCategories = [
+    "Love",
+    "Wealth",
+    "Career",
+    "Protection",
+    "Healing",
+  ],
+}) => {
   const hasActiveFilters =
     priceRange < 10000 ||
     selectedGenders.length > 0 ||
@@ -103,7 +111,7 @@ const Filters: React.FC<FiltersProps> = ({
 
       <div className="p-5 space-y-8">
         {/* 🔹 Price Range */}
-        {/* <div className="space-y-4">
+        <div className="space-y-4">
           <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
             Price Range
           </h3>
@@ -138,157 +146,169 @@ const Filters: React.FC<FiltersProps> = ({
               <span>₹10,000</span>
             </div>
           </div>
-        </div> */}
-
-        {/* 🔹 Gender */}
-        {/* <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
-            Gender
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {filters.map((item) => (
-              <label
-                key={item}
-                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedGenders.includes(item)}
-                  onChange={() => onGenderChange(item)}
-                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
-                />
-                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
-                  {item}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div> */}
-
-        {/* 🔹 Product Catalogue */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
-            Product Catalogue
-          </h3>
-          <div className="space-y-3">
-            {productCatalogues.map((catalogue) => (
-              <label
-                key={catalogue}
-                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedProductCatalogues.includes(catalogue)}
-                  onChange={() => onProductCatalogueChange(catalogue)}
-                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
-                />
-                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
-                  {catalogue}
-                </span>
-              </label>
-            ))}
-          </div>
         </div>
 
-        {/* 🔹 Sub Categories */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
-            Sub Categories
-          </h3>
-          <div className="space-y-3">
-            {subCategories.map((subCategory) => (
-              <label
-                key={subCategory}
-                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedSubCategories.includes(subCategory)}
-                  onChange={() => onSubCategoryChange(subCategory)}
-                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
-                />
-                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
-                  {subCategory}
-                </span>
-              </label>
-            ))}
+        {/* 🔹 Gender - Now dynamic */}
+        {availableGenders.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+              Gender
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {availableGenders.map((item) => (
+                <label
+                  key={item}
+                  className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedGenders.includes(item)}
+                    onChange={() => onGenderChange(item)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                    {item}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 🔹 Brands */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
-            Brands
-          </h3>
-          <div className="space-y-3">
-            {brands.map((brand) => (
-              <label
-                key={brand}
-                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedBrands.includes(brand)}
-                  onChange={() => onBrandChange(brand)}
-                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
-                />
-                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
-                  {brand}
-                </span>
-              </label>
-            ))}
+        {/* 🔹 Product Catalogue - Now dynamic */}
+        {availableProductCatalogues.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+              Product Catalogue
+            </h3>
+            <div className="space-y-3">
+              {availableProductCatalogues.map((catalogue) => (
+                <label
+                  key={catalogue}
+                  className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedProductCatalogues.includes(catalogue)}
+                    onChange={() => onProductCatalogueChange(catalogue)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                    {catalogue}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 🔹 Size */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
-            Size
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {sizes.map((size) => (
-              <label
-                key={size}
-                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedSizes.includes(size)}
-                  onChange={() => onSizeChange(size)}
-                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
-                />
-                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
-                  {size}
-                </span>
-              </label>
-            ))}
+        {/* 🔹 Sub Categories - Now dynamic */}
+        {availableSubCategories.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+              Sub Categories
+            </h3>
+            <div className="space-y-3">
+              {availableSubCategories.map((subCategory) => (
+                <label
+                  key={subCategory}
+                  className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSubCategories.includes(subCategory)}
+                    onChange={() => onSubCategoryChange(subCategory)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                    {subCategory}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 🔹 Categories */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
-            Categories
-          </h3>
-          <div className="space-y-3">
-            {categories.map((category) => (
-              <label
-                key={category}
-                className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedCategories.includes(category)}
-                  onChange={() => onCategoryChange(category)}
-                  className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
-                />
-                <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
-                  {category}
-                </span>
-              </label>
-            ))}
+        {/* 🔹 Brands - Now dynamic */}
+        {availableBrands.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+              Brands
+            </h3>
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+              {availableBrands.map((brand) => (
+                <label
+                  key={brand}
+                  className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedBrands.includes(brand)}
+                    onChange={() => onBrandChange(brand)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                    {brand}
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* 🔹 Size - Now dynamic */}
+        {availableSizes.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+              Size
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {availableSizes.map((size) => (
+                <label
+                  key={size}
+                  className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSizes.includes(size)}
+                    onChange={() => onSizeChange(size)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                    {size}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 🔹 Categories - Now dynamic */}
+        {availableCategories.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900 text-base border-b pb-2">
+              Categories
+            </h3>
+            <div className="space-y-3">
+              {availableCategories.map((category) => (
+                <label
+                  key={category}
+                  className="flex items-center gap-3 text-gray-700 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category)}
+                    onChange={() => onCategoryChange(category)}
+                    className="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2 cursor-pointer"
+                  />
+                  <span className="text-sm font-medium group-hover:text-red-600 transition-colors">
+                    {category}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

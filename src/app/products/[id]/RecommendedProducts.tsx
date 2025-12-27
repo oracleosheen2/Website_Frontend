@@ -1,57 +1,22 @@
+// RecommendedProducts.tsx
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { allProducts } from "@/utils/products";
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  images: string[];
-  category: string;
-  brand: string;
-  size?: string[];
-  gender: string[];
-  isNew: boolean;
-  rating: number;
-  color?: string[];
-  description?: string;
-  reviews?: Review[];
-  features?: {
-    freeShipping: boolean;
-    returns: string;
-    warranty: string;
-    authentic: boolean;
-  };
-  shippingInfo?: {
-    delivery: string;
-    returnPolicy: string;
-    securePayment: boolean;
-  };
-}
-
-interface Review {
-  name: string;
-  comment: string;
-  rating: number;
-  date: string;
-  avatar: string;
-}
+import { Product } from "@/utils/api/api"; // ✅ Import Product interface
 
 interface RecommendedProductsProps {
   currentId: number;
   category: string;
+  relatedProducts: Product[]; // ✅ Props से related products लें
 }
 
 export default function RecommendedProducts({
   currentId,
   category,
+  relatedProducts,
 }: RecommendedProductsProps) {
-  // Filter related products by category and exclude current product
-  const related = allProducts
-    .filter((p) => p.category === category && p.id !== currentId)
-    .slice(0, 5);
+  // ✅ Props से related products use करें
+  const related = relatedProducts;
 
   if (related.length === 0) return null;
 

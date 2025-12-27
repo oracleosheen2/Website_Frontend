@@ -1,19 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchData } from "@/utils/api/api";
+import { toast } from "react-hot-toast";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Define TypeScript interfaces
-interface UserData {
-  name: string;
-  email: string;
-  phone: string;
-  joinDate: string;
-  profileImage: string;
-  membership: string;
-  loyaltyPoints: number;
-  dateOfBirth?: string;
-}
-
 interface Order {
   id: number;
   productName: string;
@@ -39,6 +33,11 @@ interface Address {
   address: string;
   phone: string;
   isDefault: boolean;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
 }
 
 interface PaymentMethod {
@@ -49,178 +48,125 @@ interface PaymentMethod {
   isDefault: boolean;
 }
 
-const Profile = () => {
+const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
-  const [showAddAddress, setShowAddAddress] = useState(false);
-  const [showAddPayment, setShowAddPayment] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
-  // User data with state
-  const [userData, setUserData] = useState<UserData>({
-    name: "Priya Sharma",
-    email: "priya.sharma@example.com",
-    phone: "+91 98765 43210",
-    joinDate: "January 15, 2023",
-    profileImage:
-      "https://img.freepik.com/free-photo/portrait-white-man-isolated_53876-40306.jpg?semt=ais_hybrid&w=740&q=80",
-    membership: "Gold Member",
-    loyaltyPoints: 1250,
-    dateOfBirth: "1990-05-15",
-  });
+  const { user, isAuthenticated, updateUser } = useAuth();
+  const router = useRouter();
 
   // Form state for editing
   const [formData, setFormData] = useState({
-    name: userData.name,
-    email: userData.email,
-    phone: userData.phone,
-    dateOfBirth: userData.dateOfBirth || "",
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    dateOfBirth: user?.dateOfBirth || "",
   });
 
-  // Recent orders with state
-  const [recentOrders, setRecentOrders] = useState<Order[]>([
-    {
-      id: 1,
-      productName: "Wireless Bluetooth Headphones",
-      price: "₹2,499",
-      date: "Dec 12, 2024",
-      status: "Delivered",
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop",
-    },
-    {
-      id: 2,
-      productName: "Smart Fitness Band",
-      price: "₹1,799",
-      date: "Dec 8, 2024",
-      status: "Delivered",
-      image:
-        "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=100&h=100&fit=crop",
-    },
-    {
-      id: 3,
-      productName: "Organic Face Cream",
-      price: "₹899",
-      date: "Dec 5, 2024",
-      status: "Shipped",
-      image:
-        "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop",
-    },
-  ]);
+  // Load user data on component mount
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        dateOfBirth: user.dateOfBirth || "",
+      });
+      fetchUserData();
+    }
+  }, [isAuthenticated, user]);
 
-  // Wishlist items with state
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([
-    {
-      id: 1,
-      name: "Designer Handbag",
-      price: "₹3,499",
-      originalPrice: "₹4,999",
-      image:
-        "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=100&h=100&fit=crop",
-      discount: "30% off",
-    },
-    {
-      id: 2,
-      name: "Running Shoes",
-      price: "₹2,199",
-      originalPrice: "₹3,199",
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop",
-      discount: "31% off",
-    },
-    {
-      id: 3,
-      name: "Smart Watch",
-      price: "₹4,999",
-      originalPrice: "₹6,999",
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop",
-      discount: "28% off",
-    },
-  ]);
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
 
-  // Addresses with state
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: 1,
-      type: "Home",
-      name: "Priya Sharma",
-      address: "123 Main Street, Apartment 4B, Mumbai, Maharashtra 400001",
-      phone: "+91 98765 43210",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: "Work",
-      name: "Priya Sharma",
-      address:
-        "Tech Park, Office No. 304, Andheri East, Mumbai, Maharashtra 400093",
-      phone: "+91 98765 43210",
-      isDefault: false,
-    },
-  ]);
+      // Fetch orders
+      const ordersData = await fetchData("/orders");
+      if (ordersData && Array.isArray(ordersData.data)) {
+        setOrders(ordersData.data);
+      } else {
+        setOrders([]);
+      }
 
-  // Payment methods with state
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([
-    {
-      id: 1,
-      type: "Visa",
-      name: "Visa Classic",
-      details: "**** **** **** 4242",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: "PayPal",
-      name: "PayPal Account",
-      details: "user@example.com",
-      isDefault: false,
-    },
-  ]);
+      // Fetch addresses
+      const addressesData = await fetchData("/addresses");
+      if (addressesData && Array.isArray(addressesData.data)) {
+        setAddresses(addressesData.data);
+      } else {
+        setAddresses([]);
+      }
 
-  // New address form state
-  const [newAddress, setNewAddress] = useState({
-    type: "Home",
-    name: "",
-    address: "",
-    phone: "",
-    isDefault: false,
-  });
-
-  // New payment method form state
-  const [newPayment, setNewPayment] = useState({
-    type: "Credit Card",
-    name: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    isDefault: false,
-  });
+      // For wishlist and payment methods, we'll use mock data for now
+      // You can integrate APIs when available
+      setPaymentMethods([
+        {
+          id: 1,
+          type: "Visa",
+          name: "Visa Card",
+          details: "**** **** **** 4242",
+          isDefault: true,
+        },
+        {
+          id: 2,
+          type: "PayPal",
+          name: "PayPal Account",
+          details: "john@example.com",
+          isDefault: false,
+        },
+      ]);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      toast.error("Failed to load user data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle profile edit
   const handleEditProfile = () => {
-    setFormData({
-      name: userData.name,
-      email: userData.email,
-      phone: userData.phone,
-      dateOfBirth: userData.dateOfBirth || "",
-    });
     setIsEditing(true);
   };
 
   // Handle profile save
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUserData((prev) => ({
-      ...prev,
-      ...formData,
-    }));
-    setIsEditing(false);
+    try {
+      setLoading(true);
+
+      // Update profile API call
+      const updatedUser = await fetchData("/auth/update-profile", {
+        method: "PUT",
+        data: formData,
+      });
+
+      // Update user in context
+      if (updatedUser) {
+        updateUser(updatedUser);
+        toast.success("Profile updated successfully!");
+      }
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Handle cancel edit
   const handleCancelEdit = () => {
     setIsEditing(false);
+    setFormData({
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+      dateOfBirth: user?.dateOfBirth || "",
+    });
   };
 
   // Handle form input changes
@@ -234,153 +180,74 @@ const Profile = () => {
     }));
   };
 
-  // Handle address input changes
-  const handleAddressInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
+  // Delete address
+  const deleteAddress = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this address?")) return;
 
-    setNewAddress((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+    try {
+      await fetchData(`/addresses/${id}`, {
+        method: "DELETE",
+      });
 
-  // Handle payment input changes
-  const handlePaymentInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-
-    setNewPayment((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  // Add new address
-  const handleAddAddress = (e: React.FormEvent) => {
-    e.preventDefault();
-    const address: Address = {
-      id: addresses.length + 1,
-      ...newAddress,
-    };
-
-    if (newAddress.isDefault) {
-      setAddresses((prev) => [
-        address,
-        ...prev.map((addr) => ({ ...addr, isDefault: false })),
-      ]);
-    } else {
-      setAddresses((prev) => [...prev, address]);
+      setAddresses((prev) => prev.filter((addr) => addr.id !== id));
+      toast.success("Address deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting address:", error);
+      toast.error("Failed to delete address");
     }
-
-    setNewAddress({
-      type: "Home",
-      name: "",
-      address: "",
-      phone: "",
-      isDefault: false,
-    });
-    setShowAddAddress(false);
-  };
-
-  // Add new payment method
-  const handleAddPayment = (e: React.FormEvent) => {
-    e.preventDefault();
-    const payment: PaymentMethod = {
-      id: paymentMethods.length + 1,
-      type: newPayment.type,
-      name: newPayment.name,
-      details: `**** **** **** ${newPayment.cardNumber.slice(-4)}`,
-      isDefault: newPayment.isDefault,
-    };
-
-    if (newPayment.isDefault) {
-      setPaymentMethods((prev) => [
-        payment,
-        ...prev.map((pm) => ({ ...pm, isDefault: false })),
-      ]);
-    } else {
-      setPaymentMethods((prev) => [...prev, payment]);
-    }
-
-    setNewPayment({
-      type: "Credit Card",
-      name: "",
-      cardNumber: "",
-      expiryDate: "",
-      cvv: "",
-      isDefault: false,
-    });
-    setShowAddPayment(false);
   };
 
   // Set default address
-  const setDefaultAddress = (id: number) => {
-    setAddresses((prev) =>
-      prev.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === id,
-      }))
-    );
-  };
+  const setDefaultAddress = async (id: number) => {
+    try {
+      const updatedAddress = await fetchData(`/addresses/${id}`, {
+        method: "PUT",
+        data: { ...addresses.find((addr) => addr.id === id), isDefault: true },
+      });
 
-  // Set default payment method
-  const setDefaultPayment = (id: number) => {
-    setPaymentMethods((prev) =>
-      prev.map((pm) => ({
-        ...pm,
-        isDefault: pm.id === id,
-      }))
-    );
-  };
-
-  // Delete address
-  const deleteAddress = (id: number) => {
-    setAddresses((prev) => {
-      const newAddresses = prev.filter((addr) => addr.id !== id);
-      if (
-        newAddresses.length > 0 &&
-        !newAddresses.some((addr) => addr.isDefault)
-      ) {
-        newAddresses[0].isDefault = true;
+      if (updatedAddress) {
+        setAddresses((prev) =>
+          prev.map((addr) => ({
+            ...addr,
+            isDefault: addr.id === id,
+          }))
+        );
+        toast.success("Default address updated!");
       }
-      return newAddresses;
-    });
+    } catch (error) {
+      console.error("Error setting default address:", error);
+      toast.error("Failed to update default address");
+    }
   };
 
   // Delete payment method
-  const deletePaymentMethod = (id: number) => {
-    setPaymentMethods((prev) => {
-      const newPayments = prev.filter((pm) => pm.id !== id);
-      if (newPayments.length > 0 && !newPayments.some((pm) => pm.isDefault)) {
-        newPayments[0].isDefault = true;
-      }
-      return newPayments;
-    });
+  const deletePaymentMethod = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this payment method?"))
+      return;
+
+    try {
+      setPaymentMethods((prev) => prev.filter((pm) => pm.id !== id));
+      toast.success("Payment method deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting payment method:", error);
+      toast.error("Failed to delete payment method");
+    }
   };
 
-  // Remove from wishlist
-  const removeFromWishlist = (id: number) => {
-    setWishlistItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // Add to cart from wishlist
-  const addToCart = (item: WishlistItem) => {
-    alert(`Added ${item.name} to cart!`);
-  };
-
-  // View order details
-  const viewOrderDetails = (order: Order) => {
-    setSelectedOrder(order);
-  };
-
-  // Close order details
-  const closeOrderDetails = () => {
-    setSelectedOrder(null);
+  // Set default payment method
+  const setDefaultPayment = async (id: number) => {
+    try {
+      setPaymentMethods((prev) =>
+        prev.map((pm) => ({
+          ...pm,
+          isDefault: pm.id === id,
+        }))
+      );
+      toast.success("Default payment method updated!");
+    } catch (error) {
+      console.error("Error setting default payment:", error);
+      toast.error("Failed to update default payment method");
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -427,6 +294,60 @@ const Profile = () => {
     }
   };
 
+  const getAddressTypeIcon = (type: string) => {
+    switch (type) {
+      case "home":
+        return "🏠";
+      case "work":
+        return "💼";
+      case "other":
+        return "📍";
+      default:
+        return "📍";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="pt-32 min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 py-8 px-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="pt-32 min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 py-8 px-4 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-3xl text-pink-600">🔒</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            Authentication Required
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Please login to view your profile
+          </p>
+          <button
+            onClick={() => router.push("/login")}
+            className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate member since date
+  const getMemberSince = () => {
+    if (user?.joinDate) return user.joinDate;
+    return "January 2024";
+  };
+
   return (
     <div className="pt-32 min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -434,14 +355,22 @@ const Profile = () => {
         <div className="text-center mb-8 animate-fade-in">
           <div className="flex items-center justify-center mb-4">
             <div className="w-20 h-20 bg-gradient-to-r from-pink-500 to-amber-500 rounded-full flex items-center justify-center shadow-lg relative">
-              <Image
-                src={userData.profileImage}
-                alt="Profile"
-                width={80}
-                height={80}
-                className="rounded-full object-cover border-4 border-white"
-              />
-              <button className="absolute bottom-0 right-0 w-8 h-8 bg-pink-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-pink-700 transition-colors">
+              <div className="w-full h-full rounded-full flex items-center justify-center bg-gradient-to-br from-pink-400 to-amber-400">
+                <span className="text-white text-2xl font-bold">
+                  {user?.name
+                    ? user.name
+                        .split(" ")
+                        .map((word) => word[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)
+                    : "U"}
+                </span>
+              </div>
+              <button
+                onClick={handleEditProfile}
+                className="absolute bottom-0 right-0 w-8 h-8 bg-pink-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-pink-700 transition-colors"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4"
@@ -454,15 +383,15 @@ const Profile = () => {
             </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 to-amber-600 bg-clip-text text-transparent mb-2">
-            {userData.name}
+            {user?.name || "User"}
           </h1>
-          <p className="text-gray-600 text-lg">{userData.email}</p>
+          <p className="text-gray-600 text-lg">{user?.email}</p>
           <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
             <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-              {userData.membership}
+              {user?.membership || "Standard Member"}
             </span>
             <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm font-medium">
-              {userData.loyaltyPoints} Points
+              {user?.loyaltyPoints || 0} Points
             </span>
           </div>
         </div>
@@ -470,19 +399,21 @@ const Profile = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
           <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-pink-500 transform hover:scale-105 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs md:text-sm text-gray-600 font-medium">
-                  Total Orders
-                </p>
-                <p className="text-2xl md:text-3xl font-bold text-gray-800">
-                  47
-                </p>
+            <Link href="/header/orders" className="block">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs md:text-sm text-gray-600 font-medium">
+                    Total Orders
+                  </p>
+                  <p className="text-2xl md:text-3xl font-bold text-gray-800">
+                    {orders.length}
+                  </p>
+                </div>
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                  <span className="text-lg md:text-2xl">📦</span>
+                </div>
               </div>
-              <div className="w-8 h-8 md:w-12 md:h-12 bg-pink-100 rounded-full flex items-center justify-center">
-                <span className="text-lg md:text-2xl">📦</span>
-              </div>
-            </div>
+            </Link>
           </div>
 
           <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-amber-500 transform hover:scale-105 transition-all duration-300">
@@ -492,7 +423,7 @@ const Profile = () => {
                   Wishlist
                 </p>
                 <p className="text-2xl md:text-3xl font-bold text-gray-800">
-                  {wishlistItems.length}
+                  {0}
                 </p>
               </div>
               <div className="w-8 h-8 md:w-12 md:h-12 bg-amber-100 rounded-full flex items-center justify-center">
@@ -501,65 +432,59 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs md:text-sm text-gray-600 font-medium">
-                  Coupons
-                </p>
-                <p className="text-2xl md:text-3xl font-bold text-gray-800">
-                  5
-                </p>
-              </div>
-              <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-lg md:text-2xl">🎫</span>
-              </div>
-            </div>
-          </div> */}
-
           <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-green-500 transform hover:scale-105 transition-all duration-300">
+            <Link href="/header/addresses" className="block">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs md:text-sm text-gray-600 font-medium">
+                    Addresses
+                  </p>
+                  <p className="text-2xl md:text-3xl font-bold text-gray-800">
+                    {addresses.length}
+                  </p>
+                </div>
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-lg md:text-2xl">🏠</span>
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs md:text-sm text-gray-600 font-medium">
                   Member Since
                 </p>
                 <p className="text-sm md:text-lg font-bold text-gray-800">
-                  {userData.joinDate}
+                  {getMemberSince()}
                 </p>
               </div>
-              <div className="w-8 h-8 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center">
                 <span className="text-lg md:text-2xl">⭐</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-1 md:gap-2 mb-6 md:mb-8 bg-white rounded-2xl shadow-lg p-1 md:p-2">
-          {[
-            { key: "profile", label: "Profile", icon: "👤" },
-            { key: "orders", label: "Orders", icon: "📦" },
-            { key: "wishlist", label: "Wishlist", icon: "❤️" },
-            { key: "addresses", label: "Addresses", icon: "🏠" },
-            { key: "payments", label: "Payments", icon: "💳" },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-1 md:gap-2 px-3 md:px-6 py-2 md:py-3 rounded-xl font-medium transition-all duration-300 text-sm md:text-base ${
-                activeTab === tab.key
-                  ? "bg-gradient-to-r from-pink-500 to-amber-500 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <span className="text-sm md:text-base">{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
-        </div>
+        {/* Tabs Navigation */}
+        <div className="bg-white rounded-2xl shadow-lg mb-8 overflow-hidden">
+          <div className="flex overflow-x-auto border-b border-gray-200">
+            {["profile", "orders", "addresses", "payments"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 min-w-32 px-6 py-4 text-sm md:text-base font-medium transition-all duration-300 ${
+                  activeTab === tab
+                    ? "text-pink-600 border-b-2 border-pink-600"
+                    : "text-gray-600 hover:text-pink-500"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
 
-        {/* Tab Content */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Profile Info Tab */}
           {activeTab === "profile" && (
             <div className="p-4 md:p-6">
@@ -635,9 +560,10 @@ const Profile = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       type="submit"
-                      className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+                      disabled={loading}
+                      className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50"
                     >
-                      Save Changes
+                      {loading ? "Saving..." : "Save Changes"}
                     </button>
                     <button
                       type="button"
@@ -656,7 +582,7 @@ const Profile = () => {
                         Full Name
                       </label>
                       <p className="text-lg font-semibold text-gray-800">
-                        {userData.name}
+                        {user?.name || "Not set"}
                       </p>
                     </div>
                     <div>
@@ -664,7 +590,7 @@ const Profile = () => {
                         Email
                       </label>
                       <p className="text-lg font-semibold text-gray-800">
-                        {userData.email}
+                        {user?.email}
                       </p>
                     </div>
                   </div>
@@ -674,7 +600,7 @@ const Profile = () => {
                         Phone
                       </label>
                       <p className="text-lg font-semibold text-gray-800">
-                        {userData.phone}
+                        {user?.phone || "Not set"}
                       </p>
                     </div>
                     <div>
@@ -682,7 +608,7 @@ const Profile = () => {
                         Member Since
                       </label>
                       <p className="text-lg font-semibold text-gray-800">
-                        {userData.joinDate}
+                        {getMemberSince()}
                       </p>
                     </div>
                   </div>
@@ -694,123 +620,81 @@ const Profile = () => {
           {/* Orders Tab */}
           {activeTab === "orders" && (
             <div className="p-4 md:p-6">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
-                Recent Orders
-              </h2>
-              <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-gray-200 rounded-xl hover:shadow-md transition-all duration-300 gap-4"
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                  Recent Orders
+                </h2>
+                <Link
+                  href="/header/orders"
+                  className="text-pink-600 hover:text-pink-700 font-medium flex items-center gap-2"
+                >
+                  View All
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                   >
-                    <div className="flex items-center space-x-4 flex-1">
-                      <Image
-                        src={order.image}
-                        alt={order.productName}
-                        width={60}
-                        height={60}
-                        className="rounded-lg object-cover flex-shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-gray-800 truncate">
-                          {order.productName}
-                        </h3>
-                        <p className="text-pink-600 font-medium">
-                          {order.price}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Ordered on {order.date}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-normal">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          order.status
-                        )}`}
-                      >
-                        {order.status}
-                      </span>
-                      <button
-                        onClick={() => viewOrderDetails(order)}
-                        className="bg-pink-50 text-pink-600 px-4 py-2 rounded-xl hover:bg-pink-100 transition-colors duration-200 text-sm whitespace-nowrap"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </Link>
               </div>
-              <div className="text-center mt-6">
-                <button className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300">
-                  View All Orders
-                </button>
-              </div>
-            </div>
-          )}
 
-          {/* Wishlist Tab */}
-          {activeTab === "wishlist" && (
-            <div className="p-4 md:p-6">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">
-                My Wishlist ({wishlistItems.length})
-              </h2>
-              {wishlistItems.length === 0 ? (
+              {orders.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl text-pink-600">❤️</span>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">📦</span>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    Your wishlist is empty
+                    No Orders Yet
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    Start adding items you love!
+                    You haven&rsquo;t placed any orders yet.
                   </p>
-                  <button className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-2 rounded-xl">
+                  <Link
+                    href="/products"
+                    className="inline-block bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+                  >
                     Start Shopping
-                  </button>
+                  </Link>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {wishlistItems.map((item) => (
+                <div className="space-y-4">
+                  {orders.slice(0, 3).map((order) => (
                     <div
-                      key={item.id}
-                      className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300"
+                      key={order.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300"
                     >
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        width={200}
-                        height={200}
-                        className="w-full h-40 md:h-48 object-cover rounded-lg mb-4"
-                      />
-                      <h3 className="font-semibold text-gray-800 mb-2 truncate">
-                        {item.name}
-                      </h3>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-pink-600 font-bold text-lg">
-                          {item.price}
-                        </span>
-                        <span className="text-gray-500 line-through text-sm">
-                          {item.originalPrice}
-                        </span>
-                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                          {item.discount}
-                        </span>
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-white rounded-lg overflow-hidden border border-gray-200">
+                          <Image
+                            src={order.image}
+                            alt={order.productName}
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-800">
+                            {order.productName}
+                          </h3>
+                          <p className="text-gray-600 text-sm">{order.date}</p>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => addToCart(item)}
-                          className="flex-1 bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700 transition-colors duration-200 text-sm"
+                      <div className="text-right">
+                        <p className="font-bold text-pink-600">{order.price}</p>
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            order.status
+                          )}`}
                         >
-                          Add to Cart
-                        </button>
-                        <button
-                          onClick={() => removeFromWishlist(item.id)}
-                          className="w-10 h-10 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center"
-                        >
-                          <span>❌</span>
-                        </button>
+                          {order.status}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -822,506 +706,231 @@ const Profile = () => {
           {/* Addresses Tab */}
           {activeTab === "addresses" && (
             <div className="p-4 md:p-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl md:text-2xl font-bold text-gray-800">
                   Saved Addresses
                 </h2>
-                <button
-                  onClick={() => setShowAddAddress(true)}
-                  className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-4 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
+                <Link
+                  href="/header/addresses"
+                  className="text-pink-600 hover:text-pink-700 font-medium flex items-center gap-2"
                 >
-                  Add New Address
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                {addresses.map((address) => (
-                  <div
-                    key={address.id}
-                    className={`border-2 rounded-xl p-4 transition-all duration-300 ${
-                      address.isDefault
-                        ? "border-pink-500 bg-pink-50"
-                        : "border-gray-200 hover:border-pink-300"
-                    }`}
+                  Manage Addresses
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {address.type}
-                      </span>
-                      {address.isDefault && (
-                        <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-                          Default
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="font-semibold text-gray-800 mb-2">
-                      {address.name}
-                    </h3>
-                    <p className="text-gray-600 mb-2 text-sm">
-                      {address.address}
-                    </p>
-                    <p className="text-gray-600 mb-4 text-sm">
-                      {address.phone}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <button className="text-pink-600 hover:text-pink-700 font-medium text-sm">
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteAddress(address.id)}
-                        className="text-gray-600 hover:text-red-600 font-medium text-sm"
-                      >
-                        Delete
-                      </button>
-                      {!address.isDefault && (
-                        <button
-                          onClick={() => setDefaultAddress(address.id)}
-                          className="text-amber-600 hover:text-amber-700 font-medium text-sm ml-auto"
-                        >
-                          Set as Default
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </Link>
               </div>
+
+              {addresses.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🏠</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    No Addresses Saved
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Add your delivery addresses for faster checkout.
+                  </p>
+                  <Link
+                    href="/header/addresses"
+                    className="inline-block bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+                  >
+                    Add Address
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {addresses.slice(0, 2).map((address) => (
+                    <div
+                      key={address.id}
+                      className="bg-white border border-gray-200 rounded-xl p-4 hover:border-pink-300 transition-all duration-300"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">
+                            {getAddressTypeIcon(address.type)}
+                          </span>
+                          <span className="font-medium text-gray-800">
+                            {address.name}
+                          </span>
+                          {address.isDefault && (
+                            <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          {!address.isDefault && (
+                            <button
+                              onClick={() => setDefaultAddress(address.id)}
+                              className="text-amber-500 hover:text-amber-600"
+                              title="Set as default"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteAddress(address.id)}
+                            className="text-gray-400 hover:text-red-500"
+                            title="Delete address"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="text-gray-600 space-y-1">
+                        <p>{address.address}</p>
+                        <p>{address.phone}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {/* Payments Tab */}
           {activeTab === "payments" && (
             <div className="p-4 md:p-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl md:text-2xl font-bold text-gray-800">
                   Payment Methods
                 </h2>
                 <button
-                  onClick={() => setShowAddPayment(true)}
-                  className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-4 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300 w-full sm:w-auto"
+                  className="text-pink-600 hover:text-pink-700 font-medium flex items-center gap-2"
+                  onClick={() => router.push("/payment-methods")}
                 >
-                  Add New Payment
+                  Add New
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </button>
               </div>
-              <div className="max-w-2xl space-y-4">
-                {paymentMethods.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border border-gray-200 rounded-xl gap-4"
+
+              {paymentMethods.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">💳</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    No Payment Methods
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Add your payment methods for faster checkout.
+                  </p>
+                  <button
+                    onClick={() => router.push("/payment-methods")}
+                    className="inline-block bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="flex items-center space-x-4 flex-1">
-                      {getPaymentLogo(payment.type)}
-                      <div>
-                        <p className="font-semibold text-gray-800">
-                          {payment.name}
-                        </p>
-                        <p className="text-gray-600">{payment.details}</p>
+                    Add Payment Method
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {paymentMethods.map((method) => (
+                    <div
+                      key={method.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300"
+                    >
+                      <div className="flex items-center space-x-4">
+                        {getPaymentLogo(method.type)}
+                        <div>
+                          <h3 className="font-semibold text-gray-800">
+                            {method.name}
+                          </h3>
+                          <p className="text-gray-600 text-sm">
+                            {method.details}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {method.isDefault && (
+                          <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
+                            Default
+                          </span>
+                        )}
+                        <div className="flex gap-2">
+                          {!method.isDefault && (
+                            <button
+                              onClick={() => setDefaultPayment(method.id)}
+                              className="text-amber-500 hover:text-amber-600"
+                              title="Set as default"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deletePaymentMethod(method.id)}
+                            className="text-gray-400 hover:text-red-500"
+                            title="Delete payment method"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-normal">
-                      {payment.isDefault ? (
-                        <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium">
-                          Default
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => setDefaultPayment(payment.id)}
-                          className="text-pink-600 hover:text-pink-700 font-medium text-sm"
-                        >
-                          Set as Default
-                        </button>
-                      )}
-                      <button
-                        onClick={() => deletePaymentMethod(payment.id)}
-                        className="text-gray-600 hover:text-red-600 font-medium text-sm"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {paymentMethods.length === 0 && (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-2xl text-pink-600">💳</span>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                      No payment methods
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      Add a payment method for faster checkout
-                    </p>
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
-
-      {/* Add Address Modal */}
-      {showAddAddress && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Add New Address
-                </h2>
-                <button
-                  onClick={() => setShowAddAddress(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleAddAddress} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address Type
-                  </label>
-                  <select
-                    name="type"
-                    value={newAddress.type}
-                    onChange={handleAddressInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                  >
-                    <option value="Home">Home</option>
-                    <option value="Work">Work</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={newAddress.name}
-                    onChange={handleAddressInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={newAddress.address}
-                    onChange={handleAddressInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                    placeholder="Enter your complete address"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={newAddress.phone}
-                    onChange={handleAddressInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isDefault"
-                    checked={newAddress.isDefault}
-                    onChange={handleAddressInputChange}
-                    className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
-                  />
-                  <label className="ml-2 block text-sm text-gray-700">
-                    Set as default address
-                  </label>
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddAddress(false)}
-                    className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-amber-500 text-white rounded-xl hover:from-pink-600 hover:to-amber-600 transition-all duration-300 font-medium"
-                  >
-                    Add Address
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Payment Method Modal */}
-      {showAddPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale-in">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Add Payment Method
-                </h2>
-                <button
-                  onClick={() => setShowAddPayment(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleAddPayment} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Card Type
-                  </label>
-                  <select
-                    name="type"
-                    value={newPayment.type}
-                    onChange={handlePaymentInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                  >
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Debit Card">Debit Card</option>
-                    <option value="Visa">Visa</option>
-                    <option value="MasterCard">MasterCard</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Card Holder Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={newPayment.name}
-                    onChange={handlePaymentInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                    placeholder="Enter card holder name"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Card Number
-                  </label>
-                  <input
-                    type="text"
-                    name="cardNumber"
-                    value={newPayment.cardNumber}
-                    onChange={handlePaymentInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                    placeholder="1234 5678 9012 3456"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="text"
-                      name="expiryDate"
-                      value={newPayment.expiryDate}
-                      onChange={handlePaymentInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                      placeholder="MM/YY"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      CVV
-                    </label>
-                    <input
-                      type="text"
-                      name="cvv"
-                      value={newPayment.cvv}
-                      onChange={handlePaymentInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                      placeholder="123"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isDefault"
-                    checked={newPayment.isDefault}
-                    onChange={handlePaymentInputChange}
-                    className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
-                  />
-                  <label className="ml-2 block text-sm text-gray-700">
-                    Set as default payment method
-                  </label>
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddPayment(false)}
-                    className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-amber-500 text-white rounded-xl hover:from-pink-600 hover:to-amber-600 transition-all duration-300 font-medium"
-                  >
-                    Add Payment
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Order Details Modal */}
-      {selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-scale-in">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Order Details
-                </h2>
-                <button
-                  onClick={closeOrderDetails}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Image
-                    src={selectedOrder.image}
-                    alt={selectedOrder.productName}
-                    width={80}
-                    height={80}
-                    className="rounded-lg object-cover"
-                  />
-                  <div>
-                    <h3 className="font-semibold text-gray-800 text-lg">
-                      {selectedOrder.productName}
-                    </h3>
-                    <p className="text-pink-600 font-medium text-xl">
-                      {selectedOrder.price}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Order Date:</span>
-                    <span className="font-medium">{selectedOrder.date}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Status:</span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                        selectedOrder.status
-                      )}`}
-                    >
-                      {selectedOrder.status}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Order ID:</span>
-                    <span className="font-medium">
-                      #ORD{selectedOrder.id.toString().padStart(6, "0")}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h4 className="font-medium text-gray-800 mb-2">
-                    Delivery Information
-                  </h4>
-                  <p className="text-gray-600 text-sm">
-                    {selectedOrder.status === "Delivered"
-                      ? "Your order has been successfully delivered to your address."
-                      : selectedOrder.status === "Shipped"
-                      ? "Your order is on the way and will be delivered soon."
-                      : "Your order is being processed."}
-                  </p>
-                </div>
-
-                <button
-                  onClick={closeOrderDetails}
-                  className="w-full bg-gradient-to-r from-pink-500 to-amber-500 text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Custom Animations */}
       <style jsx>{`
@@ -1333,25 +942,12 @@ const Profile = () => {
             opacity: 1;
           }
         }
-        @keyframes scale-in {
-          from {
-            transform: scale(0.9);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.3s ease-out;
         }
       `}</style>
     </div>
   );
 };
 
-export default Profile;
+export default ProfilePage;

@@ -11,6 +11,8 @@ export default function AboutHeader() {
           "linear-gradient(to bottom, #FBB5E7 0%, #FBB5E7 20%, #C4F9FF 100%)",
       }}
     >
+
+      
       {/* Zodiac background image (you said you already have it) */}
       <div className="absolute inset-0 bg-[url('/images/aboutround.png')] bg-no-repeat bg-right-top bg-contain opacity-30 pointer-events-none"></div>
 

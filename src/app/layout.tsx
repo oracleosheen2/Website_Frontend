@@ -36,7 +36,7 @@ export default function RootLayout({
       <body
         className={`${charm.variable} ${cormorant.variable} ${montserrat.variable} antialiased`}
       >
-        {/* Use client wrapper to handle pathname */}
+        {/* All providers are now inside LayoutWrapper */}
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>

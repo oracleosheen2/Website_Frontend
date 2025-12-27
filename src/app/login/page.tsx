@@ -5,51 +5,113 @@ import React, { useState, useEffect } from "react";
 import { FaAppleAlt, FaArrowLeft } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { toast, Toaster } from "react-hot-toast";
+import { postData } from "../../utils/api/api";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
+// Define types for API responses
+interface AuthResponse {
+  success?: boolean;
+  token?: string;
+  user?: UserData;
+  message?: string;
+  resetToken?: string;
+  otpId?: string;
+  verified?: boolean;
+  requiresOtp?: boolean;
+  data?: {
+    token?: string;
+    user?: UserData;
+  };
+}
 
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  avatar?: string;
+  joinDate?: string;
+  membership?: string;
+  loyaltyPoints?: number;
+  dateOfBirth?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message: string;
+      requiresOtp?: boolean;
+      otpId?: string;
+    };
+  };
+  message?: string;
+}
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [authStep, setAuthStep] = useState("login"); // 'login', 'otp', 'forgot', 'reset', 'newPassword'
+  const [authStep, setAuthStep] = useState<
+    "login" | "otp" | "forgot" | "reset" | "newPassword"
+  >("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
   const [resetToken, setResetToken] = useState("");
+  const [otpId, setOtpId] = useState("");
 
-  const handleOtpChange = (element, index) => {
-    if (isNaN(element.value)) return false;
+  const router = useRouter();
+  const {
+    user,
+    isAuthenticated,
+    loading: authLoading,
+    login,
+    checkAuth,
+  } = useAuth();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log("User already authenticated, redirecting...");
+      router.push("/");
+    }
+  }, [isAuthenticated, user, router]);
+
+  // Handle OTP input
+  const handleOtpChange = (element: HTMLInputElement, index: number) => {
+    if (isNaN(Number(element.value))) return false;
 
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
 
     // Focus next input
     if (element.nextSibling && element.value !== "") {
-      element.nextSibling.focus();
+      (element.nextSibling as HTMLInputElement).focus();
     }
   };
 
+  // Handle back navigation
   const handleBack = () => {
     if (authStep === "otp") {
       setAuthStep("login");
-      setOtpVerified(false);
+      setOtp(["", "", "", "", "", ""]);
     } else if (authStep === "forgot") {
       setAuthStep("login");
     } else if (authStep === "reset") {
       setAuthStep("forgot");
-      setOtpVerified(false);
+      setOtp(["", "", "", "", "", ""]);
     } else if (authStep === "newPassword") {
       setAuthStep("reset");
     }
   };
 
-  // Handle Login
-  const handleLogin = async (e) => {
+  // Handle Login - UPDATED WITH AUTH CONTEXT
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -60,26 +122,75 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await postData("/api/auth/login", { email, password });
+      const response = (await postData("/auth/login", {
+        email,
+        password,
+      })) as AuthResponse;
 
-      // Store token in localStorage
-      localStorage.setItem("token", response.token);
+      console.log("Login API Response:", response);
 
-      toast.success("Login successful!");
+      // Handle different response formats
+      let token: string | undefined;
+      let userData: UserData | undefined;
 
-      // Redirect to dashboard or home page after successful login
-      setTimeout(() => {
-        window.location.href = "/dashboard"; // Change to your desired redirect path
-      }, 1000);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      if (response.token && response.user) {
+        // Format 1: Direct token and user in response
+        token = response.token;
+        userData = response.user;
+      } else if (response.data?.token && response.data?.user) {
+        // Format 2: Nested in data object
+        token = response.data.token;
+        userData = response.data.user;
+      } else if (response.success && response.token) {
+        // Format 3: Success with token
+        token = response.token;
+        userData = response.user;
+      }
+
+      if (token && userData) {
+        // Call AuthContext login function
+        login(token, userData);
+
+        toast.success("Login successful!");
+
+        // Check auth state and redirect
+        setTimeout(() => {
+          checkAuth();
+          router.push("/");
+        }, 500);
+      } else if (response.requiresOtp) {
+        // Handle OTP requirement
+        if (response.otpId) {
+          setOtpId(response.otpId);
+        }
+        setAuthStep("otp");
+        toast.success("OTP sent to your email!");
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
+      console.error("Login error:", err);
+
+      // Check if error is due to OTP requirement
+      if (err.response?.data?.requiresOtp) {
+        if (err.response.data.otpId) {
+          setOtpId(err.response.data.otpId);
+        }
+        setAuthStep("otp");
+        toast.success("OTP sent to your email!");
+      } else {
+        toast.error(
+          err.response?.data?.message || err.message || "Login failed"
+        );
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle Registration
-  const handleRegister = async (e) => {
+  // Handle Registration - UPDATED
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Combine first and last name
@@ -95,34 +206,52 @@ const Login = () => {
       return;
     }
 
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await postData("/api/auth/register", {
+      const response = (await postData("/auth/register", {
         name: fullName,
         email,
         password,
-      });
+      })) as AuthResponse;
 
-      toast.success("Registration successful! Please login.");
+      console.log("Register API Response:", response);
 
-      // Switch back to login form
-      setIsLogin(true);
+      // Auto-login after successful registration if token is returned
+      if (response.token && response.user) {
+        login(response.token, response.user);
+        toast.success("Registration successful! You are now logged in.");
+
+        setTimeout(() => {
+          router.push("/");
+        }, 500);
+      } else {
+        toast.success("Registration successful! Please login.");
+        setIsLogin(true);
+      }
 
       // Clear form
       setFirstName("");
       setLastName("");
       setPassword("");
       setConfirmPassword("");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
+      toast.error(
+        err.response?.data?.message || err.message || "Registration failed"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   // Handle Forgot Password
-  const handleForgotPassword = async (e) => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email) {
@@ -133,52 +262,114 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await postData("/api/auth/forgot-password", { email });
+      const response = (await postData("/auth/forgot-password", {
+        email,
+      })) as AuthResponse;
 
-      toast.success("Password reset link sent to your email!");
+      // If backend returns an OTP ID, store it
+      if (response.otpId) {
+        setOtpId(response.otpId);
+      }
+
+      toast.success("OTP sent to your email!");
       setAuthStep("reset");
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
       toast.error(
-        error.response?.data?.message || "Failed to send reset email"
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to send reset email"
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle OTP Verification
-  const handleOtpSubmit = async (e) => {
+  // Handle OTP Verification for Login - UPDATED
+  const handleLoginOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate OTP verification (replace with actual API call if you have OTP endpoint)
-    setTimeout(() => {
-      setIsLoading(false);
-      const enteredOtp = otp.join("");
+    const enteredOtp = otp.join("");
 
-      // Check if OTP is correct (for demo, any 6-digit OTP works)
-      if (enteredOtp.length === 6 && !isNaN(enteredOtp)) {
-        setOtpVerified(true);
-        if (authStep === "otp") {
-          // Login OTP verified
-          toast.success("OTP verified successfully!");
-          // In real app, you would verify OTP with backend
-          setAuthStep("login");
-          setOtp(["", "", "", "", "", ""]);
-          setOtpVerified(false);
-        } else if (authStep === "reset") {
-          // Forgot password OTP verified - show new password fields
-          setAuthStep("newPassword");
-          toast.success("OTP verified! Now set your new password.");
-        }
+    if (enteredOtp.length !== 6) {
+      toast.error("Please enter a 6-digit OTP");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = (await postData("/auth/verify-otp", {
+        email,
+        otp: enteredOtp,
+        otpId,
+      })) as AuthResponse;
+
+      if (response.verified && response.token && response.user) {
+        // Login after OTP verification
+        login(response.token, response.user);
+
+        toast.success("Login successful!");
+
+        setTimeout(() => {
+          router.push("/");
+        }, 500);
+      } else {
+        throw new Error("OTP verification failed");
+      }
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
+      toast.error(
+        err.response?.data?.message ||
+          err.message ||
+          "Invalid OTP. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle OTP Verification for Password Reset
+  const handleResetOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const enteredOtp = otp.join("");
+
+    if (enteredOtp.length !== 6) {
+      toast.error("Please enter a 6-digit OTP");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = (await postData("/auth/verify-reset-otp", {
+        email,
+        otp: enteredOtp,
+        otpId,
+      })) as AuthResponse;
+
+      if (response.verified && response.resetToken) {
+        setResetToken(response.resetToken);
+        setAuthStep("newPassword");
+        toast.success("OTP verified! Now set your new password.");
       } else {
         toast.error("Invalid OTP. Please try again.");
       }
-    }, 1500);
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
+      toast.error(
+        err.response?.data?.message ||
+          err.message ||
+          "Invalid OTP. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle Password Reset
-  const handlePasswordReset = async (e) => {
+  const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
@@ -194,21 +385,23 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Note: You need to get the reset token from your backend
-      // For demo, using a mock token
-      const token = resetToken || "demo-token";
-
-      const response = await postData(`/api/auth/reset-password/${token}`, {
-        password: newPassword,
-      });
+      const response = (await postData(
+        `/auth/reset-password/${resetToken || "demo-token"}`,
+        {
+          password: newPassword,
+        }
+      )) as AuthResponse;
 
       toast.success("Password reset successful!");
       setAuthStep("login");
       setNewPassword("");
       setConfirmPassword("");
-      setOtpVerified(false);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to reset password");
+      setOtp(["", "", "", "", "", ""]);
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
+      toast.error(
+        err.response?.data?.message || err.message || "Failed to reset password"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -218,15 +411,114 @@ const Login = () => {
   const handleGoogleLogin = () => {
     toast.loading("Redirecting to Google...");
     // Implement Google OAuth here
-    // window.location.href = "YOUR_GOOGLE_OAUTH_URL";
+    // window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
   // Handle Apple Login
   const handleAppleLogin = () => {
     toast.loading("Redirecting to Apple...");
     // Implement Apple OAuth here
-    // window.location.href = "YOUR_APPLE_OAUTH_URL";
+    // window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/apple`;
   };
+
+  // Resend OTP
+  const handleResendOtp = async () => {
+    try {
+      if (authStep === "reset") {
+        // For password reset
+        await postData("/auth/forgot-password", { email });
+        toast.success("OTP resent to your email!");
+      } else if (authStep === "otp") {
+        // For login OTP
+        await postData("/auth/resend-otp", { email });
+        toast.success("OTP resent to your email!");
+      }
+    } catch (error: unknown) {
+      const err = error as ErrorResponse;
+      toast.error(
+        err.response?.data?.message || err.message || "Failed to resend OTP"
+      );
+    }
+  };
+
+  // Render OTP form based on context
+  const renderOtpForm = (context: "login" | "reset") => (
+    <form
+      onSubmit={
+        context === "login" ? handleLoginOtpSubmit : handleResetOtpSubmit
+      }
+      className="space-y-4 md:space-y-6"
+    >
+      <div className="flex items-center justify-between mb-2 md:mb-4">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 text-sm md:text-base"
+        >
+          <FaArrowLeft size={14} className="md:size-[16px]" />
+          <span className="hidden sm:inline">Back</span>
+        </button>
+        <h1 className="text-xl md:text-3xl font-semibold text-center text-gray-700 flex-1">
+          Enter OTP
+        </h1>
+        <div className="w-6 md:w-8"></div>
+      </div>
+
+      <div className="text-center mb-4 md:mb-6">
+        <p className="text-gray-600 text-sm md:text-base">
+          We sent a verification code to
+        </p>
+        <p className="font-semibold text-gray-800 text-sm md:text-base">
+          {email}
+        </p>
+      </div>
+
+      <div className="flex justify-center gap-2 md:gap-3 mb-4 md:mb-6">
+        {otp.map((data, index) => (
+          <input
+            key={index}
+            type="text"
+            maxLength={1}
+            value={data}
+            onChange={(e) =>
+              handleOtpChange(e.target as HTMLInputElement, index)
+            }
+            onFocus={(e) => e.target.select()}
+            className="w-10 h-10 md:w-12 md:h-12 text-center text-lg md:text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300"
+          />
+        ))}
+      </div>
+
+      <button
+        type="submit"
+        disabled={isLoading || otp.some((digit) => digit === "")}
+        className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base"
+      >
+        {isLoading ? (
+          <>
+            <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Verifying...
+          </>
+        ) : (
+          "Verify OTP"
+        )}
+      </button>
+
+      <div className="text-center">
+        <p className="text-gray-600 text-xs md:text-sm">
+          Didn&apos;t receive the code?{" "}
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            className="text-gray-800 font-semibold hover:underline cursor-pointer transition-all duration-300"
+            disabled={isLoading}
+          >
+            Resend
+          </button>
+        </p>
+      </div>
+    </form>
+  );
 
   const renderLoginForm = () => (
     <form onSubmit={handleLogin} className="space-y-4 md:space-y-6">
@@ -278,7 +570,7 @@ const Login = () => {
 
         <div className="text-center mt-2 md:mt-4">
           <p className="text-gray-600 text-sm">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <button
               type="button"
               onClick={() => setIsLogin(false)}
@@ -336,75 +628,6 @@ const Login = () => {
     </form>
   );
 
-  const renderOtpForm = () => (
-    <form onSubmit={handleOtpSubmit} className="space-y-4 md:space-y-6">
-      <div className="flex items-center justify-between mb-2 md:mb-4">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 text-sm md:text-base"
-        >
-          <FaArrowLeft size={14} className="md:size-[16px]" />
-          <span className="hidden sm:inline">Back</span>
-        </button>
-        <h1 className="text-xl md:text-3xl font-semibold text-center text-gray-700 flex-1">
-          Enter OTP
-        </h1>
-        <div className="w-6 md:w-8"></div>
-      </div>
-
-      <div className="text-center mb-4 md:mb-6">
-        <p className="text-gray-600 text-sm md:text-base">
-          We sent a verification code to
-        </p>
-        <p className="font-semibold text-gray-800 text-sm md:text-base">
-          {email}
-        </p>
-      </div>
-
-      <div className="flex justify-center gap-2 md:gap-3 mb-4 md:mb-6">
-        {otp.map((data, index) => (
-          <input
-            key={index}
-            type="text"
-            maxLength="1"
-            value={data}
-            onChange={(e) => handleOtpChange(e.target, index)}
-            onFocus={(e) => e.target.select()}
-            className="w-10 h-10 md:w-12 md:h-12 text-center text-lg md:text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300"
-          />
-        ))}
-      </div>
-
-      <button
-        type="submit"
-        disabled={isLoading || otp.some((digit) => digit === "")}
-        className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base"
-      >
-        {isLoading ? (
-          <>
-            <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Verifying...
-          </>
-        ) : (
-          "Verify OTP"
-        )}
-      </button>
-
-      <div className="text-center">
-        <p className="text-gray-600 text-xs md:text-sm">
-          Didn't receive the code?{" "}
-          <button
-            type="button"
-            className="text-gray-800 font-semibold hover:underline cursor-pointer transition-all duration-300"
-          >
-            Resend
-          </button>
-        </p>
-      </div>
-    </form>
-  );
-
   const renderForgotPasswordForm = () => (
     <form onSubmit={handleForgotPassword} className="space-y-4 md:space-y-6">
       <div className="flex items-center justify-between mb-2 md:mb-4">
@@ -424,7 +647,7 @@ const Login = () => {
 
       <div className="text-center mb-4 md:mb-6">
         <p className="text-gray-600 text-sm md:text-base">
-          Enter your email address and we'll send you an OTP to reset your
+          Enter your email address and we&apos;ll send you an OTP to reset your
           password.
         </p>
       </div>
@@ -452,75 +675,6 @@ const Login = () => {
           "Send OTP"
         )}
       </button>
-    </form>
-  );
-
-  const renderResetPasswordForm = () => (
-    <form onSubmit={handleOtpSubmit} className="space-y-4 md:space-y-6">
-      <div className="flex items-center justify-between mb-2 md:mb-4">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-all duration-300 text-sm md:text-base"
-        >
-          <FaArrowLeft size={14} className="md:size-[16px]" />
-          <span className="hidden sm:inline">Back</span>
-        </button>
-        <h1 className="text-xl md:text-3xl font-semibold text-center text-gray-700 flex-1">
-          Verify OTP
-        </h1>
-        <div className="w-6 md:w-8"></div>
-      </div>
-
-      <div className="text-center mb-4 md:mb-6">
-        <p className="text-gray-600 text-sm md:text-base">
-          Enter the OTP sent to your email
-        </p>
-        <p className="font-semibold text-gray-800 text-sm md:text-base">
-          {email}
-        </p>
-      </div>
-
-      <div className="flex justify-center gap-2 md:gap-3 mb-4 md:mb-6">
-        {otp.map((data, index) => (
-          <input
-            key={index}
-            type="text"
-            maxLength="1"
-            value={data}
-            onChange={(e) => handleOtpChange(e.target, index)}
-            onFocus={(e) => e.target.select()}
-            className="w-10 h-10 md:w-12 md:h-12 text-center text-lg md:text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300"
-          />
-        ))}
-      </div>
-
-      <button
-        type="submit"
-        disabled={isLoading || otp.some((digit) => digit === "")}
-        className="w-full bg-gray-800 text-white py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base"
-      >
-        {isLoading ? (
-          <>
-            <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Verifying...
-          </>
-        ) : (
-          "Verify OTP"
-        )}
-      </button>
-
-      <div className="text-center">
-        <p className="text-gray-600 text-xs md:text-sm">
-          Didn't receive the code?{" "}
-          <button
-            type="button"
-            className="text-gray-800 font-semibold hover:underline cursor-pointer transition-all duration-300"
-          >
-            Resend
-          </button>
-        </p>
-      </div>
     </form>
   );
 
@@ -740,6 +894,18 @@ const Login = () => {
     </form>
   );
 
+  // If user is already authenticated, show loading or redirect
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-700">Redirecting to homepage...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-[#FBB5E7] to-[#C4F9FF] relative overflow-hidden">
       {/* Toast Notifications */}
@@ -833,7 +999,7 @@ const Login = () => {
                 />
               </div>
               <span className="text-gray-700 text-xs sm:text-sm font-medium">
-                3k+ people joined us, now it's your turn
+                3k+ people joined us, now it&apos;s your turn
               </span>
             </div>
           </div>
@@ -845,9 +1011,9 @@ const Login = () => {
             {isLogin ? (
               <>
                 {authStep === "login" && renderLoginForm()}
-                {authStep === "otp" && renderOtpForm()}
+                {authStep === "otp" && renderOtpForm("login")}
                 {authStep === "forgot" && renderForgotPasswordForm()}
-                {authStep === "reset" && renderResetPasswordForm()}
+                {authStep === "reset" && renderOtpForm("reset")}
                 {authStep === "newPassword" && renderNewPasswordForm()}
               </>
             ) : (

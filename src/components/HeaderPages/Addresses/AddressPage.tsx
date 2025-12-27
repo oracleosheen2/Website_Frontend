@@ -1,85 +1,159 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
+import {
+  fetchData,
+  postData,
+  putData,
+  deleteData,
+  setAuthToken,
+} from "@/utils/api/api";
+import { toast } from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Define TypeScript interfaces
+// Define TypeScript interfaces based on your backend API
 interface Address {
-  id: number;
-  name: string;
-  phone: string;
-  addressLine1: string;
-  addressLine2: string;
+  id: string;
+  street: string;
   city: string;
   state: string;
-  zipCode: string;
+  postalCode: string;
   country: string;
-  addressType: "home" | "work" | "other";
-  isDefault: boolean;
+  // Note: Backend doesn't have name, phone, type, isDefault based on Swagger
 }
 
 interface FormData {
-  name: string;
-  phone: string;
-  addressLine1: string;
-  addressLine2: string;
+  street: string;
   city: string;
   state: string;
-  zipCode: string;
+  postalCode: string;
   country: string;
-  addressType: "home" | "work" | "other";
-  isDefault: boolean;
+  // Added for UI only (not sent to backend)
+  name?: string;
+  phone?: string;
+  addressType?: "home" | "work" | "other";
+  isDefault?: boolean;
+}
+
+interface ApiAddress {
+  _id: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  user?: string;
+}
+
+// Proper error interface
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+  request?: unknown;
+  message?: string;
 }
 
 const AddressPage = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    phone: "",
-    addressLine1: "",
-    addressLine2: "",
+    street: "",
     city: "",
     state: "",
-    zipCode: "",
-    country: "United States",
+    postalCode: "",
+    country: "India",
+    // UI-only fields
+    name: "",
+    phone: "",
     addressType: "home",
     isDefault: false,
   });
 
-  // Sample initial addresses
+  // Get authentication state
+  const { token, isAuthenticated, user } = useAuth();
+
+  // Set auth token when component mounts or token changes
   useEffect(() => {
-    const sampleAddresses: Address[] = [
-      {
-        id: 1,
-        name: "John Doe",
-        phone: "+1 (555) 123-4567",
-        addressLine1: "123 Main Street, Apt 4B",
-        addressLine2: "",
-        city: "New York",
-        state: "NY",
-        zipCode: "10001",
-        country: "United States",
-        addressType: "home",
-        isDefault: true,
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        phone: "+1 (555) 987-6543",
-        addressLine1: "456 Oak Avenue",
-        addressLine2: "",
-        city: "Los Angeles",
-        state: "CA",
-        zipCode: "90210",
-        country: "United States",
-        addressType: "work",
-        isDefault: false,
-      },
-    ];
-    setAddresses(sampleAddresses);
-  }, []);
+    console.log("Token in AddressPage:", token ? "Available" : "No token");
+
+    if (token) {
+      setAuthToken(token);
+      console.log("Auth token set successfully");
+    }
+  }, [token]);
+
+  // Fetch addresses when authenticated
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      console.log("Fetching addresses for user:", user?.email);
+      fetchAddresses();
+    }
+  }, [isAuthenticated, token, user]);
+
+  const fetchAddresses = async () => {
+    if (!isAuthenticated || !token) {
+      console.warn("Not authenticated, skipping address fetch");
+      toast.error("Please login to view addresses");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log("Making API request to /addresses...");
+
+      // Make API call
+      const response = await fetchData("/addresses");
+      console.log("API Response received:", response);
+
+      if (response && Array.isArray(response)) {
+        // Transform API response to match our interface
+        const formattedAddresses = response.map((addr: ApiAddress) => ({
+          id: addr._id,
+          street: addr.street || "",
+          city: addr.city || "",
+          state: addr.state || "",
+          postalCode: addr.postalCode || "",
+          country: addr.country || "India",
+        }));
+
+        console.log("Formatted addresses:", formattedAddresses);
+        setAddresses(formattedAddresses);
+        toast.success(`Loaded ${formattedAddresses.length} address(es)`);
+      } else {
+        console.warn("Unexpected response format:", response);
+        toast.error("No addresses found or invalid response");
+        setAddresses([]);
+      }
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      const err = error as ApiError;
+
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to view addresses");
+      } else if (err.response?.status === 404) {
+        toast.error("Addresses endpoint not found");
+      } else if (err.request) {
+        toast.error("Network error. Please check your connection.");
+      } else {
+        toast.error("Failed to load addresses");
+      }
+
+      setAddresses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -93,50 +167,82 @@ const AddressPage = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (editingAddress) {
-      // Update existing address
-      setAddresses((prev) =>
-        prev.map((addr) =>
-          addr.id === editingAddress.id
-            ? { ...formData, id: editingAddress.id }
-            : formData.isDefault
-            ? { ...addr, isDefault: false }
-            : addr
-        )
-      );
-    } else {
-      // Add new address
-      const newAddress: Address = {
-        ...formData,
-        id: Date.now(),
-      };
-
-      if (formData.isDefault) {
-        setAddresses((prev) => [
-          newAddress,
-          ...prev.map((addr) => ({ ...addr, isDefault: false })),
-        ]);
-      } else {
-        setAddresses((prev) => [...prev, newAddress]);
-      }
+    // Check authentication
+    if (!isAuthenticated || !token) {
+      toast.error("Please login to save address");
+      return;
     }
 
-    resetForm();
+    // Form validation for backend required fields
+    if (
+      !formData.street.trim() ||
+      !formData.city.trim() ||
+      !formData.state.trim() ||
+      !formData.postalCode.trim() ||
+      !formData.country.trim()
+    ) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Prepare data for API - ONLY send what backend expects
+   const apiData = {
+     street: formData.street,
+     city: formData.city,
+     state: formData.state,
+     postalCode: formData.postalCode,
+     country: formData.country,
+     type: formData.addressType || "home", // ✅ REQUIRED FIELD
+   };
+
+      console.log("Submitting address data to backend:", apiData);
+
+      if (editingAddress) {
+        // Update existing address
+        await putData(`/addresses/${editingAddress.id}`, apiData);
+        toast.success("Address updated successfully!");
+      } else {
+        // Add new address
+        await postData("/addresses", apiData);
+        toast.success("Address added successfully!");
+      }
+
+      fetchAddresses(); // Refresh list
+      resetForm();
+    } catch (error) {
+      console.error("Error saving address:", error);
+      const err = error as ApiError;
+
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 400) {
+        const errorMsg = err.response.data?.message || "Invalid address data";
+        toast.error(`Validation error: ${errorMsg}`);
+      } else {
+        toast.error(
+          editingAddress ? "Failed to update address" : "Failed to add address"
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
     setFormData({
-      name: "",
-      phone: "",
-      addressLine1: "",
-      addressLine2: "",
+      street: "",
       city: "",
       state: "",
-      zipCode: "",
-      country: "United States",
+      postalCode: "",
+      country: "India",
+      name: "",
+      phone: "",
       addressType: "home",
       isDefault: false,
     });
@@ -145,35 +251,46 @@ const AddressPage = () => {
   };
 
   const handleEdit = (address: Address) => {
-    setFormData(address);
+    setFormData({
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postalCode,
+      country: address.country,
+      // UI-only fields with defaults
+      name: "",
+      phone: "",
+      addressType: "home",
+      isDefault: false,
+    });
     setEditingAddress(address);
     setShowAddForm(true);
   };
 
-  const handleDelete = (id: number) => {
-    setAddresses((prev) => {
-      const newAddresses = prev.filter((addr) => addr.id !== id);
-      // If we deleted the default address and there are other addresses, make the first one default
-      if (
-        newAddresses.length > 0 &&
-        !newAddresses.some((addr) => addr.isDefault)
-      ) {
-        newAddresses[0].isDefault = true;
+  const handleDelete = async (id: string) => {
+    if (!isAuthenticated || !token) {
+      toast.error("Please login to delete address");
+      return;
+    }
+
+    try {
+      await deleteData(`/addresses/${id}`);
+      setAddresses((prev) => prev.filter((addr) => addr.id !== id));
+      toast.success("Address deleted successfully!");
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error("Error deleting address:", error);
+      const err = error as ApiError;
+
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else {
+        toast.error("Failed to delete address");
       }
-      return newAddresses;
-    });
-    setDeleteConfirm(null);
+    }
   };
 
-  const setAsDefault = (id: number) => {
-    setAddresses((prev) =>
-      prev.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === id,
-      }))
-    );
-  };
-
+  // Remove setAsDefault function since backend doesn't support it
   const getAddressTypeIcon = (type: "home" | "work" | "other"): string => {
     switch (type) {
       case "home":
@@ -190,6 +307,43 @@ const AddressPage = () => {
   const handleAddressTypeSelect = (type: "home" | "work" | "other") => {
     setFormData((prev) => ({ ...prev, addressType: type }));
   };
+
+  // Show loading state
+  if (loading && addresses.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 pt-30 pb-12 px-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading addresses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 pt-30 pb-12 px-4 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-3xl text-pink-600">🔒</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            Login Required
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Please login to view and manage your addresses
+          </p>
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 pt-30 pb-12 px-4">
@@ -209,7 +363,8 @@ const AddressPage = () => {
         <div className="flex justify-end mb-8 animate-slide-up">
           <button
             onClick={() => setShowAddForm(true)}
-            className="bg-gradient-to-r from-pink-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105"
+            disabled={loading}
+            className="bg-gradient-to-r from-pink-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -227,6 +382,16 @@ const AddressPage = () => {
           </button>
         </div>
 
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+          <p>
+            <strong>Debug Info:</strong> User: {user?.email}, Authenticated:{" "}
+            {isAuthenticated ? "Yes" : "No"}, Token:{" "}
+            {token ? "Present" : "Missing"}
+          </p>
+          <p>Total Addresses: {addresses.length}</p>
+        </div>
+
         {/* Add/Edit Address Form Modal */}
         {showAddForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
@@ -239,6 +404,7 @@ const AddressPage = () => {
                   <button
                     onClick={resetForm}
                     className="text-gray-400 hover:text-gray-600 transition-colors"
+                    disabled={loading}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -258,69 +424,57 @@ const AddressPage = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Note: Name and Phone are UI-only, not sent to backend */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name
+                      Full Name (Optional)
                     </label>
                     <input
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                      placeholder="Enter your full name"
+                      disabled={loading}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                      placeholder="Enter your full name (optional)"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
+                      Phone Number (Optional)
                     </label>
                     <input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                      placeholder="+1 (555) 123-4567"
+                      disabled={loading}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                      placeholder="+91 98765 43210 (optional)"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address Line 1
+                      Street Address *
                     </label>
                     <input
                       type="text"
-                      name="addressLine1"
-                      value={formData.addressLine1}
+                      name="street"
+                      value={formData.street}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                      placeholder="Street address, P.O. box"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address Line 2 (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      name="addressLine2"
-                      value={formData.addressLine2}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
-                      placeholder="Apartment, suite, unit, building, floor, etc."
+                      disabled={loading}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                      placeholder="House no, Street, Area"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        City
+                        City *
                       </label>
                       <input
                         type="text"
@@ -328,12 +482,14 @@ const AddressPage = () => {
                         value={formData.city}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+                        disabled={loading}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                        placeholder="City"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        State
+                        State *
                       </label>
                       <input
                         type="text"
@@ -341,7 +497,9 @@ const AddressPage = () => {
                         value={formData.state}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+                        disabled={loading}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                        placeholder="State"
                       />
                     </div>
                   </div>
@@ -349,27 +507,32 @@ const AddressPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        ZIP Code
+                        PIN Code *
                       </label>
                       <input
                         type="text"
-                        name="zipCode"
-                        value={formData.zipCode}
+                        name="postalCode"
+                        value={formData.postalCode}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+                        disabled={loading}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
+                        placeholder="PIN Code"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Country
+                        Country *
                       </label>
                       <select
                         name="country"
                         value={formData.country}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
+                        required
+                        disabled={loading}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 disabled:opacity-50"
                       >
+                        <option value="India">India</option>
                         <option value="United States">United States</option>
                         <option value="Canada">Canada</option>
                         <option value="United Kingdom">United Kingdom</option>
@@ -380,7 +543,7 @@ const AddressPage = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address Type
+                      Address Type (UI Only)
                     </label>
                     <div className="grid grid-cols-3 gap-2">
                       {(["home", "work", "other"] as const).map((type) => (
@@ -388,7 +551,8 @@ const AddressPage = () => {
                           key={type}
                           type="button"
                           onClick={() => handleAddressTypeSelect(type)}
-                          className={`p-3 rounded-xl border-2 transition-all duration-300 ${
+                          disabled={loading}
+                          className={`p-3 rounded-xl border-2 transition-all duration-300 disabled:opacity-50 ${
                             formData.addressType === type
                               ? `border-pink-500 bg-pink-50 text-pink-700`
                               : "border-gray-200 hover:border-gray-300"
@@ -405,16 +569,18 @@ const AddressPage = () => {
                     </div>
                   </div>
 
+                  {/* Note: isDefault is UI-only, not sent to backend */}
                   <div className="flex items-center">
                     <input
                       type="checkbox"
                       name="isDefault"
                       checked={formData.isDefault}
                       onChange={handleInputChange}
-                      className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
+                      disabled={loading}
+                      className="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded disabled:opacity-50"
                     />
                     <label className="ml-2 block text-sm text-gray-700">
-                      Set as default address
+                      Set as default address (UI Only)
                     </label>
                   </div>
 
@@ -422,15 +588,21 @@ const AddressPage = () => {
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium"
+                      disabled={loading}
+                      className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium disabled:opacity-50"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-amber-500 text-white rounded-xl hover:from-pink-600 hover:to-amber-600 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+                      disabled={loading}
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-500 to-amber-500 text-white rounded-xl hover:from-pink-600 hover:to-amber-600 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50"
                     >
-                      {editingAddress ? "Update Address" : "Save Address"}
+                      {loading
+                        ? "Saving..."
+                        : editingAddress
+                        ? "Update Address"
+                        : "Save Address"}
                     </button>
                   </div>
                 </form>
@@ -456,7 +628,7 @@ const AddressPage = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 011.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                     />
                   </svg>
                 </div>
@@ -498,39 +670,17 @@ const AddressPage = () => {
                 {/* Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center space-x-2">
-                    <span className={`text-lg`}>
-                      {getAddressTypeIcon(address.addressType)}
-                    </span>
+                    <span className="text-lg">📍</span>
                     <span className="text-sm font-medium text-gray-600 capitalize">
-                      {address.addressType}
+                      Address
                     </span>
-                    {address.isDefault && (
-                      <span className="inline-block bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
-                        Default
-                      </span>
-                    )}
                   </div>
                   <div className="flex space-x-1">
-                    {!address.isDefault && (
-                      <button
-                        onClick={() => setAsDefault(address.id)}
-                        className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-colors duration-300"
-                        title="Set as default"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      </button>
-                    )}
                     <button
                       onClick={() => handleEdit(address)}
                       className="p-2 text-pink-500 hover:bg-pink-50 rounded-lg transition-colors duration-300"
                       title="Edit address"
+                      disabled={loading}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -545,6 +695,7 @@ const AddressPage = () => {
                       onClick={() => setDeleteConfirm(address.id)}
                       className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors duration-300"
                       title="Delete address"
+                      disabled={loading}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -562,35 +713,30 @@ const AddressPage = () => {
                   </div>
                 </div>
 
-                {/* Contact Info */}
-                <div className="mb-4">
-                  <h3 className="font-bold text-lg text-gray-800">
-                    {address.name}
-                  </h3>
-                  <p className="text-gray-600">{address.phone}</p>
-                </div>
+                {/* Contact Info - UI only since backend doesn't have name/phone */}
+                {formData.name && (
+                  <div className="mb-4">
+                    <h3 className="font-bold text-lg text-gray-800">
+                      {formData.name}
+                    </h3>
+                    {formData.phone && (
+                      <p className="text-gray-600">{formData.phone}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Address Details */}
                 <div className="text-gray-600 mb-6 space-y-1">
-                  <p>{address.addressLine1}</p>
-                  {address.addressLine2 && <p>{address.addressLine2}</p>}
+                  <p>{address.street}</p>
                   <p>
-                    {address.city}, {address.state} {address.zipCode}
+                    {address.city}, {address.state} {address.postalCode}
                   </p>
                   <p>{address.country}</p>
                 </div>
 
                 {/* Action Button */}
-                <button
-                  className={`w-full py-3 rounded-xl font-medium transition-all duration-300 ${
-                    address.isDefault
-                      ? "bg-gradient-to-r from-pink-500 to-amber-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-                      : "bg-pink-50 text-pink-600 hover:bg-pink-100"
-                  }`}
-                >
-                  {address.isDefault
-                    ? "Deliver to Default Address"
-                    : "Deliver to this Address"}
+                <button className="w-full py-3 bg-pink-50 text-pink-600 rounded-xl font-medium hover:bg-pink-100 transition-all duration-300">
+                  Deliver to this Address
                 </button>
               </div>
             </div>
@@ -598,7 +744,7 @@ const AddressPage = () => {
 
           {/* Empty State Card for Adding New Address */}
           <div
-            onClick={() => setShowAddForm(true)}
+            onClick={() => !loading && setShowAddForm(true)}
             className="bg-gradient-to-br from-pink-50 to-amber-50 rounded-2xl border-2 border-dashed border-pink-300 overflow-hidden flex flex-col items-center justify-center p-8 text-center transition-all duration-500 hover:border-pink-400 hover:shadow-lg cursor-pointer transform hover:scale-105 animate-fade-in-up"
             style={{ animationDelay: `${addresses.length * 100}ms` }}
           >
@@ -626,7 +772,7 @@ const AddressPage = () => {
         </div>
 
         {/* Empty State */}
-        {addresses.length === 0 && !showAddForm && (
+        {addresses.length === 0 && !showAddForm && !loading && (
           <div className="text-center py-16 animate-fade-in">
             <div className="w-32 h-32 bg-gradient-to-r from-pink-100 to-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg

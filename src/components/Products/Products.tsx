@@ -22,18 +22,31 @@ const Products: React.FC<ProductsProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
 
-
+  // ✅ Initialize with safe products
   useEffect(() => {
-  setFilteredProducts(products);
-}, [products]);
+    console.log("Products received in Products component:", products);
 
+    // Validate and filter products
+    const validProducts = Array.isArray(products)
+      ? products.filter(
+          (product) =>
+            product &&
+            typeof product === "object" &&
+            product.id !== undefined &&
+            product.id !== null
+        )
+      : [];
 
-  // All unique product names
+    console.log("Valid products count:", validProducts.length);
+    setFilteredProducts(validProducts);
+  }, [products]);
+
+  // All unique product names (only from valid products)
   const allProductNames = Array.from(
-    new Set(products.map((item) => item.name))
+    new Set(filteredProducts.map((item) => item.name).filter(Boolean))
   );
 
   // Suggestions (max 10)
@@ -63,7 +76,7 @@ const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
     setSelectedSuggestionIndex(-1);
 
     // Live filter (show related products as typing)
-    const results = products.filter((item) =>
+    const results = filteredProducts.filter((item) =>
       item.name.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredProducts(results);
@@ -75,7 +88,7 @@ const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
     setShowSuggestions(false);
     setSelectedSuggestionIndex(-1);
 
-    const results = products.filter(
+    const results = filteredProducts.filter(
       (item) => item.name.toLowerCase() === suggestion.toLowerCase()
     );
     setFilteredProducts(results);
@@ -96,7 +109,7 @@ const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
       if (selectedSuggestionIndex >= 0) {
         handleSuggestionClick(filteredSuggestions[selectedSuggestionIndex]);
       } else {
-        const results = products.filter((item) =>
+        const results = filteredProducts.filter((item) =>
           item.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setFilteredProducts(results);
@@ -106,6 +119,12 @@ const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
       setShowSuggestions(false);
       setSelectedSuggestionIndex(-1);
     }
+  };
+
+  // Reset search and show all products
+  const handleResetSearch = () => {
+    setSearchTerm("");
+    setFilteredProducts(Array.isArray(products) ? products : []);
   };
 
   const renderStars = (rating: number) => (
@@ -120,7 +139,7 @@ const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
           ★
         </span>
       ))}
-      <span className="text-gray-500 text-xs ml-1">({rating})</span>
+      <span className="text-gray-500 text-xs ml-1">({rating || 0})</span>
     </div>
   );
 
@@ -128,11 +147,22 @@ const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
     <div className="w-full p-6 bg-[#C4F9FF]">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4 flex-wrap border-b border-gray-200 pb-6">
-        <p className="text-gray-600 text-sm">
-          Showing{" "}
-          <span className="font-semibold">{filteredProducts.length}</span> of{" "}
-          <span className="font-semibold">{allProductsCount}</span> products
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-gray-600 text-sm">
+            Showing{" "}
+            <span className="font-semibold">{filteredProducts.length}</span> of{" "}
+            <span className="font-semibold">{allProductsCount}</span> products
+          </p>
+
+          {searchTerm && (
+            <button
+              onClick={handleResetSearch}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Clear search
+            </button>
+          )}
+        </div>
 
         {/* Search + Sort Section */}
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
@@ -216,91 +246,103 @@ const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
       </div>
 
       {/* Product Grid */}
-      {filteredProducts.length === 0 ? (
+      {!Array.isArray(filteredProducts) || filteredProducts.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-4">😔</div>
           <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            No products found
+            {searchTerm
+              ? "No products found for your search"
+              : "No products available"}
           </h3>
-          <p className="text-gray-500 text-sm">
-            Try adjusting your filters or search again.
+          <p className="text-gray-500 text-sm mb-4">
+            {searchTerm
+              ? "Try a different search term or clear your search."
+              : "Try adjusting your filters or check back later."}
           </p>
+          {searchTerm && (
+            <button
+              onClick={handleResetSearch}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Clear Search
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((item) => (
-            <Link
-              key={item.id}
-              href={`/products/${item.id}`}
-              className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
-            >
-              {/* Image */}
-              <div className="relative w-full h-64 bg-gray-100">
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+          {filteredProducts.map((item, index) => {
+            // ✅ Final safety check before rendering
+            if (!item || !item.id) {
+              console.warn(`Invalid product at index ${index}:`, item);
+              return null;
+            }
 
-                <div className="absolute top-3 left-3 flex gap-2">
-                  {item.isNew && (
-                    <span className="bg-black text-white px-2 py-1 rounded text-xs font-medium">
-                      NEW
-                    </span>
-                  )}
-                  <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-                    20% OFF
-                  </span>
-                </div>
+            const productId = item.id;
 
-                <button
-                  aria-label="Add to Wishlist"
-                  className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-sm hover:bg-red-50 hover:text-red-500 transition-colors duration-200"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log("Added to wishlist:", item.id);
-                  }}
-                >
-                  <span className="text-lg">🤍</span>
-                </button>
-              </div>
+            return (
+              <Link
+                key={productId}
+                href={`/products/${productId}`}
+                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              >
+                {/* Image */}
+                <div className="relative w-full h-64 bg-gray-100">
+                  <Image
+                    src={item.image || "/placeholder.jpg"}
+                    alt={item.name || "Product"}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
 
-              {/* Info */}
-              <div className="p-4">
-                <p className="text-xs text-gray-500 uppercase font-medium mb-1">
-                  {item.brand}
-                </p>
-                <h3 className="font-medium text-gray-900 text-sm mb-2 line-clamp-2 h-10">
-                  {item.name}
-                </h3>
-                <div className="mb-3">{renderStars(item.rating)}</div>
-
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold text-gray-900">
-                      Rs. {item.price.toFixed(2)}
-                    </span>
-                    <span className="text-sm text-gray-400 line-through">
-                      Rs. {(item.price * 1.2).toFixed(2)}
+                  <div className="absolute top-3 left-3 flex gap-2">
+                    {item.isNew && (
+                      <span className="bg-black text-white px-2 py-1 rounded text-xs font-medium">
+                        NEW
+                      </span>
+                    )}
+                    <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                      20% OFF
                     </span>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-1">
-                  {item.gender.map((g) => (
-                    <span
-                      key={g}
-                      className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
-                    >
-                      {g}
-                    </span>
-                  ))}
+                {/* Info */}
+                <div className="p-4">
+                  <p className="text-xs text-gray-500 uppercase font-medium mb-1">
+                    {item.brand || "Brand"}
+                  </p>
+                  <h3 className="font-medium text-gray-900 text-sm mb-2 line-clamp-2 h-10">
+                    {item.name || "Product Name"}
+                  </h3>
+                  <div className="mb-3">{renderStars(item.rating || 0)}</div>
+
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-lg font-bold text-gray-900">
+                        Rs. {(item.price || 0).toFixed(2)}
+                      </span>
+                      <span className="text-sm text-gray-400 line-through">
+                        Rs. {((item.price || 0) * 1.2).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(item.gender) &&
+                      item.gender.map((g) => (
+                        <span
+                          key={g}
+                          className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
+                        >
+                          {g}
+                        </span>
+                      ))}
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

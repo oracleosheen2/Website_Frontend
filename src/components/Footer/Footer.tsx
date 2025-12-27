@@ -1,51 +1,66 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import {
   FaFacebookF,
   FaInstagram,
-  FaXTwitter,
   FaStar,
   FaRegCompass,
   FaMoon,
   FaRegStar,
-  
 } from "react-icons/fa6";
 import Image from "next/image";
 import { FaYoutube } from "react-icons/fa";
 import Link from "next/link";
 
 const Footer = () => {
-   const links = [
-     { name: "About Us", link: "/about" },
-     { name: "Services", link: "/services/spells" },
-     { name: "Horoscope", link: "/horoscope" },
-   ];
+  const [isClient, setIsClient] = useState(false);
+  const [floatingElements, setFloatingElements] = useState<
+    React.ReactElement[]
+  >([]);
+
+  useEffect(() => {
+    setIsClient(true);
+
+    // Generate floating elements only on client side
+    const elements = [...Array(12)].map((_, i) => {
+      const style = {
+        top: `${Math.random() * 100}%`,
+        left: `${Math.random() * 100}%`,
+        animationDelay: `${Math.random() * 6}s`,
+        animationDuration: `${8 + Math.random() * 10}s`,
+      };
+
+      return (
+        <div key={i} className="absolute animate-float" style={style}>
+          {i % 3 === 0 ? (
+            <FaRegStar className="text-[#FBB5E7] text-xs" />
+          ) : i % 3 === 1 ? (
+            <FaStar className="text-[#c6e400] text-xs" />
+          ) : (
+            <FaMoon className="text-white text-xs" />
+          )}
+        </div>
+      );
+    });
+
+    setFloatingElements(elements);
+  }, []);
+
+  const links = [
+    { name: "About Us", link: "/about" },
+    { name: "Services", link: "/services/spells" },
+    { name: "Horoscope", link: "/horoscope" },
+  ];
+
   return (
     <footer className="bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
       {/* Animated gradient border */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FBB5E7] to-[#c6e400] animate-pulse"></div>
 
-      {/* Floating animated elements */}
+      {/* Floating animated elements - Only render on client */}
       <div className="absolute inset-0 overflow-hidden opacity-30">
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute animate-float"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 6}s`,
-              animationDuration: `${8 + Math.random() * 10}s`,
-            }}
-          >
-            {i % 3 === 0 ? (
-              <FaRegStar className="text-[#FBB5E7] text-xs" />
-            ) : i % 3 === 1 ? (
-              <FaStar className="text-[#c6e400] text-xs" />
-            ) : (
-              <FaMoon className="text-white text-xs" />
-            )}
-          </div>
-        ))}
+        {isClient ? floatingElements : null}
       </div>
 
       {/* Glowing orbs */}
@@ -158,7 +173,7 @@ const Footer = () => {
             {/* Contact - Enhanced */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold mb-4">
-                <span className="bg-gradient-to-r from-[#FBB5E7] via-[#c6e400] to-[#FBB5E7] bg-clip-text text-transparent animate-gradient">
+                <span className="bg-gradient-to-r from-[#FBB5E7] via-[#c6e400] to-[#FBB5E7] bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
                   Contact Us
                 </span>
               </h3>
@@ -166,7 +181,6 @@ const Footer = () => {
                 {[
                   { icon: "✉️", text: "Oracleosheen2@gmail.com" },
                   { icon: "📞", text: "+91 99158 10965" },
-                  // { icon: "📞", text: "+91 81466 68328" },
                   { icon: "⏰", text: "9am to 6pm" },
                 ].map((item, index) => (
                   <div
@@ -184,23 +198,6 @@ const Footer = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Newsletter Signup */}
-              {/* <div className=" transition-all duration-500 w-full">
-                <p className="text-gray-300 text-sm mb-3">
-                  Get cosmic insights delivered
-                </p>
-                <div className="flex space-x-2">
-                  <input
-                    type="email"
-                    placeholder="Your email..."
-                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-[#FBB5E7] transition-all duration-500 focus:bg-gray-700"
-                  />
-                  <button className="px-4 py-2 bg-gradient-to-r from-[#FBB5E7] to-[#c6e400] text-black rounded-lg font-medium hover:from-[#c6e400] hover:to-[#FBB5E7] transition-all duration-500 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    Subscribe
-                  </button>
-                </div>
-              </div> */}
             </div>
           </div>
 
@@ -227,12 +224,6 @@ const Footer = () => {
                 >
                   Terms of Service
                 </Link>
-                {/* <Link
-                  href="/cookiepolicy"
-                  className="text-gray-400 hover:text-white transition-all duration-500 hover:font-medium transform hover:translate-y-1"
-                >
-                  Cookie Policy
-                </Link> */}
               </div>
             </div>
 
@@ -245,50 +236,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-20px) rotate(180deg);
-          }
-        }
-        @keyframes glow {
-          0%,
-          100% {
-            opacity: 0.2;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.3;
-            transform: scale(1.1);
-          }
-        }
-        @keyframes gradient {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-        .animate-float {
-          animation: float 8s ease-in-out infinite;
-        }
-        .animate-glow {
-          animation: glow 4s ease-in-out infinite;
-        }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 3s ease infinite;
-        }
-      `}</style>
     </footer>
   );
 };

@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
       "img.freepik.com",
       "www.shutterstock.com",
       "i.pravatar.cc",
+      "cdn.pixabay.com",
+      "images.unsplash.com",
+
     ],
   },
 };

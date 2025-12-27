@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaBox,
   FaShippingFast,
@@ -12,104 +12,258 @@ import {
   FaEye,
   FaShoppingBag,
 } from "react-icons/fa";
+import { fetchData, setAuthToken, postData, putData } from "@/utils/api/api";
+import { toast } from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import axios from "axios";
 
 // Define TypeScript interfaces
+interface OrderApiResponse {
+  id: number;
+  productName: string;
+  price: string | number;
+  date?: string;
+  createdAt?: string;
+  status?: string;
+  image?: string;
+  originalPrice?: string | number;
+  quantity?: number;
+  trackingId?: string;
+  deliveryDate?: string;
+  size?: string;
+  color?: string;
+  productId?: number;
+  shippingAddress?: string;
+  paymentMethod?: string;
+}
+
 interface Order {
   id: number;
   productName: string;
   price: string;
-  originalPrice: string;
   date: string;
-  status: "processing" | "shipped" | "delivered" | "cancelled";
-  reason: string;
+  status: "Processing" | "Shipped" | "Delivered" | "Cancelled";
   image: string;
+  originalPrice?: string;
+  reason?: string;
+  quantity?: number;
+  trackingId?: string;
+  deliveryDate?: string;
+  size?: string;
+  color?: string;
+  productId?: number;
+  orderDate?: string;
+  shippingAddress?: string;
+  paymentMethod?: string;
+}
+
+// Define proper API response types
+interface ApiResponse {
+  data?: OrderApiResponse[] | unknown;
+  orders?: OrderApiResponse[];
+  [key: string]: unknown;
+}
+
+interface ErrorResponse {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+  request?: unknown;
+  message?: string;
+}
+
+// Define request body types
+interface StatusUpdateBody {
+  status: string;
+}
+
+interface CartAddBody {
+  productId: number;
   quantity: number;
-  trackingId: string;
-  deliveryDate: string;
-  size: string;
-  color: string;
+}
+
+interface ReviewSubmitBody {
+  productId: number;
+  rating: number;
+  comment: string;
 }
 
 const Orders = () => {
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: 1,
-      productName: "Golden Floral Handbag",
-      price: "₹1,499",
-      originalPrice: "₹2,499",
-      date: "Oct 25, 2025",
-      status: "delivered",
-      reason: "Successfully delivered to your address.",
-      image:
-        "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop",
-      quantity: 1,
-      trackingId: "TRK123456789",
-      deliveryDate: "Oct 28, 2025",
-      size: "One Size",
-      color: "Golden",
-    },
-    {
-      id: 2,
-      productName: "Pink Velvet Dress",
-      price: "₹2,299",
-      originalPrice: "₹3,299",
-      date: "Oct 29, 2025",
-      status: "shipped",
-      reason: "Expected delivery by Nov 5, 2025.",
-      image:
-        "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop",
-      quantity: 1,
-      trackingId: "TRK987654321",
-      deliveryDate: "Nov 5, 2025",
-      size: "M",
-      color: "Pink",
-    },
-    {
-      id: 3,
-      productName: "Golden Earrings Set",
-      price: "₹899",
-      originalPrice: "₹1,499",
-      date: "Nov 1, 2025",
-      status: "cancelled",
-      reason: "Cancelled by user due to change in preference.",
-      image:
-        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop",
-      quantity: 2,
-      trackingId: "TRK456789123",
-      deliveryDate: "Nov 4, 2025",
-      size: "Standard",
-      color: "Gold",
-    },
-    {
-      id: 4,
-      productName: "Designer Sunglasses",
-      price: "₹1,799",
-      originalPrice: "₹2,799",
-      date: "Nov 3, 2025",
-      status: "processing",
-      reason: "Your order is being processed and will be shipped soon.",
-      image:
-        "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop",
-      quantity: 1,
-      trackingId: "TRK789123456",
-      deliveryDate: "Nov 8, 2025",
-      size: "One Size",
-      color: "Black",
-    },
-  ]);
-
+  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewProduct, setReviewProduct] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Get authentication state - WITH TOKEN
+  const { token, isAuthenticated, user } = useAuth();
+
+  // Set auth token when component mounts or token changes
+  useEffect(() => {
+    console.log("Token in Orders:", token ? "Token available" : "No token");
+
+    if (token) {
+      setAuthToken(token);
+      console.log("Auth token set successfully for Orders");
+    }
+  }, [token]);
+
+  // Fetch orders when authenticated
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      console.log("Fetching orders for user:", user?.email);
+      fetchOrders();
+    } else {
+      console.log("Not authenticated, cannot fetch orders");
+      setLoading(false);
+      toast.error("Please login to view orders");
+    }
+  }, [isAuthenticated, token, user]);
+
+  const fetchOrders = async () => {
+    if (!isAuthenticated || !token) {
+      console.warn("Not authenticated, skipping orders fetch");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log("Making API request to /orders...");
+
+      const response = await fetchData("/orders");
+      console.log("Orders API Response:", response);
+
+      // ✅ HANDLE ALL POSSIBLE RESPONSE SHAPES - TYPE SAFE
+      let ordersData: OrderApiResponse[] = [];
+
+      if (Array.isArray(response)) {
+        // Case 1: Response is directly an array
+        ordersData = response;
+      } else {
+        // Case 2: Response is an object with data/orders property
+        const apiResponse = response as ApiResponse;
+        if (Array.isArray(apiResponse.data)) {
+          ordersData = apiResponse.data as OrderApiResponse[];
+        } else if (Array.isArray(apiResponse.orders)) {
+          ordersData = apiResponse.orders;
+        }
+        // Case 3: Response is some other format - log for debugging
+        else {
+          console.log("Unexpected response format:", response);
+        }
+      }
+
+      if (ordersData.length === 0) {
+        console.log("No orders found");
+        setOrders([]);
+        return;
+      }
+
+      const formattedOrders = ordersData.map((order: OrderApiResponse) => ({
+        id: order.id || Date.now() + Math.random(),
+        productName: order.productName || "Product",
+        price: order.price ? `₹${order.price}` : "₹0",
+        date:
+          order.date ||
+          order.createdAt ||
+          new Date().toISOString().split("T")[0],
+        status: (order.status || "Processing") as
+          | "Processing"
+          | "Shipped"
+          | "Delivered"
+          | "Cancelled",
+        image: order.image || "/placeholder-product.jpg",
+        originalPrice: order.originalPrice
+          ? `₹${order.originalPrice}`
+          : undefined,
+        reason: getStatusReason(order.status || "Processing"),
+        quantity: order.quantity || 1,
+        trackingId:
+          order.trackingId || `TRK${order.id.toString().padStart(9, "0")}`,
+        deliveryDate:
+          order.deliveryDate ||
+          calculateDeliveryDate(
+            order.date || new Date().toISOString().split("T")[0]
+          ),
+        size: order.size || "Standard",
+        color: order.color || "Default",
+        productId: order.productId,
+        orderDate: order.date,
+        shippingAddress: order.shippingAddress,
+        paymentMethod: order.paymentMethod,
+      }));
+
+      setOrders(formattedOrders);
+      toast.success(`Loaded ${formattedOrders.length} order(s)`);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+
+      // ✅ Type-safe error handling
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const errorMessage = error.response?.data?.message || error.message;
+
+        if (status === 401) {
+          toast.error("Session expired. Please login again.");
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        } else if (status === 403) {
+          toast.error("You don't have permission to view orders");
+        } else if (status === 404) {
+          // No orders endpoint - this might be expected
+          console.log("Orders endpoint not found - may be normal");
+          setOrders([]);
+        } else {
+          toast.error(`Server error: ${errorMessage}`);
+        }
+      } else if (error instanceof Error) {
+        toast.error(error.message || "Failed to load orders");
+      } else {
+        toast.error("Something went wrong while fetching orders");
+      }
+
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to calculate delivery date
+  const calculateDeliveryDate = (orderDate: string) => {
+    const date = new Date(orderDate);
+    date.setDate(date.getDate() + 7); // Add 7 days for delivery
+    return date.toISOString().split("T")[0];
+  };
+
+  // Helper function to get status reason
+  const getStatusReason = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "delivered":
+        return "Successfully delivered to your address.";
+      case "shipped":
+        return "Expected delivery within 3-5 business days.";
+      case "cancelled":
+        return "Order was cancelled as requested.";
+      case "processing":
+        return "Your order is being processed and will be shipped soon.";
+      default:
+        return "Order is being processed.";
+    }
+  };
 
   // Filter orders based on status
   const filteredOrders = orders.filter(
-    (order) => activeFilter === "all" || order.status === activeFilter
+    (order) =>
+      activeFilter === "all" ||
+      order.status.toLowerCase() === activeFilter.toLowerCase()
   );
 
   const getStatusIcon = (status: Order["status"]) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "delivered":
         return <FaCheckCircle className="text-green-500" />;
       case "shipped":
@@ -122,7 +276,7 @@ const Orders = () => {
   };
 
   const getStatusColor = (status: Order["status"]) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "delivered":
         return "bg-green-100 text-green-800 border-green-200";
       case "shipped":
@@ -134,49 +288,172 @@ const Orders = () => {
     }
   };
 
-  const cancelOrder = (orderId: number) => {
-    setOrders(
-      orders.map((order) =>
-        order.id === orderId ? { ...order, status: "cancelled" } : order
-      )
-    );
+  const cancelOrder = async (orderId: number) => {
+    if (!isAuthenticated || !token) {
+      toast.error("Please login to cancel order");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to cancel this order?")) return;
+
+    try {
+      const statusUpdate: StatusUpdateBody = { status: "Cancelled" };
+      await putData(`/orders/${orderId}/status`, statusUpdate);
+
+      // Update local state
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId ? { ...order, status: "Cancelled" } : order
+        )
+      );
+
+      toast.success("Order cancelled successfully!");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+
+      const err = error as ErrorResponse;
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else {
+        toast.error("Failed to cancel order");
+      }
+    }
   };
 
-  const reorderProduct = (order: Order) => {
-    alert(`Added ${order.productName} to cart!`);
+  const reorderProduct = async (order: Order) => {
+    if (!isAuthenticated || !token) {
+      toast.error("Please login to add to cart");
+      return;
+    }
+
+    try {
+      const cartData: CartAddBody = {
+        productId: order.productId || order.id,
+        quantity: order.quantity || 1,
+      };
+      await postData("/cart", cartData);
+
+      toast.success(`Added ${order.productName} to cart!`);
+    } catch (error) {
+      console.error("Error reordering product:", error);
+
+      const err = error as ErrorResponse;
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else {
+        toast.error("Failed to add to cart");
+      }
+    }
   };
 
   const writeReview = (order: Order) => {
+    if (!isAuthenticated || !token) {
+      toast.error("Please login to write review");
+      return;
+    }
+
     setReviewProduct(order);
     setShowReviewModal(true);
   };
 
-  const submitReview = (e: React.FormEvent) => {
+  const submitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (reviewProduct) {
-      alert(`Review submitted for ${reviewProduct.productName}!`);
+
+    if (!reviewProduct || !isAuthenticated || !token) {
+      toast.error("Please login to submit review");
+      return;
     }
-    setShowReviewModal(false);
-    setReviewProduct(null);
+
+    const form = e.target as HTMLFormElement;
+    const reviewText = (form.review as HTMLTextAreaElement)?.value || "";
+
+    try {
+      const reviewData: ReviewSubmitBody = {
+        productId: reviewProduct.productId || reviewProduct.id,
+        rating: 5,
+        comment: reviewText,
+      };
+      await postData("/reviews", reviewData);
+
+      toast.success(`Review submitted for ${reviewProduct.productName}!`);
+      setShowReviewModal(false);
+      setReviewProduct(null);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+
+      const err = error as ErrorResponse;
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else {
+        toast.error("Failed to submit review");
+      }
+    }
   };
 
   const getOrderCountByStatus = (status: string) => {
     if (status === "all") return orders.length;
-    return orders.filter((order) => order.status === status).length;
+    return orders.filter(
+      (order) => order.status.toLowerCase() === status.toLowerCase()
+    ).length;
   };
 
   // Calculate savings
-  const calculateSavings = (price: string, originalPrice: string) => {
-    const priceNum = parseInt(price.replace("₹", "").replace(",", ""));
-    const originalPriceNum = parseInt(
-      originalPrice.replace("₹", "").replace(",", "")
-    );
-    return originalPriceNum - priceNum;
+  const calculateSavings = (order: Order) => {
+    if (!order.originalPrice) return 0;
+
+    const priceNum = parseInt(order.price.replace(/[₹,]/g, "")) || 0;
+    const originalPriceNum =
+      parseInt(order.originalPrice.replace(/[₹,]/g, "")) || 0;
+
+    return originalPriceNum > priceNum ? originalPriceNum - priceNum : 0;
   };
+
+  // Show login prompt if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 py-8 px-4 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span className="text-3xl text-pink-600">🔒</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            Login Required
+          </h2>
+          <p className="text-gray-600 mb-6">Please login to view your orders</p>
+          <button
+            onClick={() => (window.location.href = "/login")}
+            className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 py-8 px-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-amber-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Debug Info (Remove in production) */}
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+          <p>
+            <strong>Debug Info:</strong> User: {user?.email || "Not logged in"},
+            Authenticated: {isAuthenticated ? "Yes" : "No"}
+          </p>
+          <p>Orders loaded: {orders.length}</p>
+        </div>
+
         {/* Header Section */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="flex items-center justify-center mb-4">
@@ -292,13 +569,19 @@ const Orders = () => {
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   {/* Product Info */}
                   <div className="flex items-start space-x-4 flex-1">
-                    <Image
-                      src={order.image}
-                      alt={order.productName}
-                      width={80}
-                      height={80}
-                      className="rounded-xl object-cover border-2 border-amber-200"
-                    />
+                    <div className="w-20 h-20 bg-white rounded-xl overflow-hidden border-2 border-amber-200 flex-shrink-0">
+                      <Image
+                        src={order.image}
+                        alt={order.productName}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "/placeholder-product.jpg";
+                        }}
+                      />
+                    </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg text-gray-800 mb-1">
                         {order.productName}
@@ -312,13 +595,18 @@ const Orders = () => {
                         <span className="font-bold text-pink-600">
                           {order.price}
                         </span>
-                        <span className="text-sm text-gray-500 line-through">
-                          {order.originalPrice}
-                        </span>
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          Save ₹
-                          {calculateSavings(order.price, order.originalPrice)}
-                        </span>
+                        {order.originalPrice && (
+                          <>
+                            <span className="text-sm text-gray-500 line-through">
+                              {order.originalPrice}
+                            </span>
+                            {calculateSavings(order) > 0 && (
+                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                Save ₹{calculateSavings(order)}
+                              </span>
+                            )}
+                          </>
+                        )}
                       </div>
                       <p className="text-sm text-gray-500 mt-1">
                         Ordered on {order.date}
@@ -348,7 +636,7 @@ const Orders = () => {
                         View Details
                       </button>
 
-                      {order.status === "delivered" && (
+                      {order.status.toLowerCase() === "delivered" && (
                         <button
                           onClick={() => writeReview(order)}
                           className="flex items-center gap-2 px-3 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors duration-200 text-sm"
@@ -358,7 +646,7 @@ const Orders = () => {
                         </button>
                       )}
 
-                      {order.status === "processing" && (
+                      {order.status.toLowerCase() === "processing" && (
                         <button
                           onClick={() => cancelOrder(order.id)}
                           className="flex items-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-200 text-sm"
@@ -396,7 +684,10 @@ const Orders = () => {
                   ? "You haven't placed any orders yet. Start shopping now!"
                   : `No ${activeFilter} orders found.`}
               </p>
-              <button className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              <button
+                onClick={() => (window.location.href = "/products")}
+                className="bg-gradient-to-r from-pink-500 to-amber-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
                 Start Shopping
               </button>
             </div>
@@ -424,13 +715,19 @@ const Orders = () => {
               <div className="space-y-6">
                 {/* Product Info */}
                 <div className="flex items-start space-x-4">
-                  <Image
-                    src={selectedOrder.image}
-                    alt={selectedOrder.productName}
-                    width={100}
-                    height={100}
-                    className="rounded-xl object-cover border-2 border-amber-200"
-                  />
+                  <div className="w-24 h-24 bg-white rounded-xl overflow-hidden border-2 border-amber-200 flex-shrink-0">
+                    <Image
+                      src={selectedOrder.image}
+                      alt={selectedOrder.productName}
+                      width={96}
+                      height={96}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "/placeholder-product.jpg";
+                      }}
+                    />
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-xl text-gray-800 mb-2">
                       {selectedOrder.productName}
@@ -457,16 +754,17 @@ const Orders = () => {
                       <span className="font-bold text-pink-600 text-lg">
                         {selectedOrder.price}
                       </span>
-                      <span className="text-gray-500 line-through">
-                        {selectedOrder.originalPrice}
-                      </span>
-                      <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        Save ₹
-                        {calculateSavings(
-                          selectedOrder.price,
-                          selectedOrder.originalPrice
+                      {selectedOrder.originalPrice && (
+                        <span className="text-gray-500 line-through">
+                          {selectedOrder.originalPrice}
+                        </span>
+                      )}
+                      {selectedOrder.originalPrice &&
+                        calculateSavings(selectedOrder) > 0 && (
+                          <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            Save ₹{calculateSavings(selectedOrder)}
+                          </span>
                         )}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -493,22 +791,42 @@ const Orders = () => {
                   </p>
                 </div>
 
-                {/* Tracking Info */}
+                {/* Additional Information */}
                 <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
                   <h4 className="font-medium text-amber-800 mb-2">
-                    Tracking Information
+                    Order Information
                   </h4>
                   <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium">Order ID:</span> #
+                      {selectedOrder.id}
+                    </div>
                     <div>
                       <span className="font-medium">Tracking ID:</span>{" "}
                       {selectedOrder.trackingId}
                     </div>
                     <div>
                       <span className="font-medium">Expected Delivery:</span>{" "}
-                      {selectedOrder.deliveryDate}
+                      {selectedOrder.deliveryDate || "Not available"}
+                    </div>
+                    <div>
+                      <span className="font-medium">Payment Method:</span>{" "}
+                      {selectedOrder.paymentMethod || "Credit Card"}
                     </div>
                   </div>
                 </div>
+
+                {/* Shipping Address */}
+                {selectedOrder.shippingAddress && (
+                  <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                    <h4 className="font-medium text-blue-800 mb-2">
+                      Shipping Address
+                    </h4>
+                    <p className="text-gray-600 text-sm">
+                      {selectedOrder.shippingAddress}
+                    </p>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-3 pt-4">
@@ -518,7 +836,7 @@ const Orders = () => {
                   >
                     Close
                   </button>
-                  {selectedOrder.status === "processing" && (
+                  {selectedOrder.status.toLowerCase() === "processing" && (
                     <button
                       onClick={() => {
                         cancelOrder(selectedOrder.id);
@@ -564,13 +882,19 @@ const Orders = () => {
 
               <form onSubmit={submitReview} className="space-y-4">
                 <div className="flex items-center space-x-4">
-                  <Image
-                    src={reviewProduct.image}
-                    alt={reviewProduct.productName}
-                    width={60}
-                    height={60}
-                    className="rounded-lg object-cover"
-                  />
+                  <div className="w-16 h-16 bg-white rounded-xl overflow-hidden border border-gray-200 flex-shrink-0">
+                    <Image
+                      src={reviewProduct.image}
+                      alt={reviewProduct.productName}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "/placeholder-product.jpg";
+                      }}
+                    />
+                  </div>
                   <div>
                     <h3 className="font-semibold text-gray-800">
                       {reviewProduct.productName}
@@ -603,9 +927,11 @@ const Orders = () => {
                     Review
                   </label>
                   <textarea
+                    name="review"
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300"
                     placeholder="Share your experience with this product..."
+                    required
                   />
                 </div>
 

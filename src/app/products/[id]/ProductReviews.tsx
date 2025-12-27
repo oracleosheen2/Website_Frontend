@@ -1,11 +1,21 @@
+// ProductReviews.tsx
 "use client";
 import React, { useState } from "react";
 import { Star, StarOff, X } from "lucide-react";
 import Image from "next/image";
-import { allProducts } from "@/utils/products";
+import { addProductReview } from "@/utils/api/api"; // ✅ Import API function
+
+interface Review {
+  name: string;
+  comment: string;
+  rating: number;
+  date: string;
+  avatar: string;
+}
 
 interface ProductReviewsProps {
   productId: number;
+  reviews: Review[]; // ✅ Props से reviews लें
 }
 
 interface ReviewForm {
@@ -15,10 +25,10 @@ interface ReviewForm {
   comment: string;
 }
 
-export default function ProductReviews({ productId }: ProductReviewsProps) {
-  const product = allProducts.find((p) => p.id === productId);
-  const reviews = product?.reviews || [];
-
+export default function ProductReviews({
+  productId,
+  reviews,
+}: ProductReviewsProps) {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
   const [formData, setFormData] = useState<ReviewForm>({
@@ -43,24 +53,38 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Yahan aap API call ya state update kar sakte hain
-    console.log("Review submitted:", formData);
 
-    // Reset form aur modal band karein
-    setFormData({
-      name: "",
-      email: "",
-      rating: 0,
-      comment: "",
-    });
-    setShowReviewModal(false);
+    try {
+      // ✅ API call to add review
+      await addProductReview(productId, {
+        name: formData.name,
+        comment: formData.comment,
+        rating: formData.rating,
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}`,
+      });
 
-    // Success message (aap toast ya alert use kar sakte hain)
-    alert(
-      "Thank you for your review! It will be published after verification."
-    );
+      // Reset form aur modal band karein
+      setFormData({
+        name: "",
+        email: "",
+        rating: 0,
+        comment: "",
+      });
+      setShowReviewModal(false);
+
+      // Success message
+      alert(
+        "Thank you for your review! It will be published after verification."
+      );
+
+      // Refresh page to show new review
+      window.location.reload();
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("Failed to submit review. Please try again.");
+    }
   };
 
   const isFormValid =

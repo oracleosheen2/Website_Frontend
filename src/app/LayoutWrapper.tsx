@@ -1,10 +1,13 @@
+// LayoutWrapper.tsx
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname } from "next/navigation"; // ❌ useRouter हटाएं
 import HeroHeader from "@/components/Hero/HeroHeader";
 import Footer from "@/components/Footer/Footer";
 import { CartProvider } from "@/contexts/CartContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 export default function LayoutWrapper({
   children,
@@ -12,19 +15,41 @@ export default function LayoutWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const hideHeaderFooter = pathname === "/login" || pathname === "/register";
+
+  // Auth routes (login/register pages)
+  const isAuthRoute =
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password";
+
+  // Hide header/footer ONLY on auth pages
+  const hideHeaderFooter = isAuthRoute;
 
   return (
-    <CartProvider>
-      <WishlistProvider>
-        <div className="min-h-screen flex flex-col">
-          {!hideHeaderFooter && <HeroHeader />}
+    <AuthProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <div className="min-h-screen flex flex-col">
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 2000, // ✅ 2 seconds
+                style: {
+                  background: "#363636",
+                  color: "#fff",
+                },
+              }}
+            />
 
-          <main className="flex-1">{children}</main>
+            {!hideHeaderFooter && <HeroHeader />}
 
-          {!hideHeaderFooter && <Footer />}
-        </div>
-      </WishlistProvider>
-    </CartProvider>
+            <main className="flex-1">{children}</main>
+
+            {!hideHeaderFooter && <Footer />}
+          </div>
+        </WishlistProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }
